@@ -66,9 +66,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Toggle1Disabled.png" />
-    <EmbeddedResource Include="Toggle1Off.png" />
-    <EmbeddedResource Include="Toggle1On.png" />
+    <EmbeddedResource Include="icons\Toggle1Disabled.png" />
+    <EmbeddedResource Include="icons\Toggle1Off.png" />
+    <EmbeddedResource Include="icons\Toggle1On.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
