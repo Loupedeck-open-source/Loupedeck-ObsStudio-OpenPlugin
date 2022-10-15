@@ -1,137 +1,198 @@
 ﻿namespace Loupedeck.GenStreamPlugin
 {
     using System;
+    using OBSWebsocketDotNet;
 
 
-    public class GenStreamProxy
+    public class GenStreamProxy : OBSWebsocketDotNet.OBSWebsocket
     {
         // Our 'own' events       
         public event EventHandler<EventArgs> EvtAppConnected;
         public event EventHandler<EventArgs> EvtAppDisconnected;
 
-        //Event forwarded from App.
-        // Toggle1 Toggled on in target application
-        public event EventHandler<EventArgs> AppEvtGenToggle1On;
-        // Toggle1 Toggled off in target application
-        public event EventHandler<EventArgs> AppEvtGenToggle1Off;
-
         // Properties
-        public Boolean IsAppConnected =>  this._app != null; 
-        public Object _app { get; private set; }
+        public Boolean IsAppConnected => this.IsConnected;
 
         public GenStreamProxy()
         {
-            this._app = null;
-            this.EvtAppConnected += this.OnAppConnected;
-            this.EvtAppDisconnected += this.OnAppDisconnected;
+            //OBS Websocket events
+            this.Connected += this.OnAppConnected;
+            this.Disconnected += this.OnAppDisconnected;
+            //this.OBSExit -= this.OnObsExit;
         }
+
         ~GenStreamProxy()
         {
-            this.EvtAppConnected -= this.OnAppConnected;
-            this.EvtAppDisconnected -= this.OnAppDisconnected;
+            this.Connected -= this.OnAppConnected;
+            this.Disconnected -= this.OnAppDisconnected;
         }
 
-        //Requests state from the app 
-        public Boolean IsGenToggle1On 
-        { get {
-                if (this.IsAppConnected)
-                {
-                    // Requesting state from app
-                    // _app->xxxxx
-                    return true;
-                }
-
-                return false;
-            } 
-        }
-
+        //Event forwarded from App.
         // Commands
-        public void AppGenericToggle1On() 
+
+        //
+        // RECORDING 
+        //
+        //Event forwarded from App.
+        // Recording Toggled on in target application
+        public event EventHandler<EventArgs> AppEvtRecordingOn;
+        // Recording Toggled off in target application
+        public event EventHandler<EventArgs> AppEvtRecordingOff;
+
+        private void OnObsRecordingStateChange(OBSWebsocket sender, OBSWebsocketDotNet.Types.OutputState newState)
         {
-/*          if (this.IsAppConnected)
+            if( (newState == OBSWebsocketDotNet.Types.OutputState.Started )  || (newState == OBSWebsocketDotNet.Types.OutputState.Starting) )
             {
-                Helpers.TryExecuteAction(() =>
-                    {
-                       _app.DoSomething()
-                    }
-                );
+                this.AppEvtRecordingOn?.Invoke(this, new EventArgs());
             }
-*/
+            else
+            {
+                this.AppEvtRecordingOff?.Invoke(this, new EventArgs());
+            }
         }
-
-        public void AppGenericToggle1Off()
+        public void AppToggleRecording()
         {
-            /*          if (this.IsAppConnected)
-                        {
-                            Helpers.TryExecuteAction(() =>
-                                {
-                                   _app.DoSomething()
-                                }
-                            );
-                        }
-            */
+            if (this.IsAppConnected)
+            {
+                Helpers.TryExecuteSafe(() => this.ToggleRecording());
+            }
         }
 
-        // Event forwarders
-        private void OnAppToggle1On() => this.AppEvtGenToggle1On?.Invoke(this, new EventArgs());
-        private void OnAppToggle1Off() => this.AppEvtGenToggle1Off?.Invoke(this, new EventArgs());
 
+        //
+        // STREAMING
+        //
+        //Event forwarded from App.
+        // Recording Toggled on in target application
+        public event EventHandler<EventArgs> AppEvtStreamingOn;
+        // Streaming Toggled off in target application
+        public event EventHandler<EventArgs> AppEvtStreamingOff;
+
+        private void OnObsStreamingStateChange(OBSWebsocket sender, OBSWebsocketDotNet.Types.OutputState newState)
+        {
+            if ((newState == OBSWebsocketDotNet.Types.OutputState.Started) || (newState == OBSWebsocketDotNet.Types.OutputState.Starting))
+            {
+                this.AppEvtStreamingOn?.Invoke(this, new EventArgs());
+            }
+            else
+            {
+                this.AppEvtStreamingOff?.Invoke(this, new EventArgs());
+            }
+        }
+        public void AppToggleStreaming()
+        {
+            if (this.IsAppConnected)
+            {
+                Helpers.TryExecuteSafe(() => this.ToggleStreaming());
+            }
+        }
+
+        //
+        // VIRTUAL CAM
+        //
+        //Event forwarded from App.
+        // Recording Toggled on in target application
+        public event EventHandler<EventArgs> AppEvtVirtualCamOn;
+        // VirtualCam Toggled off in target application
+        public event EventHandler<EventArgs> AppEvtVirtualCamOff;
+
+        private void OnObsVirtualCameraStarted(Object sender, EventArgs e) => this.AppEvtVirtualCamOn?.Invoke(this, new EventArgs());
+        private void OnObsVirtualCameraStopped(Object sender, EventArgs e) => this.AppEvtVirtualCamOff?.Invoke(this, new EventArgs());
+
+        public void AppToggleVirtualCam()
+        {
+            if (this.IsAppConnected)
+            {
+                Helpers.TryExecuteSafe(() => this.ToggleVirtualCam());
+            }
+        }
+
+        //
+        // STUDIO MODE
+        //
+        //Event forwarded from App.
+        // Recording Toggled on in target application
+        public event EventHandler<EventArgs> AppEvtStudioModeOn;
+        // StudioMode Toggled off in target application
+        public event EventHandler<EventArgs> AppEvtStudioModeOff;
+
+        private void OnObsStudioModeStateChange(OBSWebsocket sender, Boolean enabled)
+        {
+            if (enabled)
+            {
+                this.AppEvtStudioModeOn?.Invoke(this, new EventArgs());
+            }
+            else
+            {
+                this.AppEvtStudioModeOff?.Invoke(this, new EventArgs());
+            }
+        }
+        public void AppToggleStudioMode()
+        {
+            if (this.IsAppConnected)
+            {
+                Helpers.TryExecuteSafe(() => this.ToggleStudioMode());
+            }
+        }
+
+        // ----------------------------------
         private void OnAppConnected(Object sender, EventArgs e)
         {
+           
             // Subscribing to App events
-            // _app.Toggle1On += OnAppToggle1On;
-            // _app.Toggle1Off += OnAppToggle1Off;
+            // Fetching initial states for controls
+            // Notifying all subscribers on App Connected
+
+            this.RecordingStateChanged += this.OnObsRecordingStateChange;
+            this.StreamingStateChanged += this.OnObsStreamingStateChange;
+            this.VirtualCameraStarted  += this.OnObsVirtualCameraStarted;
+            this.VirtualCameraStopped  += this.OnObsVirtualCameraStopped;
+            this.StudioModeSwitched += this.OnObsStudioModeStateChange;
+
+
+            this.EvtAppConnected.Invoke(sender, e);
+
+            //Setting correct states
+            Helpers.TryExecuteSafe(() =>
+            {
+                var status = this.GetStreamingStatus();
+                if (status != null)
+                {
+                    this.OnObsRecordingStateChange(this, status.IsRecording ? OBSWebsocketDotNet.Types.OutputState.Started : OBSWebsocketDotNet.Types.OutputState.Stopped);
+                    this.OnObsStreamingStateChange(this, status.IsStreaming ? OBSWebsocketDotNet.Types.OutputState.Started : OBSWebsocketDotNet.Types.OutputState.Stopped);
+                }
+            });
+
+            Helpers.TryExecuteSafe(() =>
+            {
+                var status = this.GetVirtualCamStatus();
+                if( status != null && status.IsActive )
+                {
+                    this.OnObsVirtualCameraStarted(this, e);
+                } 
+                else
+                {
+                    this.OnObsVirtualCameraStopped(this, e);
+                }
+            });
+
+            Helpers.TryExecuteSafe(() =>
+            {
+                this.OnObsStudioModeStateChange(this, this.StudioModeEnabled());
+            });
 
         }
         private void OnAppDisconnected(Object sender, EventArgs e)
         {
             // Unsubscribing from App events here
-        }
+            this.RecordingStateChanged -= this.OnObsRecordingStateChange;
+            this.StreamingStateChanged -= this.OnObsStreamingStateChange;
+            this.VirtualCameraStarted -= this.OnObsVirtualCameraStarted;
+            this.VirtualCameraStopped -= this.OnObsVirtualCameraStopped;
+            this.StudioModeSwitched -= this.OnObsStudioModeStateChange;
 
-        public Boolean AttemptConnecting()
-        {
-            if (this.IsAppConnected)
-            {
-                return true;
-            }
-
-            try
-            {
-                Tracer.Warning($"GenStreamPlugin: Connecting..");
-                
-                this.EvtAppConnected?.Invoke(this, new EventArgs());
-
-            }
-            catch (Exception ex)
-            {
-                Tracer.Error($"GenStreamPlugin: Exception disconnecting :{ex.Message}, inner {ex.InnerException?.Message}");
-            }
-
-            return this.IsAppConnected;
-        }
-
-        public void Connect()
-        {
-            this.AttemptConnecting();
-        }
-
-        public void Disconnect()
-        {
-            if (!this.IsAppConnected)
-            {
-                return;
-            }
-
-            try
-            {
-                this.EvtAppDisconnected?.Invoke(this, new EventArgs());
-            }
-            catch (Exception ex)
-            {
-                Tracer.Error($"GenStreamPlugin: Exception :{ex.Message}, inner {ex.InnerException?.Message}");
-            }
-
-            this._app = null;
+            //Note, invoking 
+            this.EvtAppDisconnected?.Invoke(sender, e);
         }
     }
 }

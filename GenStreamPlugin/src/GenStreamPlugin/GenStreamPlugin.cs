@@ -6,13 +6,22 @@ namespace Loupedeck.GenStreamPlugin
 
     public class GenStreamPlugin : Plugin
     {
-        public GenStreamProxy Proxy = new GenStreamProxy();
-
+        public readonly GenStreamProxy Proxy;
+        
         // Gets a value indicating whether this is an Universal plugin or an Application plugin.
         public override Boolean UsesApplicationApiOnly => true;
 
         // Gets a value indicating whether this is an API-only plugin.
         public override Boolean HasNoApplication => true;
+
+        private readonly ObsConnector _connector;
+
+        public GenStreamPlugin()
+        {
+            this.Proxy = new GenStreamProxy();
+            this._connector = new ObsConnector(this.Proxy, this.GetPluginDataDirectory(),
+                                () => this.OnPluginStatusChanged(Loupedeck.PluginStatus.Warning, this.Localization.GetString("Connecting to OBS"), "https://support.loupedeck.com/obs-guide", ""));
+        }
 
         // Load is called once as plugin is being initialized during service start.
         public override void Load()
@@ -26,13 +35,7 @@ namespace Loupedeck.GenStreamPlugin
             this.Proxy.EvtAppConnected += this.OnAppConnStatusChange;
             this.Proxy.EvtAppDisconnected += this.OnAppConnStatusChange;
 
-            // If Loupedeck is started after App, check for the status.
-            // Otherwise, we will connect to App in OnApplicationStarted
-            if (this.ClientApplication.IsRunning())
-            {
-                Tracer.Trace("GenStreamPlugin: app already started: Running");
-                this.OnApplicationStarted(null, null);
-            }
+            this._connector.Start();
 
             this.Update_PluginStatus();
         }
@@ -40,6 +43,8 @@ namespace Loupedeck.GenStreamPlugin
         // Unload is called once when plugin is being unloaded.
         public override void Unload()
         {
+            this._connector.Stop();
+
             this.OnApplicationStopped(this, null);
 
             this.ClientApplication.ApplicationStarted -= this.OnApplicationStarted;
@@ -58,14 +63,12 @@ namespace Loupedeck.GenStreamPlugin
 
         private void OnApplicationStarted(Object sender, EventArgs e)
         {
-            Tracer.Trace("GenStreamPlugin:OnApplicationStarted");
-            this.Proxy.Connect();
+            
         }
 
         private void OnApplicationStopped(Object sender, EventArgs e)
         {
-            this.Proxy.Disconnect();
-            this.Update_PluginStatus();
+        
         }
 
         private void Update_PluginStatus()
