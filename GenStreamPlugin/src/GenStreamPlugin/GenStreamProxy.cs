@@ -18,7 +18,6 @@
             //OBS Websocket events
             this.Connected += this.OnAppConnected;
             this.Disconnected += this.OnAppDisconnected;
-            //this.OBSExit -= this.OnObsExit;
         }
 
         ~GenStreamProxy()
@@ -27,16 +26,10 @@
             this.Disconnected -= this.OnAppDisconnected;
         }
 
-        //Event forwarded from App.
-        // Commands
-
         //
         // RECORDING 
         //
-        //Event forwarded from App.
-        // Recording Toggled on in target application
         public event EventHandler<EventArgs> AppEvtRecordingOn;
-        // Recording Toggled off in target application
         public event EventHandler<EventArgs> AppEvtRecordingOff;
 
         private void OnObsRecordingStateChange(OBSWebsocket sender, OBSWebsocketDotNet.Types.OutputState newState)
@@ -62,10 +55,7 @@
         //
         // STREAMING
         //
-        //Event forwarded from App.
-        // Recording Toggled on in target application
         public event EventHandler<EventArgs> AppEvtStreamingOn;
-        // Streaming Toggled off in target application
         public event EventHandler<EventArgs> AppEvtStreamingOff;
 
         private void OnObsStreamingStateChange(OBSWebsocket sender, OBSWebsocketDotNet.Types.OutputState newState)
@@ -90,10 +80,7 @@
         //
         // VIRTUAL CAM
         //
-        //Event forwarded from App.
-        // Recording Toggled on in target application
         public event EventHandler<EventArgs> AppEvtVirtualCamOn;
-        // VirtualCam Toggled off in target application
         public event EventHandler<EventArgs> AppEvtVirtualCamOff;
 
         private void OnObsVirtualCameraStarted(Object sender, EventArgs e) => this.AppEvtVirtualCamOn?.Invoke(this, new EventArgs());
@@ -110,10 +97,7 @@
         //
         // STUDIO MODE
         //
-        //Event forwarded from App.
-        // Recording Toggled on in target application
         public event EventHandler<EventArgs> AppEvtStudioModeOn;
-        // StudioMode Toggled off in target application
         public event EventHandler<EventArgs> AppEvtStudioModeOff;
 
         private void OnObsStudioModeStateChange(OBSWebsocket sender, Boolean enabled)
@@ -138,35 +122,33 @@
         // ----------------------------------
         private void OnAppConnected(Object sender, EventArgs e)
         {
-           
-            // Subscribing to App events
-            // Fetching initial states for controls
-            // Notifying all subscribers on App Connected
 
+            // Subscribing to App events
+            // Notifying all subscribers on App Connected
+            // Fetching initial states for controls
             this.RecordingStateChanged += this.OnObsRecordingStateChange;
             this.StreamingStateChanged += this.OnObsStreamingStateChange;
             this.VirtualCameraStarted  += this.OnObsVirtualCameraStarted;
             this.VirtualCameraStopped  += this.OnObsVirtualCameraStopped;
             this.StudioModeSwitched += this.OnObsStudioModeStateChange;
 
-
             this.EvtAppConnected.Invoke(sender, e);
 
             //Setting correct states
             Helpers.TryExecuteSafe(() =>
             {
-                var status = this.GetStreamingStatus();
-                if (status != null)
+                var streamingStatus = this.GetStreamingStatus();
+                if (streamingStatus != null)
                 {
-                    this.OnObsRecordingStateChange(this, status.IsRecording ? OBSWebsocketDotNet.Types.OutputState.Started : OBSWebsocketDotNet.Types.OutputState.Stopped);
-                    this.OnObsStreamingStateChange(this, status.IsStreaming ? OBSWebsocketDotNet.Types.OutputState.Started : OBSWebsocketDotNet.Types.OutputState.Stopped);
+                    this.OnObsRecordingStateChange(this, streamingStatus.IsRecording ? OBSWebsocketDotNet.Types.OutputState.Started : OBSWebsocketDotNet.Types.OutputState.Stopped);
+                    this.OnObsStreamingStateChange(this, streamingStatus.IsStreaming ? OBSWebsocketDotNet.Types.OutputState.Started : OBSWebsocketDotNet.Types.OutputState.Stopped);
                 }
             });
 
             Helpers.TryExecuteSafe(() =>
             {
-                var status = this.GetVirtualCamStatus();
-                if( status != null && status.IsActive )
+                var vcamstatus = this.GetVirtualCamStatus();
+                if( vcamstatus != null && vcamstatus.IsActive )
                 {
                     this.OnObsVirtualCameraStarted(this, e);
                 } 
