@@ -13,10 +13,10 @@
                     "Toggle On", 
                     "Toggle Off"
                 },
-                new String[] { 
-                  "Loupedeck.GenStreamPlugin.icons.Toggle1Disabled.png",
-                  "Loupedeck.GenStreamPlugin.icons.Toggle1Off.png",
-                  "Loupedeck.GenStreamPlugin.icons.Toggle1On.png"
+                new String[] {
+                  "Loupedeck.GenStreamPlugin.icons.SoftwareNotFound.png",
+                  "Loupedeck.GenStreamPlugin.icons.STREAM_StartStreamingGreen.png",
+                  "Loupedeck.GenStreamPlugin.icons.STREAM_StopStreamingRed.png"
                 })
         {
 

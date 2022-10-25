@@ -10,13 +10,13 @@
                 : base("Toggles Recording", "Toggles Recording on or off", /*no group*/"", 
                 new String[] {  
                     "Command unavailable", 
-                    "Toggle On", 
-                    "Toggle Off"
+                    "Start Recording", 
+                    "Stop Recording"
                 },
-                new String[] { 
-                  "Loupedeck.GenStreamPlugin.icons.Toggle1Disabled.png",
-                  "Loupedeck.GenStreamPlugin.icons.Toggle1Off.png",
-                  "Loupedeck.GenStreamPlugin.icons.Toggle1On.png"
+                new String[] {
+                  "Loupedeck.GenStreamPlugin.icons.SoftwareNotFound.png",
+                  "Loupedeck.GenStreamPlugin.icons.STREAM_ToggleRecord1.png",
+                  "Loupedeck.GenStreamPlugin.icons.STREAM_ToggleRecord2.png"
                 })
         {
 

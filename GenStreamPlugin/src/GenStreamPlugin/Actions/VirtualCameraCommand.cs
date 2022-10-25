@@ -7,16 +7,16 @@
         private GenStreamProxy Proxy => (this.Plugin as GenStreamPlugin).Proxy;
 
         public VirtualCameraCommand() 
-                : base("Toggles VirtualCamera", "Toggles VirtualCamera on or off", /*no group*/"", 
+                : base("Virtual Camera", "Toggles Virtual Camera on or off", /*no group*/"", 
                 new String[] {  
                     "Command unavailable", 
-                    "Toggle On", 
-                    "Toggle Off"
+                    "Start Virtual Camera",
+                    "Stop Virtual Camera"
                 },
-                new String[] { 
-                  "Loupedeck.GenStreamPlugin.icons.Toggle1Disabled.png",
-                  "Loupedeck.GenStreamPlugin.icons.Toggle1Off.png",
-                  "Loupedeck.GenStreamPlugin.icons.Toggle1On.png"
+                new String[] {
+                  "Loupedeck.GenStreamPlugin.icons.SoftwareNotFound.png",
+                  "Loupedeck.GenStreamPlugin.icons.VirtualWebcam.png",
+                  "Loupedeck.GenStreamPlugin.icons.VirtualWebcamOff.png"
                 })
         {
 
