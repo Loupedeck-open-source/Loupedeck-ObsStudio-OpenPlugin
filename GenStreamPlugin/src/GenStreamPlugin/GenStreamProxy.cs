@@ -138,16 +138,16 @@
             Helpers.TryExecuteSafe(() =>
             {
                 var streamingStatus = this.GetStreamingStatus();
+                var vcamstatus = this.GetVirtualCamStatus();
+                var studioModeStatus = this.StudioModeEnabled();
+
                 if (streamingStatus != null)
                 {
                     this.OnObsRecordingStateChange(this, streamingStatus.IsRecording ? OBSWebsocketDotNet.Types.OutputState.Started : OBSWebsocketDotNet.Types.OutputState.Stopped);
                     this.OnObsStreamingStateChange(this, streamingStatus.IsStreaming ? OBSWebsocketDotNet.Types.OutputState.Started : OBSWebsocketDotNet.Types.OutputState.Stopped);
                 }
-            });
-
-            Helpers.TryExecuteSafe(() =>
-            {
-                var vcamstatus = this.GetVirtualCamStatus();
+          
+                
                 if( vcamstatus != null && vcamstatus.IsActive )
                 {
                     this.OnObsVirtualCameraStarted(this, e);
@@ -156,11 +156,8 @@
                 {
                     this.OnObsVirtualCameraStopped(this, e);
                 }
-            });
-
-            Helpers.TryExecuteSafe(() =>
-            {
-                this.OnObsStudioModeStateChange(this, this.StudioModeEnabled());
+                
+                this.OnObsStudioModeStateChange(this, studioModeStatus);
             });
 
         }
