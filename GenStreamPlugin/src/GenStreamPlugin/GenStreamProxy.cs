@@ -32,6 +32,7 @@
         public event EventHandler<EventArgs> AppEvtRecordingOn;
         public event EventHandler<EventArgs> AppEvtRecordingOff;
 
+        //FIXME: Provide customized images for starting/started... -- For that, create special event handler on Action side. 
         private void OnObsRecordingStateChange(OBSWebsocket sender, OBSWebsocketDotNet.Types.OutputState newState)
         {
             if( (newState == OBSWebsocketDotNet.Types.OutputState.Started )  || (newState == OBSWebsocketDotNet.Types.OutputState.Starting) )
@@ -119,6 +120,30 @@
             }
         }
 
+        //
+        // REPLAY BUFFER
+        //
+        public event EventHandler<EventArgs> AppEvtReplayBufferOn;
+        public event EventHandler<EventArgs> AppEvtReplayBufferOff;
+        private void OnObsReplayBufferStateChange(OBSWebsocket sender, OBSWebsocketDotNet.Types.OutputState newState)
+        {
+            if ((newState == OBSWebsocketDotNet.Types.OutputState.Started) || (newState == OBSWebsocketDotNet.Types.OutputState.Starting))
+            {
+                this.AppEvtReplayBufferOn?.Invoke(this, new EventArgs());
+            }
+            else
+            {
+                this.AppEvtReplayBufferOff?.Invoke(this, new EventArgs());
+            }
+        }
+
+        public void AppToggleReplayBuffer()
+        {
+            if (this.IsAppConnected)
+            {
+                Helpers.TryExecuteSafe(() => this.ToggleReplayBuffer());
+            }
+        }
         // ----------------------------------
         private void OnAppConnected(Object sender, EventArgs e)
         {
@@ -131,23 +156,24 @@
             this.VirtualCameraStarted  += this.OnObsVirtualCameraStarted;
             this.VirtualCameraStopped  += this.OnObsVirtualCameraStopped;
             this.StudioModeSwitched += this.OnObsStudioModeStateChange;
+            this.ReplayBufferStateChanged += this.OnObsReplayBufferStateChange;
 
-            this.EvtAppConnected.Invoke(sender, e);
+            this.EvtAppConnected?.Invoke(sender, e);
 
             //Setting correct states
             Helpers.TryExecuteSafe(() =>
             {
                 var streamingStatus = this.GetStreamingStatus();
+                var vcamstatus = this.GetVirtualCamStatus();
+                var studioModeStatus = this.StudioModeEnabled();
+
                 if (streamingStatus != null)
                 {
                     this.OnObsRecordingStateChange(this, streamingStatus.IsRecording ? OBSWebsocketDotNet.Types.OutputState.Started : OBSWebsocketDotNet.Types.OutputState.Stopped);
                     this.OnObsStreamingStateChange(this, streamingStatus.IsStreaming ? OBSWebsocketDotNet.Types.OutputState.Started : OBSWebsocketDotNet.Types.OutputState.Stopped);
                 }
-            });
-
-            Helpers.TryExecuteSafe(() =>
-            {
-                var vcamstatus = this.GetVirtualCamStatus();
+          
+                
                 if( vcamstatus != null && vcamstatus.IsActive )
                 {
                     this.OnObsVirtualCameraStarted(this, e);
@@ -156,11 +182,8 @@
                 {
                     this.OnObsVirtualCameraStopped(this, e);
                 }
-            });
-
-            Helpers.TryExecuteSafe(() =>
-            {
-                this.OnObsStudioModeStateChange(this, this.StudioModeEnabled());
+                
+                this.OnObsStudioModeStateChange(this, studioModeStatus);
             });
 
         }

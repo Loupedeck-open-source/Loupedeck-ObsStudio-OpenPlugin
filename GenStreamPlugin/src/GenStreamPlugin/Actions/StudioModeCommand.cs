@@ -7,16 +7,16 @@
         private GenStreamProxy Proxy => (this.Plugin as GenStreamPlugin).Proxy;
 
         public StudioModeCommand() 
-                : base("Toggles StudioMode", "Toggles StudioMode on or off", /*no group*/"", 
+                : base("Studio Mode", "Toggles Studio Mode on or off", /*no group*/"", 
                 new String[] {  
                     "Command unavailable", 
                     "Toggle On", 
                     "Toggle Off"
                 },
-                new String[] { 
-                  "Loupedeck.GenStreamPlugin.icons.Toggle1Disabled.png",
-                  "Loupedeck.GenStreamPlugin.icons.Toggle1Off.png",
-                  "Loupedeck.GenStreamPlugin.icons.Toggle1On.png"
+                new String[] {
+                  "Loupedeck.GenStreamPlugin.icons.SoftwareNotFound.png",
+                  "Loupedeck.GenStreamPlugin.icons.STREAM_EnableStudioMode.png",
+                  "Loupedeck.GenStreamPlugin.icons.STREAM_DisableStudioMode2.png"
                 })
         {
 
