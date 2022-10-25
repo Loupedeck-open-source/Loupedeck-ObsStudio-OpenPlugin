@@ -16,7 +16,39 @@ namespace Loupedeck.GenStreamPlugin
         // This method can be used to link the plugin to a macOS application.
         protected override String GetBundleName() => "";
 
-        // This method can be used to check whether the application is installed or not.
-        public override ClientApplicationStatus GetApplicationStatus() => ClientApplicationStatus.Unknown;
+        /// <summary>
+        /// Get installation root path for OBS Studio on Windows from Registry
+        /// </summary>
+        /// <returns>Path or empty string if OBS Studio not installed</returns>
+        public static String GetWindowsInstallationRoot() =>
+                                    Registry64.ReadValue(Registry64Hive.LocalMachine, @"SOFTWARE\OBS Studio", null) as String;
+
+        protected override String GetExecutablePath()
+        {
+            if (Helpers.IsWindows())
+            {
+                var path = GetWindowsInstallationRoot();
+
+                return path.IsNullOrEmpty() ? null : Path.Combine(path, "bin", "64bit", "obs64.exe");
+            }
+            else // Mac
+            {
+                return base.GetExecutablePath();
+            }
+        }
+
+        // For OBS Studio we can tell for sure, is it installed or not
+        public override ClientApplicationStatus GetApplicationStatus()
+        {
+            if (Helpers.IsWindows())
+            {
+                return File.Exists(this.GetExecutablePath())
+                                        ? ClientApplicationStatus.Installed
+                                        : ClientApplicationStatus.NotInstalled;
+            }
+            return ClientApplicationStatus.NotInstalled;
+        }
+
+
     }
 }
