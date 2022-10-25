@@ -7,8 +7,8 @@
         enum StateIndex
         {
             STATE_DISABLED = 0,
-            STATE_ON,
-            STATE_OFF
+            STATE_OFF,
+            STATE_ON
         };
 
         private GenStreamProxy Proxy => (this.Plugin as GenStreamPlugin).Proxy;
@@ -24,17 +24,15 @@
         /// <param name="stateNames">Array of 3 strings with Disabled, Off and On state names </param>
         /// <param name="stateImages">Array of 3 strings with Disabled, Off and On state images </param>
         /// 
-        public GenericOnOffSwitch(String displayName, String description, String groupName, String [] stateNames, String [] stateImages) 
-            : base(displayName, description, groupName)
+        public GenericOnOffSwitch(String displayName, String description, String groupName, String[] stateNames, String[] stateImages) : base(displayName,description,groupName)
         {
-            if( stateNames == null || stateNames.Length !=3 || stateImages == null || stateImages.Length != 3 )
+            if (stateNames == null || stateNames.Length != 3 || stateImages == null || stateImages.Length != 3)
             {
                 throw new ArgumentException("Cannot create Generic switch: Invalid state or images array");
             }
-
-            this.AddState("Disabled", stateNames[0]);
-            this.AddState("Off",      stateNames[1]);   // When in this state, toggle is is off
-            this.AddState("On",       stateNames[2]);   // When in this state, toggle is is on
+            this.AddState(stateNames[0], stateNames[0]);
+            this.AddState(stateNames[1], stateNames[1]);   // When in this state, toggle is is off
+            this.AddState(stateNames[2], stateNames[2]);   // When in this state, toggle is is on
             this.stateIcons = stateImages;
         }
 
@@ -71,10 +69,26 @@
         /// <param name="OffEvent">Event when the switch is turned off</param>
         protected abstract void DisconnectAppEvents(EventHandler<EventArgs> OnEvent, EventHandler<EventArgs> OffEvent);
 
+        private void SetStateTo(StateIndex newState)
+        {
+            if( this.TryGetCurrentStateIndex(out var currentStateIndex) )
+            {
+                if( currentStateIndex!=(Int32)newState)
+                {
+                    this.SetCurrentState((Int32)newState);
+                    this.ActionImageChanged();
+                }
+            }
+            else
+            {
+                Tracer.Warning("Cannot get new state");
+            }
+        }
+
         private void OnAppConnected(Object sender, EventArgs e) => this.AppEvtTurnedOff(sender, e); //Setting off by default
-        private void OnAppDisconnected(Object sender, EventArgs e) => this.SetCurrentState((Int32)StateIndex.STATE_DISABLED);
-        private void AppEvtTurnedOff(Object sender, EventArgs e) => this.SetCurrentState((Int32)StateIndex.STATE_OFF);
-        private void AppEvtTurnedOn(Object sender, EventArgs e) => this.SetCurrentState((Int32)StateIndex.STATE_ON);
+        private void OnAppDisconnected(Object sender, EventArgs e) => this.SetStateTo(StateIndex.STATE_DISABLED);
+        private void AppEvtTurnedOff(Object sender, EventArgs e) => this.SetStateTo(StateIndex.STATE_OFF);
+        private void AppEvtTurnedOn(Object sender, EventArgs e) => this.SetStateTo(StateIndex.STATE_ON);
 
         protected override BitmapImage GetCommandImage(String actionParameter, Int32 stateIndex, PluginImageSize imageSize) => EmbeddedResources.ReadImage(this.stateIcons[stateIndex]);
     }
