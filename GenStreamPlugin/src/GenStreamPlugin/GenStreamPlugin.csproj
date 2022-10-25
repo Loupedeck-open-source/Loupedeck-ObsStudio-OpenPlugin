@@ -57,6 +57,7 @@
   <ItemGroup>
     <Compile Include="Actions\GenericOnOffSwitch.cs" />
     <Compile Include="Actions\RecordingCommand.cs" />
+    <Compile Include="Actions\ReplayBufferCommand.cs" />
     <Compile Include="GenStreamProxy.cs" />
     <Compile Include="ObsConnector.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
