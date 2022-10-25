@@ -53,9 +53,8 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="websocket-sharp, Version=1.0.2.18939, Culture=neutral, PublicKeyToken=5660b08a1845a91e, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\..\Program Files (x86)\Loupedeck\Loupedeck2\websocket-sharp.dll</HintPath>
+    <Reference Include="websocket-sharp">
+      <HintPath>c:\Program Files (x86)\Loupedeck\Loupedeck2\websocket-sharp.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
