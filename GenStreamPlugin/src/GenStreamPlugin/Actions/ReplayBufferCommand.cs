@@ -32,6 +32,6 @@
             this.Proxy.AppEvtReplayBufferOn += OnEvent;
         }
 
-        protected override void RunCommand(String actionParameter) => this.Proxy.AppToggleVirtualCam();
+        protected override void RunCommand(String actionParameter) => this.Proxy.AppToggleReplayBuffer();
     }
 }
