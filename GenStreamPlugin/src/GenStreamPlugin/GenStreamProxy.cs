@@ -32,6 +32,7 @@
         public event EventHandler<EventArgs> AppEvtRecordingOn;
         public event EventHandler<EventArgs> AppEvtRecordingOff;
 
+        //FIXME: Provide customized images for starting/started... -- For that, create special event handler on Action side. 
         private void OnObsRecordingStateChange(OBSWebsocket sender, OBSWebsocketDotNet.Types.OutputState newState)
         {
             if( (newState == OBSWebsocketDotNet.Types.OutputState.Started )  || (newState == OBSWebsocketDotNet.Types.OutputState.Starting) )
@@ -132,7 +133,7 @@
             this.VirtualCameraStopped  += this.OnObsVirtualCameraStopped;
             this.StudioModeSwitched += this.OnObsStudioModeStateChange;
 
-            this.EvtAppConnected.Invoke(sender, e);
+            this.EvtAppConnected?.Invoke(sender, e);
 
             //Setting correct states
             Helpers.TryExecuteSafe(() =>
