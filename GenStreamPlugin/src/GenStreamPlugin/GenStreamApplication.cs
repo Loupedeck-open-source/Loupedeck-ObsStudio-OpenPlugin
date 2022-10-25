@@ -1,6 +1,7 @@
 namespace Loupedeck.GenStreamPlugin
 {
     using System;
+    using System.IO;
 
     // This class can be used to connect the Loupedeck plugin to an application.
 
