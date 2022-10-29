@@ -19,7 +19,7 @@ namespace Loupedeck.GenStreamPlugin
         public GenStreamPlugin()
         {
             this.Proxy = new GenStreamProxy();
-            this._connector = new ObsConnector(this.Proxy, this.GetPluginDataDirectory(),
+            this._connector = new ObsConnector(this.Proxy, this.GetPluginDataDirectory() +"\\..\\ObsStudio",  /*"C:\\Users\\Andrei Laperie\\AppData\\Local\\Loupedeck\\PluginData\\ObsStudio"/**/
                                 () => this.OnPluginStatusChanged(Loupedeck.PluginStatus.Warning, this.Localization.GetString("Connecting to OBS"), "https://support.loupedeck.com/obs-guide", ""));
         }
 
