@@ -19,7 +19,7 @@
         {
             this.Name = "Scene Collections";
             this.Description = "Activates Scene collection";
-            this.GroupName = "Scene Collection";
+            this.GroupName = "Scene Collections";
         }
 
         protected override Boolean OnLoad()
@@ -55,7 +55,7 @@
             }
             else if (actionParameter != null)
             {
-                this.Proxy.AppSwitchToScenCollection(actionParameter);
+                this.Proxy.AppSwitchToSceneCollection(actionParameter);
             }
         }
 
@@ -97,18 +97,11 @@
             } 
             else if ( (actionParameter != null) && this.Proxy.IsAppConnected )
             {
-                if (this.Proxy.CurrentSceneCollection == actionParameter)
-                {
-                    return EmbeddedResources.ReadImage(IMG_CollectionSelected);
-                } 
-                else if(this.Proxy.SceneCollections.Contains(actionParameter))
-                {
-                    return EmbeddedResources.ReadImage(IMG_CollectionUnselected);
-                } 
-                else
-                {
-                    return EmbeddedResources.ReadImage(IMG_CollectionInaccessible);
-                }
+                return this.Proxy.CurrentSceneCollection == actionParameter
+                    ? EmbeddedResources.ReadImage(IMG_CollectionSelected)
+                    : this.Proxy.SceneCollections.Contains(actionParameter)
+                        ? EmbeddedResources.ReadImage(IMG_CollectionUnselected)
+                        : EmbeddedResources.ReadImage(IMG_CollectionInaccessible);
 
             }
 
