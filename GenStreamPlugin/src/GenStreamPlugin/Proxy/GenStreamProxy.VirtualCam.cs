@@ -13,8 +13,16 @@
         public event EventHandler<EventArgs> AppEvtVirtualCamOn;
         public event EventHandler<EventArgs> AppEvtVirtualCamOff;
 
-        private void OnObsVirtualCameraStarted(Object sender, EventArgs e) => this.AppEvtVirtualCamOn?.Invoke(this, new EventArgs());
-        private void OnObsVirtualCameraStopped(Object sender, EventArgs e) => this.AppEvtVirtualCamOff?.Invoke(this, new EventArgs());
+        private void OnObsVirtualCameraStarted(Object sender, EventArgs e)
+        {
+            this.Trace("Obs Virtual camera started");
+            this.AppEvtVirtualCamOn?.Invoke(this, new EventArgs());
+        }
+        private void OnObsVirtualCameraStopped(Object sender, EventArgs e) {
+            this.Trace("Obs Virtual camera stopped");
+            this.AppEvtVirtualCamOff?.Invoke(this, new EventArgs());
+
+        }
 
         public void AppToggleVirtualCam()
         {

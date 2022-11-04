@@ -16,6 +16,8 @@
 
         private void OnObsStreamingStateChange(OBSWebsocket sender, OBSWebsocketDotNet.Types.OutputState newState)
         {
+            this.Trace($"OBS StreamingStateChange, new state {newState}");
+
             if ((newState == OBSWebsocketDotNet.Types.OutputState.Started) || (newState == OBSWebsocketDotNet.Types.OutputState.Starting))
             {
                 this.AppEvtStreamingOn?.Invoke(this, new EventArgs());
@@ -29,6 +31,7 @@
         {
             if (this.IsAppConnected)
             {
+                this.Trace("Toggling streaming");
                 Helpers.TryExecuteSafe(() => this.ToggleStreaming());
             }
         }

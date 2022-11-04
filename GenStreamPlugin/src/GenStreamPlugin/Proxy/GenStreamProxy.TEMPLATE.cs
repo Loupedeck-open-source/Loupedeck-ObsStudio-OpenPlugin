@@ -1,5 +1,5 @@
 ﻿namespace Loupedeck.GenStreamPlugin
-{
+ {
     using System;
     using System.Collections.Generic;
     using OBSWebsocketDotNet;

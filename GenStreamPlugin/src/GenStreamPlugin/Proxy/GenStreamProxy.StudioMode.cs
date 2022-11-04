@@ -15,6 +15,8 @@
 
         private void OnObsStudioModeStateChange(Object sender, Boolean enabled)
         {
+            this.Trace($"OBS StudioMode State change, enabled={enabled}");
+
             if (enabled)
             {
                 this.AppEvtStudioModeOn?.Invoke(this, new EventArgs());
@@ -28,6 +30,7 @@
         {
             if (this.IsAppConnected)
             {
+                this.Trace("Toggling studio mode");
                 Helpers.TryExecuteSafe(() => this.ToggleStudioMode());
             }
         }
