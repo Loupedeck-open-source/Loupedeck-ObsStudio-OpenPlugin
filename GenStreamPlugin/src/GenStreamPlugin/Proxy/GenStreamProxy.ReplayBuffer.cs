@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Generic;
     using OBSWebsocketDotNet;
-
+ 
     /// <summary>
     /// Proxy to OBS websocket server, for API reference see
     /// https://github.com/obsproject/obs-websocket/blob/4.x-compat/docs/generated/protocol.md
@@ -14,6 +14,8 @@
         public event EventHandler<EventArgs> AppEvtReplayBufferOff;
         private void OnObsReplayBufferStateChange(OBSWebsocket sender, OBSWebsocketDotNet.Types.OutputState newState)
         {
+            this.Trace($"OBS Replay buffer state change, new state {newState}");
+
             if ((newState == OBSWebsocketDotNet.Types.OutputState.Started) || (newState == OBSWebsocketDotNet.Types.OutputState.Starting))
             {
                 this.AppEvtReplayBufferOn?.Invoke(this, new EventArgs());
@@ -28,6 +30,8 @@
         {
             if (this.IsAppConnected)
             {
+                this.Trace("Toggle replayBuffer");
+
                 Helpers.TryExecuteSafe(() => this.ToggleReplayBuffer());
             }
         }
