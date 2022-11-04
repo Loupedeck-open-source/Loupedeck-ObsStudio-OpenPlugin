@@ -88,5 +88,23 @@ namespace Loupedeck.GenStreamPlugin
 
         }
 
+        /// <summary>
+        ///  Draws text over the bitmap. Bad location but in absence of the better components, put it here.
+        /// </summary>
+        public static BitmapImage NameOverBitmap(PluginImageSize imageSize, String imageName, String text)
+        {
+            using (var bitmapBuilder = new BitmapBuilder(imageSize))
+            {
+                bitmapBuilder.DrawImage(EmbeddedResources.ReadImage(imageName));
+
+                if (!String.IsNullOrEmpty(text))
+                {
+                    bitmapBuilder.DrawText(text);
+                }
+
+                return bitmapBuilder.ToImage();
+            }
+        }
+
     }
 }
