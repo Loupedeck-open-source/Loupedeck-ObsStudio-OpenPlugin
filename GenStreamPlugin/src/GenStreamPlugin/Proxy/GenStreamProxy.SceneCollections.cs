@@ -10,7 +10,6 @@
     /// </summary>
     public partial class GenStreamProxy 
     {
-
         public event EventHandler<EventArgs> AppEvtSceneCollectionsChanged;
         public event EventHandler<EventArgs> AppEvtCurrentSceneCollectionChanged;
 
@@ -20,17 +19,29 @@
 
         void OnObsSceneCollectionListChanged(Object sender, EventArgs e)
         {
+            this.Trace("OBS SceneCollectionList changed");
+
             if (Helpers.TryExecuteSafe(() => { this.SceneCollections = this.ListSceneCollections(); }))
             {
+                this.Trace($"Retreived list of {this.SceneCollections.Count} collections");
+
                 this.AppEvtSceneCollectionsChanged?.Invoke(sender, e);
             }
         }
 
         void OnObsSceneCollectionChanged(Object sender, EventArgs e)
         {
+            var oldSceneCollection = this.CurrentSceneCollection ; 
             if (Helpers.TryExecuteSafe(() => { this.CurrentSceneCollection = this.GetCurrentSceneCollection(); }))
             {
+                this.Trace($"OBS Current Scene collection changed from {oldSceneCollection} to {this.CurrentSceneCollection}");
+                //Regenerating all internal structures
+                this.OnObsSceneListChanged(sender, e);
                 this.AppEvtCurrentSceneCollectionChanged?.Invoke(sender, e);
+            }
+            else
+            {
+                this.Trace($"OBS Warning: cannot handle Collection Changed");
             }
         }
 
@@ -48,6 +59,7 @@
         {
             if (this.IsAppConnected && this.SceneCollections.Contains(newCollection) && this.CurrentSceneCollection != newCollection)
             {
+                this.Trace($"Switching to Scene Collection {newCollection}");
                 Helpers.TryExecuteSafe(() => this.SetCurrentSceneCollection(newCollection));
             }
 
