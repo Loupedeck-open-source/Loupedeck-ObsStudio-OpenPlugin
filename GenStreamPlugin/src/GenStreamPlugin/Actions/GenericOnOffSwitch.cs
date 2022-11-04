@@ -30,7 +30,7 @@
             {
                 throw new ArgumentException("Cannot create Generic switch: Invalid state or images array");
             }
-            this.AddState(stateNames[0], stateNames[0]);
+            // NOT ADDING STATE EXPLICITLY!  this.AddState(stateNames[0], stateNames[0]);
             this.AddState(stateNames[1], stateNames[1]);   // When in this state, toggle is is off
             this.AddState(stateNames[2], stateNames[2]);   // When in this state, toggle is is on
             this.stateIcons = stateImages;
@@ -81,15 +81,37 @@
             }
             else
             {
-                Tracer.Warning("Cannot get new state");
+                this.Proxy.Trace("Warning:Cannot get new state");
             }
         }
 
-        private void OnAppConnected(Object sender, EventArgs e) => this.AppEvtTurnedOff(sender, e); //Setting off by default
-        private void OnAppDisconnected(Object sender, EventArgs e) => this.SetStateTo(StateIndex.STATE_DISABLED);
+        private Boolean isEnabled;
+
+        private void OnAppConnected(Object sender, EventArgs e)
+        {
+            this.isEnabled = true;
+            this.AppEvtTurnedOff(sender, e); //Setting off by default
+        }
+        private void OnAppDisconnected(Object sender, EventArgs e)
+        {
+            this.isEnabled = false;
+        }
+
         private void AppEvtTurnedOff(Object sender, EventArgs e) => this.SetStateTo(StateIndex.STATE_OFF);
         private void AppEvtTurnedOn(Object sender, EventArgs e) => this.SetStateTo(StateIndex.STATE_ON);
 
-        protected override BitmapImage GetCommandImage(String actionParameter, Int32 stateIndex, PluginImageSize imageSize) => EmbeddedResources.ReadImage(this.stateIcons[stateIndex]);
+        protected override BitmapImage GetCommandImage(String actionParameter, Int32 stateIndex, PluginImageSize imageSize)
+        {
+            if( this.isEnabled )
+            { 
+                /*Note, -1 because we removed DISABLED state*/
+                return EmbeddedResources.ReadImage(this.stateIcons[stateIndex == 0 ? 1 : 2]);
+            }
+            else
+            {
+                return EmbeddedResources.ReadImage(this.stateIcons[0]);
+            }
+        }
+            
     }
 }
