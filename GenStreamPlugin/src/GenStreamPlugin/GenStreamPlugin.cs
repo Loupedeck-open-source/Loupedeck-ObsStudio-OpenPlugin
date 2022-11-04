@@ -19,7 +19,7 @@ namespace Loupedeck.GenStreamPlugin
         public GenStreamPlugin()
         {
             this.Proxy = new GenStreamProxy();
-            this._connector = new ObsConnector(this.Proxy, this.GetPluginDataDirectory(),
+            this._connector = new ObsConnector(this.Proxy, this.GetPluginDataDirectory() +"\\..\\ObsStudio",  /*"C:\\Users\\Andrei Laperie\\AppData\\Local\\Loupedeck\\PluginData\\ObsStudio"/**/
                                 () => this.OnPluginStatusChanged(Loupedeck.PluginStatus.Warning, this.Localization.GetString("Connecting to OBS"), "https://support.loupedeck.com/obs-guide", ""));
         }
 
@@ -86,6 +86,24 @@ namespace Loupedeck.GenStreamPlugin
                 this.OnPluginStatusChanged(Loupedeck.PluginStatus.Warning, "Not connected to App", "https://support.GenStreamPlugin.com", "more details");
             }
 
+        }
+
+        /// <summary>
+        ///  Draws text over the bitmap. Bad location but in absence of the better components, put it here.
+        /// </summary>
+        public static BitmapImage NameOverBitmap(PluginImageSize imageSize, String imageName, String text)
+        {
+            using (var bitmapBuilder = new BitmapBuilder(imageSize))
+            {
+                bitmapBuilder.DrawImage(EmbeddedResources.ReadImage(imageName));
+
+                if (!String.IsNullOrEmpty(text))
+                {
+                    bitmapBuilder.DrawText(text);
+                }
+
+                return bitmapBuilder.ToImage();
+            }
         }
 
     }

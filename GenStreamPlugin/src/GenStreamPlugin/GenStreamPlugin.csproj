@@ -56,6 +56,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Actions\GenericOnOffSwitch.cs" />
+    <Compile Include="Actions\SourceVisiblityCommand.cs" />
+    <Compile Include="Actions\SceneCommand.cs" />
     <Compile Include="Actions\SceneCollectionCommand.cs" />
     <Compile Include="Actions\RecordingCommand.cs" />
     <Compile Include="Actions\ReplayBufferCommand.cs" />
@@ -67,6 +69,16 @@
     <Compile Include="Actions\StreamingCommand.cs" />
     <Compile Include="Actions\StudioModeCommand.cs" />
     <Compile Include="Actions\VirtualCameraCommand.cs" />
+    <Compile Include="Proxy\GenStreamProxy.StudioMode.cs" />
+    <Compile Include="Proxy\GenStreamProxy.ReplayBuffer.cs" />
+    <Compile Include="Proxy\GenStreamProxy.Recording.cs" />
+    <Compile Include="Proxy\GenStreamProxy.SceneCollections.cs" />
+    <Compile Include="Proxy\GenStreamProxy.Scenes.cs" />
+    <Compile Include="Proxy\GenStreamProxy.Sources.cs" />
+    <Compile Include="Proxy\GenStreamProxy.Keys.cs" />
+    <Compile Include="Proxy\GenStreamProxy.TEMPLATE.cs" />
+    <Compile Include="Proxy\GenStreamProxy.VirtualCam.cs" />
+    <Compile Include="Proxy\GenStreamProxy.Streaming.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="metadata\LoupedeckPackage.yaml" />
