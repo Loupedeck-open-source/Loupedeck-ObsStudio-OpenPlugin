@@ -1,12 +1,44 @@
 ﻿namespace Loupedeck.GenStreamPlugin
 {
-    //TODO: Transform regions into partial class files 
-    //TODO: Move to the Vasily's switch class and remove 'disconnected' state
-    //TODO: Use single (?) device offline image for all unavailable actions?
+    //TODO: 
+
+
+    // Multistate-Parameter actions
+    //  General Audio Mute 
+    //  Volume Mixer Mute 
+
+    // Adjustments
+    //  General Audio
+    //  Volume Mixer
+
+
+    // Simple actions
+    //  Transition 
+    //  Save replay buffer
+
+    // Toggle
+    //  Recording pause/resumee
+
+
+
+    //Special
+    //  Universal toggle (Tree)
+
+    // CPU
+
+    //  Add Multistate-Parameter Profile
+
+    // ? Visualiue source action?
+
+    // For all actions,
+    //  - Handle added/deleted/created/destroyed signals (editing)
+
+    // --> FOr later, upgrade to new OBS websocket and see if port/password can be parsed from the Ini file in C:\Users\[User]\AppData\Roaming\obs-studio
+
+
     using System;
     using System.Collections.Generic;
-    using OBSWebsocketDotNet;
-
+    
     /// <summary>
     /// Proxy to OBS websocket server, for API reference see
     /// https://github.com/obsproject/obs-websocket/blob/4.x-compat/docs/generated/protocol.md
@@ -25,6 +57,7 @@
             //OBS Websocket events
             this.Connected += this.OnAppConnected;
             this.Disconnected += this.OnAppDisconnected;
+            this.currentSources = new Dictionary<String, SourceDictItem>();
         }
 
         ~GenStreamProxy()
@@ -33,9 +66,10 @@
             this.Disconnected -= this.OnAppDisconnected;
         }
 
-  
+        public void Trace(String s) => Tracer.Trace("GSP:"+s);
         private void OnAppConnected(Object sender, EventArgs e)
         {
+            this.Trace("Entering AppConnected");
             // Subscribing to App events
             // Notifying all subscribers on App Connected
             // Fetching initial states for controls
@@ -51,9 +85,16 @@
 
             this.SceneListChanged += this.OnObsSceneListChanged;
             this.SceneChanged += this.OnObsSceneChanged;
-
+            this.SceneItemVisibilityChanged += this.OnObsSceneItemVisibilityChanged;
+            this.SceneItemAdded += this.OnObsSceneItemAdded;
+            this.SceneItemRemoved += this.OnObsSceneItemRemoved;
+            /*
+            this.SceneItemSelected
+            this.SceneItemDeselected
+            */
             this.EvtAppConnected?.Invoke(sender, e);
 
+            this.Trace("AppConnected: Initializing data");
             Helpers.TryExecuteSafe(() =>
             {
                 var streamingStatus = this.GetStreamingStatus();
@@ -80,12 +121,15 @@
                 this.OnObsSceneCollectionListChanged(sender, e);
                 this.OnObsSceneCollectionChanged(sender, e);
 
-                this.OnObsSceneListChanged(sender, e);
+                // this.OnObsSceneListChanged(sender, e) is called form SceneCollectionChanged
+                
+
             });
 
         }
         private void OnAppDisconnected(Object sender, EventArgs e)
         {
+            this.Trace("Entering AppDisconnected");
             // Unsubscribing from App events here
             this.RecordingStateChanged -= this.OnObsRecordingStateChange;
             this.StreamingStateChanged -= this.OnObsStreamingStateChange;
@@ -98,6 +142,10 @@
 
             this.SceneListChanged -= this.OnObsSceneListChanged;
             this.SceneChanged -= this.OnObsSceneChanged;
+
+            this.SceneItemVisibilityChanged -= this.OnObsSceneItemVisibilityChanged;
+            this.SceneItemAdded -= this.OnObsSceneItemAdded;
+            this.SceneItemRemoved -= this.OnObsSceneItemRemoved;
 
             this.EvtAppDisconnected?.Invoke(sender, e);
         }
