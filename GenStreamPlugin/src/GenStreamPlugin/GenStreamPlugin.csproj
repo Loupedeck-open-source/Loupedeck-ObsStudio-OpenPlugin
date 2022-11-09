@@ -25,6 +25,10 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
+    <CodeAnalysisIgnoreGeneratedCode>true</CodeAnalysisIgnoreGeneratedCode>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -56,6 +60,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Actions\GenericOnOffSwitch.cs" />
+    <Compile Include="Actions\SourceVolumeAdjustment.cs" />
+    <Compile Include="Actions\SourceMuteCommand.cs" />
     <Compile Include="Actions\SourceVisiblityCommand.cs" />
     <Compile Include="Actions\SceneCommand.cs" />
     <Compile Include="Actions\SceneCollectionCommand.cs" />
@@ -76,6 +82,8 @@
     <Compile Include="Proxy\GenStreamProxy.Scenes.cs" />
     <Compile Include="Proxy\GenStreamProxy.Sources.cs" />
     <Compile Include="Proxy\GenStreamProxy.Keys.cs" />
+    <Compile Include="Proxy\GenStreamProxy.SceneItemDicitionary.cs" />
+    <Compile Include="Proxy\GenStreamProxy.Audio.cs" />
     <Compile Include="Proxy\GenStreamProxy.TEMPLATE.cs" />
     <Compile Include="Proxy\GenStreamProxy.VirtualCam.cs" />
     <Compile Include="Proxy\GenStreamProxy.Streaming.cs" />
