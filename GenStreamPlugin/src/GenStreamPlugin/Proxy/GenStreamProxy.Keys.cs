@@ -7,11 +7,13 @@
         public const String FieldSeparator = "||~~(%)~~||";
         public const String NothingField = "NONE";
         public String Scene;
+        //Synonym, since sources are used collection-wide
+        public String Source => this.Scene;
         public String Collection;
-        public SceneKey(String coll, String scene)
+        public SceneKey(String collection, String scene)
         {
             this.Scene = scene ?? NothingField;
-            this.Collection = coll ?? NothingField;
+            this.Collection = collection ?? NothingField;
         }
 
         private String Stringize()
@@ -45,7 +47,7 @@
 
     internal class SceneItemKey : SceneKey
     {
-        public String Source;
+        public new String Source;
         public SceneItemKey(String coll, String scene, String Source) : base(coll, scene) => this.Source = Source ?? NothingField;
         public String Stringize()
         {
