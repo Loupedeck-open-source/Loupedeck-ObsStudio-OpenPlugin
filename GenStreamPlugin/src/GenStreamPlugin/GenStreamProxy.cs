@@ -2,10 +2,11 @@
 {
     //TODO: 
 
+    //TEST: Scene item added / removed
 
     // Multistate-Parameter actions
+    //  * Volume Mixer Mute 
     //  General Audio Mute 
-    //  Volume Mixer Mute 
 
     // Adjustments
     //  General Audio
@@ -27,6 +28,9 @@
     // CPU
 
     //  Add Multistate-Parameter Profile
+
+    // Useful command -- RefreshBrowserSource
+    // NB for sources -- TakeSourceScreenshot
 
     // ? Visualiue source action?
 
@@ -57,7 +61,7 @@
             //OBS Websocket events
             this.Connected += this.OnAppConnected;
             this.Disconnected += this.OnAppDisconnected;
-            this.currentSources = new Dictionary<String, SourceDictItem>();
+            this.allSceneItems = new Dictionary<String, SceneItemDescriptor>();
         }
 
         ~GenStreamProxy()
@@ -70,6 +74,10 @@
         private void OnAppConnected(Object sender, EventArgs e)
         {
             this.Trace("Entering AppConnected");
+
+            this.OnAppConnected_RetreiveSourceTypes();
+            this.OnAppConnected_RetreiveSpecialSources();
+
             // Subscribing to App events
             // Notifying all subscribers on App Connected
             // Fetching initial states for controls
@@ -88,13 +96,14 @@
             this.SceneItemVisibilityChanged += this.OnObsSceneItemVisibilityChanged;
             this.SceneItemAdded += this.OnObsSceneItemAdded;
             this.SceneItemRemoved += this.OnObsSceneItemRemoved;
-            /*
-            this.SceneItemSelected
-            this.SceneItemDeselected
-            */
+            
+            this.SourceMuteStateChanged += this.OnObsSourceMuteStateChanged;
+            this.SourceVolumeChanged += this.OnObsSourceVolumeChanged;
+
             this.EvtAppConnected?.Invoke(sender, e);
 
             this.Trace("AppConnected: Initializing data");
+
             Helpers.TryExecuteSafe(() =>
             {
                 var streamingStatus = this.GetStreamingStatus();
@@ -146,6 +155,8 @@
             this.SceneItemVisibilityChanged -= this.OnObsSceneItemVisibilityChanged;
             this.SceneItemAdded -= this.OnObsSceneItemAdded;
             this.SceneItemRemoved -= this.OnObsSceneItemRemoved;
+
+            this.SourceMuteStateChanged -= this.OnObsSourceMuteStateChanged;
 
             this.EvtAppDisconnected?.Invoke(sender, e);
         }
