@@ -28,8 +28,8 @@
         }
         protected override void DisconnectAppEvents(EventHandler<EventArgs> OnEvent, EventHandler<EventArgs> OffEvent)
         {
-            this.Proxy.AppEvtStudioModeOff += OffEvent;
-            this.Proxy.AppEvtStudioModeOn += OnEvent;
+            this.Proxy.AppEvtStudioModeOff -= OffEvent;
+            this.Proxy.AppEvtStudioModeOn -= OnEvent;
         }
 
         protected override void RunCommand(String actionParameter) => this.Proxy.AppToggleStudioMode();
