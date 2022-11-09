@@ -92,10 +92,7 @@
             this.isEnabled = true;
             this.AppEvtTurnedOff(sender, e); //Setting off by default
         }
-        private void OnAppDisconnected(Object sender, EventArgs e)
-        {
-            this.isEnabled = false;
-        }
+        private void OnAppDisconnected(Object sender, EventArgs e) => this.isEnabled = false;
 
         private void AppEvtTurnedOff(Object sender, EventArgs e) => this.SetStateTo(StateIndex.STATE_OFF);
         private void AppEvtTurnedOn(Object sender, EventArgs e) => this.SetStateTo(StateIndex.STATE_ON);
