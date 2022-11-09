@@ -25,7 +25,6 @@
 
         protected override Boolean OnLoad()
         {
-
             this.Proxy.EvtAppConnected += this.OnAppConnected;
             this.Proxy.EvtAppDisconnected += this.OnAppDisconnected;
 
@@ -34,8 +33,8 @@
 
             this.Proxy.AppEvtSceneItemVisibilityChanged += this.OnSceneItemVisibilityChanged;
 
-            //this.Proxy.AppEvtSceneItemAdded += this.OnSceneItemAdded;
-            //this.Proxy.AppEvtSceneItemRemoved += this.OnSceneItemRemoved;
+            this.Proxy.AppEvtSceneItemAdded += this.OnSceneItemAdded;
+            this.Proxy.AppEvtSceneItemRemoved += this.OnSceneItemRemoved;
 
             this.OnAppDisconnected(this, null);
             
@@ -50,15 +49,30 @@
             this.Proxy.AppEvtSceneListChanged -= this.OnSceneListChanged;
             this.Proxy.AppEvtCurrentSceneChanged -= this.OnCurrentSceneChanged;
             this.Proxy.AppEvtSceneItemVisibilityChanged -= this.OnSceneItemVisibilityChanged;
-            
+
+            this.Proxy.AppEvtSceneItemAdded -= this.OnSceneItemAdded;
+            this.Proxy.AppEvtSceneItemRemoved -= this.OnSceneItemRemoved;
+
             return true;
         }
 
-        protected override void RunCommand(String actionParameter) => this.Proxy.ToggleSourceVisiblity(actionParameter);
+        protected override void RunCommand(String actionParameter) => this.Proxy.AppToggleSceneItemVisibility(actionParameter);
 
         private void OnSceneListChanged(Object sender, EventArgs e) => this.ResetParameters(true);
 
         private void OnCurrentSceneChanged(Object sender, EventArgs e) => this.ActionImageChanged();
+
+        private void OnSceneItemAdded(OBSWebsocketDotNet.OBSWebsocket sender, String sceneName, String itemName)
+        {
+            this.AddSceneItemParameter(sceneName, itemName);
+            this.ParametersChanged();
+        }
+
+        private void OnSceneItemRemoved(OBSWebsocketDotNet.OBSWebsocket sender, String sceneName, String itemName)
+        {
+            this.RemoveParameter(SceneItemKey.Encode(this.Proxy?.CurrentSceneCollection, sceneName, itemName));
+            this.ParametersChanged();
+        }
 
         private void OnAppConnected(Object sender, EventArgs e)
         { 
@@ -84,24 +98,20 @@
             {
                 sourceName = parsed.Source; 
 
-                if (parsed.Collection != this.Proxy.CurrentSceneCollection)
-                {
-                    imageName = IMG_SceneInaccessible;
-                }
-                else
-                {
-                    imageName = currentState == 1 ? IMG_SceneSelected : IMG_SceneUnselected;
-                }
+                imageName = parsed.Collection != this.Proxy.CurrentSceneCollection
+                    ? IMG_SceneInaccessible
+                    : currentState == 1 ? IMG_SceneSelected : IMG_SceneUnselected;
             }
 
             //FIXME: We need to learn to cache bitmaps. Here the key can be same 3 items: image name, state # and sourceName text
             return GenStreamPlugin.NameOverBitmap(imageSize, imageName, sourceName);
         }
-        internal void AddSceneItemParameter(String sceneName, String itemName, Boolean visible)
+
+        internal void AddSceneItemParameter(String sceneName, String itemName)
         {
             var key = SceneItemKey.Encode(this.Proxy.CurrentSceneCollection, sceneName, itemName);
             this.AddParameter(key, $"{itemName} ({sceneName})", this.GroupName);
-            this.SetCurrentState(key, visible ? 1 : 0);
+            this.SetCurrentState(key, this.Proxy.allSceneItems[key].Visible ? 1 : 0);
         }
 
         internal void ResetParameters(Boolean readContent)
@@ -110,11 +120,11 @@
 
             if (readContent)
             {
-                this.Proxy.Trace($"Adding {this.Proxy.currentSources?.Count} sources");
+                this.Proxy.Trace($"Adding {this.Proxy.allSceneItems?.Count} sources");
 
-                foreach (var item in this.Proxy.currentSources)
+                foreach (var item in this.Proxy.allSceneItems)
                 {
-                    this.AddSceneItemParameter(item.Value.SceneName, item.Value.SourceName, item.Value.Visible);
+                    this.AddSceneItemParameter(item.Value.SceneName, item.Value.SourceName);
                 }
             }
 
@@ -122,6 +132,4 @@
         }
 
     }
-
-
 }
