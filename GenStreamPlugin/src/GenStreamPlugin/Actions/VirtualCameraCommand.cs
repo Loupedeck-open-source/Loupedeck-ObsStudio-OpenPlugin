@@ -28,8 +28,8 @@
         }
         protected override void DisconnectAppEvents(EventHandler<EventArgs> OnEvent, EventHandler<EventArgs> OffEvent)
         {
-            this.Proxy.AppEvtVirtualCamOff += OffEvent;
-            this.Proxy.AppEvtVirtualCamOn += OnEvent;
+            this.Proxy.AppEvtVirtualCamOff -= OffEvent;
+            this.Proxy.AppEvtVirtualCamOn -= OnEvent;
         }
 
         protected override void RunCommand(String actionParameter) => this.Proxy.AppToggleVirtualCam();

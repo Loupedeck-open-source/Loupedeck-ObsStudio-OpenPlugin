@@ -28,8 +28,8 @@
         }
         protected override void DisconnectAppEvents(EventHandler<EventArgs> OnEvent, EventHandler<EventArgs> OffEvent)
         {
-            this.Proxy.AppEvtStreamingOff += OffEvent;
-            this.Proxy.AppEvtStreamingOn += OnEvent;
+            this.Proxy.AppEvtStreamingOff -= OffEvent;
+            this.Proxy.AppEvtStreamingOn -= OnEvent;
         }
         protected override void RunCommand(String actionParameter) => this.Proxy.AppToggleStreaming();
 
