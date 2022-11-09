@@ -1,6 +1,7 @@
 ﻿namespace Loupedeck.GenStreamPlugin.Actions
 {
     using System;
+    using System.Collections.Generic;
 
     class SourceVolumeAdjustment : PluginDynamicAdjustment
     {
@@ -12,10 +13,11 @@
         private const String IMG_SceneInaccessible = "Loupedeck.GenStreamPlugin.icons.CloseDesktop.png";
         private const String IMG_Offline = "Loupedeck.GenStreamPlugin.icons.SoftwareNotFound.png";
         private const String SourceNameUnknown = "Offline";
+        private const String SpecialSourceGroupName = "General Audio";
 
-        public SourceVolumeAdjustment() : base(true)
+        public SourceVolumeAdjustment() : base(false)
         {
-            this.Name = "Audio Soruce Volume Mixer";
+            this.Name = "Audio Source Volume Mixer";
             this.DisplayName = "Volume Mixer"; 
             this.Description = "Controls Audio Source Volume";
             this.GroupName = "Audio Sources";
@@ -29,10 +31,11 @@
             this.Proxy.AppEvtSceneListChanged += this.OnSceneListChanged;
             this.Proxy.AppEvtCurrentSceneChanged += this.OnCurrentSceneChanged;
 
+            this.Proxy.AppEvtSourceMuteStateChanged += this.OnSourceMuteStateChanged;
             this.Proxy.AppEvtSourceVolumeChanged += this.OnSourceVolumeChanged;
 
-            this.Proxy.AppEvtSceneItemAdded += this.OnSceneItemAdded;
-            this.Proxy.AppEvtSceneItemRemoved += this.OnSceneItemRemoved;
+            this.Proxy.AppEvtSourceCreated += this.OnSourceCreated;
+            this.Proxy.AppEvtSourceDestroyed += this.OnSourceDestroyed;
 
             this.OnAppDisconnected(this, null);
             
@@ -47,39 +50,23 @@
             this.Proxy.AppEvtSceneListChanged -= this.OnSceneListChanged;
             this.Proxy.AppEvtCurrentSceneChanged -= this.OnCurrentSceneChanged;
 
+            this.Proxy.AppEvtSourceMuteStateChanged -= this.OnSourceMuteStateChanged;
             this.Proxy.AppEvtSourceVolumeChanged -= this.OnSourceVolumeChanged;
 
-            this.Proxy.AppEvtSceneItemAdded -= this.OnSceneItemAdded;
-            this.Proxy.AppEvtSceneItemRemoved -= this.OnSceneItemRemoved;
+            this.Proxy.AppEvtSourceCreated -= this.OnSourceCreated;
+            this.Proxy.AppEvtSourceDestroyed -= this.OnSourceDestroyed;
 
             return true;
         }
 
-        protected override String GetAdjustmentDisplayName(String actionParameter, PluginImageSize imageSize)
-        {
-            if (SceneItemKey.TryParse(actionParameter, out var key))
-            {
-                return key.Source;
-            }
-            return SourceNameUnknown;
-        }
+        protected override String GetAdjustmentDisplayName(String actionParameter, PluginImageSize imageSize) => SceneItemKey.TryParse(actionParameter, out var key) ? key.Source : SourceNameUnknown;
 
 
         protected override void ApplyAdjustment(String actionParameter, Int32 diff)
         {
-            ///         protected override void ApplyAdjustment(String actionParameter, Int32 diff)
-            if (SceneItemKey.TryParse(actionParameter, out var key))
+            if (SceneKey.TryParse(actionParameter, out var key))
             {
-
-                this.Proxy.AppSetVolume(key.Scene, key.Source, this.Proxy.allSceneItems[actionParameter].AdjustVolume(diff));
-
-                if (!key.Scene.Equals(this.Proxy.CurrentScene.Name))
-                {
-                    //For non-current scene, we just adjust the state 
-                    //It'll be sent once key.scene will become current and Proxy.Synchronize... will execute
-                    
-                    //this.AdjustmentValueChanged();
-                }
+                this.Proxy.AppSetVolume(key.Source, diff);
             }
 
             this.AdjustmentValueChanged();
@@ -88,16 +75,10 @@
 
         protected override void RunCommand(String actionParameter)
         {
-            if( SceneItemKey.TryParse(actionParameter, out var key) )
+            if( SceneKey.TryParse(actionParameter, out var key) )
             {
                 //Pressing the button toggles mute
-                this.Proxy.AppToggleMute(key.Scene, key.Source);
-                if(!key.Scene.Equals(this.Proxy.CurrentScene.Name))
-                {
-                    //For non-current scene, we just flip the state without waiting for the 'on volume changed signal'.
-                    //It'll be sent once key.scene will become current and Proxy.SynchronizeMuteWithOBS will execute
-                    this.ActionImageChanged(actionParameter);
-                }
+                this.Proxy.AppToggleMute(key.Source);
             }
             else
             {
@@ -107,26 +88,31 @@
 
         protected override String GetAdjustmentValue(String actionParameter)
         {
-            var volume = this.Proxy.allSceneItems.ContainsKey(actionParameter) ? this.Proxy.allSceneItems[actionParameter].VolumeByLD : 0;
-            return $"{volume}";
+            var volume = "N/A"; 
+            if (SceneKey.TryParse(actionParameter, out var key))
+            {
+                var number = this.Proxy.AppGetVolume(key.Source) * 100.0F;
+                volume = number.ToString("0.");
+            }
+
+            return volume;
         }
 
+        protected void OnSourceMuteStateChanged(OBSWebsocketDotNet.OBSWebsocket sender, String sourceName, Boolean isMuted)
+        {
+            var actionParameter = SceneKey.Encode(this.Proxy.CurrentSceneCollection, sourceName);
+            //FIXME: Check if this 'has parameter' check is needed.
+            if (this.TryGetParameter(actionParameter, out var param))
+            {
+                this.muteStates[actionParameter] = isMuted;
+
+                this.ActionImageChanged();
+            }
+        }
 
         private void OnSceneListChanged(Object sender, EventArgs e) => this.ResetParameters(true);
 
         private void OnCurrentSceneChanged(Object sender, EventArgs e) => this.ActionImageChanged();
-
-        private void OnSceneItemAdded(OBSWebsocketDotNet.OBSWebsocket sender, String sceneName, String itemName)
-        {
-            this.AddSceneItemParameter(sceneName, itemName);
-            this.ParametersChanged();
-        }
-
-        private void OnSceneItemRemoved(OBSWebsocketDotNet.OBSWebsocket sender, String sceneName, String itemName)
-        {
-            this.RemoveParameter(SceneItemKey.Encode(this.Proxy?.CurrentSceneCollection, sceneName, itemName));
-            this.ParametersChanged();
-        }
 
         private void OnAppConnected(Object sender, EventArgs e)
         { 
@@ -141,13 +127,7 @@
 
         protected void OnSourceVolumeChanged(OBSWebsocketDotNet.OBSWebsocket sender, OBSWebsocketDotNet.Types.SourceVolume volume)
         {
-            var actionParameter = SceneItemKey.Encode(this.Proxy?.CurrentSceneCollection, this.Proxy?.CurrentScene.Name, volume.SourceName);
-            /*
-            if(!this.TryApplyAdjustment(actionParameter, (Int32)(volume.Volume * 100.0)))
-            {
-                Tracer.Warning($"Error setting volume{volume}, {volume.SourceName}");
-            }
-            */
+            var actionParameter = SceneKey.Encode(this.Proxy?.CurrentSceneCollection, volume.SourceName);
             this.AdjustmentValueChanged(actionParameter);
         }
 
@@ -167,24 +147,43 @@
             return GenStreamPlugin.NameOverBitmap(imageSize, imageName, sourceName);
         }
 
-        internal void AddSceneItemParameter(String sceneName, String itemName)
+        private void OnSourceCreated(String sourceName)
         {
-            var key = SceneItemKey.Encode(this.Proxy.CurrentSceneCollection, sceneName, itemName);
-            this.AddParameter(key, $"{itemName} ({sceneName})", this.GroupName);
-            
+            this.AddSource(sourceName);
+            this.ParametersChanged();
+        }
+
+        private void OnSourceDestroyed(String sourceName)
+        {
+            var key = SceneKey.Encode(this.Proxy.CurrentSceneCollection, sourceName);
+            if (this.TryGetParameter(key, out var param))
+            {
+                this.RemoveParameter(key);
+                this.muteStates.Remove(key);
+                this.ParametersChanged();
+            }
+
+        }
+
+        //Instead of State for Multistate actions, we will hold the mute state here
+        public Dictionary<String, Boolean> muteStates = new Dictionary<String, Boolean>();
+
+        internal void AddSource(String sourceName, Boolean isSpecialSource = false)
+        {
+            var key = SceneKey.Encode(this.Proxy.CurrentSceneCollection, sourceName);
+            this.AddParameter(key, $"{sourceName}", isSpecialSource ? SpecialSourceGroupName : this.GroupName);
+            this.muteStates[key] = this.Proxy.AppGetMute(sourceName);
         }
 
         internal void ResetParameters(Boolean readContent)
         {
             this.RemoveAllParameters();
-
+            this.muteStates.Clear();
             if (readContent)
             {
-                this.Proxy.Trace($"Adding {this.Proxy.allSceneItems?.Count} sources");
-
-                foreach (var item in this.Proxy.allSceneItems)
+                foreach (var item in this.Proxy.currentAudioSources)
                 {
-                    this.AddSceneItemParameter(item.Value.SceneName, item.Value.SourceName);
+                    this.AddSource(item.Key, item.Value.SpecialSource);
                 }
             }
 

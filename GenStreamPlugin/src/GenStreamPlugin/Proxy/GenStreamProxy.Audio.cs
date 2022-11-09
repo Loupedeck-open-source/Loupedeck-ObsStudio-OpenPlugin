@@ -13,115 +13,140 @@
 
         public SourceMuteStateChangedCallback AppEvtSourceMuteStateChanged;
         public SourceVolumeChangedCallback AppEvtSourceVolumeChanged;
+        
+        public class AudioSourceDesc
+        {
+            public Boolean SpecialSource; 
+            public Boolean Muted;
+            public Single Volume;
+            public AudioSourceDesc(String _name, OBSWebsocket _that, Boolean isSpecSource=false) 
+            { 
+               
+                this.Muted = false;
+                this.Volume = 0;
+                this.SpecialSource = isSpecSource;
 
-        public List<OBSWebsocketDotNet.Types.SourceInfo> currentAudioSources = new List<OBSWebsocketDotNet.Types.SourceInfo>();
+                try
+                {
+                    var v = _that.GetVolume(_name);
+                    this.Muted = v.Muted;
+                    this.Volume = v.Volume;
+                }  
+                catch (Exception ex)
+                {
+                    Tracer.Trace($"Exception {ex.Message} getting volume information for source {_name}");
+                }
+            }
+        };
+
+        public Dictionary<String, AudioSourceDesc> currentAudioSources = new Dictionary<String, AudioSourceDesc>();
+
         public Dictionary<String, String> specialSources = new Dictionary<String, String>();
 
         private readonly List<String> AudioSourceTypes = new List<String>();
-        private Boolean IsAudioSourceType(String type) => this.AudioSourceTypes.Contains(type);
 
+        //this.Trace($"Source Settings: Name: {settings.SourceName}, Kind {settings.SourceKind}, Type {settings.SourceType}.  IS AUDIO {this.AudioSourceTypes.Contains(settings.SourceType)}");
+        private Boolean IsAudioSourceType(OBSWebsocketDotNet.Types.SourceSettings settings) => this.AudioSourceTypes.Contains(settings.SourceKind ?? settings.SourceType);
 
-        public void OnObsSourceVolumeChanged(OBSWebsocket sender, OBSWebsocketDotNet.Types.SourceVolume volDesc)
+        public delegate void AppSourceCreatedCb(String sourceName);
+        public AppSourceCreatedCb AppEvtSourceCreated;
+        public AppSourceCreatedCb AppEvtSourceDestroyed;
+
+        private void OnObsSourceCreated(OBSWebsocket sender, OBSWebsocketDotNet.Types.SourceSettings settings)
         {
-            this.Trace($"OBS: Source {volDesc?.SourceName} volume changed to {volDesc?.Volume}");
-
-
-            //FIXME
-            //Based on the source name, we will route it to either 'normal audio source' or to 'general audio source'
-            
-            
-
-
-            //Note, setting VolumeByObs, which will reset 'is changed' flag. 
-            if (!Helpers.TryExecuteAction(() => this.allSceneItems[SceneItemKey.Encode(this.CurrentSceneCollection, this.CurrentScene.Name, volDesc.SourceName)].VolumebyObs = volDesc.Volume))
+            //Check if we should care
+            if(this.IsAudioSourceType( settings ))
             {
-                this.Trace($"Warning: Cannot update volume for source { volDesc?.SourceName} current scene.");
+                var src = new OBSWebsocketDotNet.Types.SourceInfo();
+                src.Name = settings.SourceName;
+                src.TypeID = settings.SourceType;
+                this.currentAudioSources[src.Name] = new AudioSourceDesc(src.Name, this);
+                this.AppEvtSourceCreated?.Invoke(src.Name);
+            }
+        }
+
+        private void OnObsSourceDestroyed(OBSWebsocket sender, String sourceName, String sourceType, String sourceKind)
+        {
+            if(this.currentAudioSources.ContainsKey(sourceName))
+            {
+                this.currentAudioSources.Remove(sourceName);
+                this.AppEvtSourceDestroyed?.Invoke(sourceName);
             }
             else
             {
-                this.AppEvtSourceVolumeChanged?.Invoke(sender, volDesc);
+                this.Trace($"SourceDestroyed: Source {sourceName} is not found in audioSources");
             }
         }
 
-        void OnObsSourceMuteStateChanged(OBSWebsocket sender, String sourceName, Boolean isMuted)
+        
+        private void OnObsSourceVolumeChanged(OBSWebsocket sender, OBSWebsocketDotNet.Types.SourceVolume volDesc)
         {
-            this.Trace($"OBS: Source {sourceName} mute state changed to {isMuted}");
+            if(! Helpers.TryExecuteAction(()=> this.currentAudioSources[volDesc.SourceName].Volume = volDesc.Volume))
+            {
+                this.Trace($"OBS: Error updating volume to {volDesc?.Volume} for source {volDesc?.SourceName}");
+            }
 
-            //Note, setting MutedByObs, which will reset 'is changed' flag. 
-            if (!Helpers.TryExecuteAction(() => this.allSceneItems[SceneItemKey.Encode(this.CurrentSceneCollection, this.CurrentScene.Name, sourceName)].MutedByObs = isMuted))
-            {
-                this.Trace($"Warning: Cannot update mute state for source {sourceName} current scene.");
-            }
-            else
-            {
-                this.AppEvtSourceMuteStateChanged?.Invoke(sender, sourceName, isMuted);
-            }
+            this.AppEvtSourceVolumeChanged?.Invoke(sender, volDesc);
         }
 
-        private void SyncAudioStateWithOBS()
+        private void OnObsSourceMuteStateChanged(OBSWebsocket sender, String sourceName, Boolean isMuted)
         {
-
-            //When changing current scene, make sure that
-            //  (a) if user has changed mute status  (AppTogglemute) for sources in other scene, it is set correctly
-            //  (b) those sources that have not been modified by user needs to get an up-to-date Mute status from OBS
-            foreach (var item in this.allSceneItems)
+            if (!Helpers.TryExecuteAction(() => this.currentAudioSources[sourceName].Muted = isMuted))
             {
-                if (!item.Value.SceneName.Equals(this.CurrentScene.Name) || !item.Value.Is_volume_controlled)
-                {
-                    continue;
-                }
-
-                //Doin' nothin' for current scene
-                var obsMute = this.GetMute(item.Value.SourceName);
-                if (item.Value.MutedByLD != obsMute)
-                {
-                    //Note. the expectation is that when Mute is actually toggled, we will receive an event 
-                    if (item.Value.ObsMuteUpdatePending)
-                    {
-                        //User has updated mute while source was not there. 
-                        this.SetMute(item.Value.SourceName, item.Value.MutedByLD);
-                    }
-                    else
-                    {
-                        item.Value.MutedByObs = obsMute;
-                    }
-                }
-                //FIXME: Check float comparison, with 0.1 precision
-                var volDesc = this.GetVolume(item.Value.SourceName);
-                if (item.Value.VolumeByLD != volDesc.Volume)
-                {
-                    if (item.Value.ObsVolumeUpdatePending)
-                    {
-                        //User has updated mute while source was not there. 
-                        this.SetVolume(item.Value.SourceName, item.Value.VolumeByLD);
-                    }
-                    else
-                    {
-                        item.Value.VolumebyObs = volDesc.Volume;
-                    }
-                }
+                this.Trace($"OBS: Error setting muted state to {isMuted} for source {sourceName}");
             }
-
+           
+            this.AppEvtSourceMuteStateChanged?.Invoke(sender, sourceName, isMuted);
         }
 
+        //NOTE: We are NOT going to OBS for mute and volume, using cached value instead -- This is for LD UI
+        public Boolean AppGetMute(String sourceName) =>
+            this.IsAppConnected & this.currentAudioSources.ContainsKey(sourceName) ? this.currentAudioSources[sourceName].Muted : false;
+
+        public Single AppGetVolume(String sourceName) =>
+            this.IsAppConnected & this.currentAudioSources.ContainsKey(sourceName) ? this.currentAudioSources[sourceName].Volume : (Single)0.0;
+
+        //Toggles mute on the source, returns current state of the mute. 
         public void AppToggleMute(String sourceName)
         {
-            // For all soureces, we swtching our mute flag
-            var key = SceneItemKey.Encode(this.CurrentSceneCollection, sceneName, sourceName);
-
-            this.allSceneItems[key].MutedByLD = !this.allSceneItems[key].MutedByLD;
-
-            if (sceneName.Equals(this.CurrentScene?.Name) && this.allSceneItems[key].ObsMuteUpdatePending)
+            if(this.IsAppConnected && this.currentAudioSources.ContainsKey(sourceName))
             {
-                // We switching mute only for the current scene 
-                this.SetMute(sourceName, this.allSceneItems[key].MutedByLD);
+                try
+                {
+                    var mute = this.AppGetMute(sourceName);
+                    this.SetMute(sourceName, !mute);
+                }
+                catch (Exception ex)
+                {
+                    this.Trace($"Warning: Exception {ex.InnerException.Message} -- Cannot set mute for source {sourceName}");
+                }
+            }
+            else
+            {
+                this.Trace($"Warning: source {sourceName} not found in current sources, ignoring");
             }
         }
-        public void AppSetVolume(String sceneName, String sourceName, Single volume)
+
+        public void AppSetVolume(String sourceName, Int32 diff_ticks)
         {
-            if (!Helpers.TryExecuteAction(() => this.SetVolume(sourceName, volume)))
+            if (this.IsAppConnected && this.currentAudioSources.ContainsKey(sourceName))
             {
-                this.Trace($"Warning! Cannot set volume of source {sourceName} to {volume}");
+                try
+                {
+                    var current = this.AppGetVolume(sourceName) + (Single) diff_ticks / 100.0F;
+
+                    current = (Single)(current < 0.0 ? 0.0 : (current > 1.0 ? 1.0 : current));
+
+                    this.SetVolume(sourceName, current);
+                }
+                catch (Exception ex)
+                {
+                    this.Trace($"Warning: Exception {ex.InnerException.Message} -- Cannot set volume for source {sourceName}");
+                }
+            }
+            else
+            {
+                this.Trace($"Warning: source {sourceName} not found in current sources, ignoring");
             }
         }
 
@@ -153,7 +178,8 @@
             {
                 foreach (var source in sources)
                 {
-                    this.specialSources[source.Key] = source.Value;
+                    this.specialSources.Add(source.Key,source.Value);
+                    this.Trace($"Adding Special source {source.Key} Val {source.Value}");
                 }
             }
             else
@@ -162,41 +188,35 @@
             }
         }
 
-        //SourceInfo
-        // Volume
-        // Audio 
-
         
         //Retreive audio sources from current collection
-        public void OnObsSceneCollectionChanged_RetreiveAudioSources()
+        private void OnObsSceneCollectionChanged_RetreiveAudioSources()
         {
             this.currentAudioSources.Clear();
-
-            if (Helpers.TryExecuteFunc(() => this.GetSourcesList(), out var sources))
+            try
             {
-                foreach (var source in sources)
+                foreach (var specSource in this.specialSources)
                 {
-                    if (this.IsAudioSourceType(source.TypeID))
+                    this.currentAudioSources.Add(specSource.Key, new AudioSourceDesc(specSource.Key, this, true));
+                    this.Trace($"Adding General audio source {specSource.Key}");
+                }
+                
+                foreach (var source in this.GetSourcesList())
+                {
+                    //NOTE: Special sources are seen as in GetSourcesList too! (they're present as 'value' specSource.Value
+                    if (!this.specialSources.ContainsValue(source.Name) && this.IsAudioSourceType(this.GetSourceSettings(source.Name)))
                     {
-                        this.currentAudioSources.Add(source);
+                        //Adding audio source and populating initial values
+                        this.currentAudioSources.Add(source.Name, new AudioSourceDesc(source.Name, this));
+                        this.Trace($"Adding Regular audio source {source.Name}");
                     }
                 }
             }
-            else
+            catch ( Exception ex )
             {
-                this.Trace($"Warning: Cannot retreive list of sources from current scene collection!");
+                //FIXME: Add Plugin Status -> Error here and to similar places
+                this.Trace($"Warning: Exception {ex.Message} when retreiving list of sources from current scene collection!");
             }
         }
-
-        // On Scene collection 
-/*
-        GetSourcesList
-
-        GetSourceTypesList
-        types.*.caps.hasAudio
-
-        GetSpecialSources
-*/
-
     }
 }

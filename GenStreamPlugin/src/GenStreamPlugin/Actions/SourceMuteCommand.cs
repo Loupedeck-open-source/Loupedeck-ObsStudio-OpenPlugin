@@ -7,11 +7,12 @@
 
         private GenStreamProxy Proxy => (this.Plugin as GenStreamPlugin).Proxy;
     
-        private const String IMG_SceneSelected = "Loupedeck.GenStreamPlugin.icons.SourceOn.png";
-        private const String IMG_SceneUnselected = "Loupedeck.GenStreamPlugin.icons.SourceOff.png";
-        private const String IMG_SceneInaccessible = "Loupedeck.GenStreamPlugin.icons.CloseDesktop.png";
+        private const String IMG_SourceMuted = "Loupedeck.GenStreamPlugin.icons.SourceOn.png";
+        private const String IMG_SourceUnmuted = "Loupedeck.GenStreamPlugin.icons.SourceOff.png";
+        private const String IMG_SourceInaccessible = "Loupedeck.GenStreamPlugin.icons.CloseDesktop.png";
         private const String IMG_Offline = "Loupedeck.GenStreamPlugin.icons.SoftwareNotFound.png";
         private const String SourceNameUnknown = "Offline";
+        private const String SpecialSourceGroupName = "General Audio";
 
         public SourceMuteCommand()
         {
@@ -33,8 +34,8 @@
 
             this.Proxy.AppEvtSourceMuteStateChanged += this.OnSourceMuteStateChanged;
 
-            this.Proxy.AppEvtSceneItemAdded += this.OnSceneItemAdded;
-            this.Proxy.AppEvtSceneItemRemoved += this.OnSceneItemRemoved;
+            this.Proxy.AppEvtSourceCreated += this.OnSourceCreated;
+            this.Proxy.AppEvtSourceDestroyed += this.OnSourceDestroyed;
 
             this.OnAppDisconnected(this, null);
             
@@ -50,24 +51,17 @@
             this.Proxy.AppEvtCurrentSceneChanged -= this.OnCurrentSceneChanged;
             this.Proxy.AppEvtSourceMuteStateChanged -= this.OnSourceMuteStateChanged;
 
-            this.Proxy.AppEvtSceneItemAdded -= this.OnSceneItemAdded;
-            this.Proxy.AppEvtSceneItemRemoved -= this.OnSceneItemRemoved;
+            this.Proxy.AppEvtSourceCreated -= this.OnSourceCreated;
+            this.Proxy.AppEvtSourceDestroyed -= this.OnSourceDestroyed;
 
             return true;
         }
 
         protected override void RunCommand(String actionParameter)
         {
-            if (SceneItemKey.TryParse(actionParameter, out var key) && key.Collection.Equals(this.Proxy.CurrentSceneCollection) )
+            if (SceneKey.TryParse(actionParameter, out var key) && key.Collection.Equals(this.Proxy.CurrentSceneCollection) )
             {
-                this.Proxy.AppToggleMute(key.Scene, key.Source);
-                if(!key.Scene.Equals(this.Proxy.CurrentScene.Name))
-                {
-                    //For non-current scene, we just flip the state without waiting for the 'on volume changed signal'.
-                    //It'll be sent once key.scene will become current and Proxy.SynchronizeMuteWithOBS will execute
-                    this.ToggleCurrentState(actionParameter);
-                    this.ActionImageChanged();
-                }
+                this.Proxy.AppToggleMute(key.Source);
             }
         }
 
@@ -75,21 +69,26 @@
 
         private void OnCurrentSceneChanged(Object sender, EventArgs e) => this.ActionImageChanged();
 
-        private void OnSceneItemAdded(OBSWebsocketDotNet.OBSWebsocket sender, String sceneName, String itemName)
+        private void OnSourceCreated(String sourceName)
         {
-            this.AddSceneItemParameter(sceneName, itemName);
+            this.AddSource(sourceName);
             this.ParametersChanged();
         }
 
-        private void OnSceneItemRemoved(OBSWebsocketDotNet.OBSWebsocket sender, String sceneName, String itemName)
+        private void OnSourceDestroyed(String sourceName)
         {
-            this.RemoveParameter(SceneItemKey.Encode(this.Proxy?.CurrentSceneCollection, sceneName, itemName));
-            this.ParametersChanged();
+            var key = SceneKey.Encode(this.Proxy.CurrentSceneCollection, sourceName);
+            if (this.TryGetParameter(key, out var param))
+            {
+                this.RemoveParameter(key);
+                this.ParametersChanged();
+            }
+            
         }
 
         private void OnAppConnected(Object sender, EventArgs e)
         { 
-            //We expect to get SceneCollectionChange so doin' nothin' here. 
+
         }
 
         private void OnAppDisconnected(Object sender, EventArgs e)
@@ -99,34 +98,37 @@
         }
         protected void OnSourceMuteStateChanged(OBSWebsocketDotNet.OBSWebsocket sender, String sourceName, Boolean isMuted)
         {
-            var actionParameter = SceneItemKey.Encode(this.Proxy?.CurrentSceneCollection, this.Proxy?.CurrentScene.Name, sourceName);
-            this.SetCurrentState(actionParameter, isMuted ? 0 : 1);
-        
-            this.ActionImageChanged();
+            var actionParameter = SceneKey.Encode(this.Proxy.CurrentSceneCollection, sourceName);
+            //FIXME: Check if this 'has parameter' check is needed.
+            if( this.TryGetParameter(actionParameter,out var param) )
+            {
+                this.SetCurrentState(actionParameter, isMuted ? 0 : 1);
+                this.ActionImageChanged();
+            }
         }
 
         protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
         {
             var sourceName = SourceNameUnknown;
             var imageName = IMG_Offline;
-            if ( SceneItemKey.TryParse(actionParameter, out var parsed) && this.TryGetCurrentStateIndex(actionParameter, out var currentState))
+            if ( SceneKey.TryParse(actionParameter, out var parsed) && this.TryGetCurrentStateIndex(actionParameter, out var currentState))
             {
                 sourceName = parsed.Source; 
 
                 imageName = parsed.Collection != this.Proxy.CurrentSceneCollection
-                    ? IMG_SceneInaccessible
-                    : currentState == 1 ? IMG_SceneSelected : IMG_SceneUnselected;
+                    ? IMG_SourceInaccessible
+                    : currentState == 1 ? IMG_SourceMuted : IMG_SourceUnmuted;
             }
 
             //FIXME: We need to learn to cache bitmaps. Here the key can be same 3 items: image name, state # and sourceName text
             return GenStreamPlugin.NameOverBitmap(imageSize, imageName, sourceName);
         }
 
-        internal void AddSceneItemParameter(String sceneName, String itemName)
+        internal void AddSource(String sourceName, Boolean isSpecialSource = false)
         {
-            var key = SceneItemKey.Encode(this.Proxy.CurrentSceneCollection, sceneName, itemName);
-            this.AddParameter(key, $"{itemName} ({sceneName})", this.GroupName);
-            this.SetCurrentState(key, this.Proxy.allSceneItems[key].Visible ? 1 : 0);
+            var key = SceneKey.Encode(this.Proxy.CurrentSceneCollection, sourceName);
+            this.AddParameter(key, $"{sourceName} mute", isSpecialSource ? SpecialSourceGroupName : this.GroupName);
+            this.SetCurrentState(key, this.Proxy.AppGetMute(sourceName) ? 0 : 1);
         }
 
         internal void ResetParameters(Boolean readContent)
@@ -135,11 +137,11 @@
 
             if (readContent)
             {
-                this.Proxy.Trace($"Adding {this.Proxy.allSceneItems?.Count} sources");
+                this.Proxy.Trace($"Adding {this.Proxy.currentAudioSources.Count} sources");
 
-                foreach (var item in this.Proxy.allSceneItems)
+                foreach (var item in this.Proxy.currentAudioSources)
                 {
-                    this.AddSceneItemParameter(item.Value.SceneName, item.Value.SourceName);
+                    this.AddSource(item.Key, item.Value.SpecialSource);
                 }
             }
 
