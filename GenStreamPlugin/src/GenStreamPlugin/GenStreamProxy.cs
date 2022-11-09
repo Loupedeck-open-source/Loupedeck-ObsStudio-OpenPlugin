@@ -6,29 +6,25 @@
 
     // Multistate-Parameter actions
     //  * Volume Mixer Mute 
-    //  General Audio Mute 
+    //  * Volume Mixer
+    //  * General Audio Mute 
+    //  * General Audio
 
-    // Adjustments
-    //  General Audio
-    //  Volume Mixer
-
+    // OnObsSourceRename
+    // HOW TO STOP SHOWING SOURCES THAT ARE NOT VISIBLE IN MIXER
 
     // Simple actions
     //  Transition 
     //  Save replay buffer
 
     // Toggle
-    //  Recording pause/resumee
-
+    //  Recording pause/resume
 
 
     //Special
     //  Universal toggle (Tree)
-
     // CPU
-
     //  Add Multistate-Parameter Profile
-
     // Useful command -- RefreshBrowserSource
     // NB for sources -- TakeSourceScreenshot
 
@@ -100,6 +96,9 @@
             this.SourceMuteStateChanged += this.OnObsSourceMuteStateChanged;
             this.SourceVolumeChanged += this.OnObsSourceVolumeChanged;
 
+            this.SourceCreated += this.OnObsSourceCreated;
+            this.SourceDestroyed += this.OnObsSourceDestroyed;
+
             this.EvtAppConnected?.Invoke(sender, e);
 
             this.Trace("AppConnected: Initializing data");
@@ -155,6 +154,9 @@
             this.SceneItemVisibilityChanged -= this.OnObsSceneItemVisibilityChanged;
             this.SceneItemAdded -= this.OnObsSceneItemAdded;
             this.SceneItemRemoved -= this.OnObsSceneItemRemoved;
+
+            this.SourceCreated -= this.OnObsSourceCreated;
+            this.SourceDestroyed -= this.OnObsSourceDestroyed;
 
             this.SourceMuteStateChanged -= this.OnObsSourceMuteStateChanged;
 
