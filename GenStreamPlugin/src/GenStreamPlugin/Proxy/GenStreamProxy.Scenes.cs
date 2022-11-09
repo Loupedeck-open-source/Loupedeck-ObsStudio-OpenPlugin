@@ -29,7 +29,7 @@
                 this.Trace($"OBS Rescanned scene list. Currently {this.Scenes.Count} scenes in collection {this.CurrentSceneCollection} ");
 
                 //Retreiving properties for all scenes
-                this.RetreiveAllSceneItemProps();
+                this.OnObsSceneCollectionChange_FetchSceneItems();
 
                 if(Helpers.TryExecuteFunc( ()=> { return this.GetCurrentScene(); }, out var scene))
                 {
@@ -43,6 +43,7 @@
                     this.Trace("OBS Warning: SceneListChanged: cannot fetch current scene");
                 }
 
+                this.OnObsSceneCollectionChanged_RetreiveAudioSources();
                 this.AppEvtSceneListChanged?.Invoke(sender, e);
             }
             else
@@ -67,6 +68,9 @@
                 {
                     this.Trace($"Warning: Cannot find scene {newScene} in current collection {this.CurrentSceneCollection}");
                 }
+
+                //Updating Mute status for sources
+                //this.SyncAudioStateWithOBS();
             }
             catch (Exception ex)
             {

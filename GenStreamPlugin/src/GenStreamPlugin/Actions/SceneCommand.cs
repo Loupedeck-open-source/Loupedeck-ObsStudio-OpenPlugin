@@ -16,7 +16,7 @@
         {
             this.Name = "Scenes";
             this.Description = "Activates Scene";
-            this.GroupName = "Scenes in current collection";
+            this.GroupName = "Scenes";
 
 
             this.AddState("Unselected", "Scene unselected");
@@ -112,14 +112,9 @@
             {
                 sceneName = parsed.Scene;
 
-                if (parsed.Collection != this.Proxy.CurrentSceneCollection)
-                {
-                    imageName = IMG_SceneInaccessible;
-                }
-                else
-                {
-                    imageName = currentState == 1 ? IMG_SceneSelected : IMG_SceneUnselected;
-                }
+                imageName = parsed.Collection != this.Proxy.CurrentSceneCollection
+                    ? IMG_SceneInaccessible
+                    : currentState == 1 ? IMG_SceneSelected : IMG_SceneUnselected;
             }
 
             return GenStreamPlugin.NameOverBitmap(imageSize, imageName, sceneName);

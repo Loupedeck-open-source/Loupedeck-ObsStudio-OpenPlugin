@@ -28,8 +28,8 @@
         }
         protected override void DisconnectAppEvents(EventHandler<EventArgs> OnEvent, EventHandler<EventArgs> OffEvent)
         {
-            this.Proxy.AppEvtRecordingOff += OffEvent;
-            this.Proxy.AppEvtRecordingOn += OnEvent;
+            this.Proxy.AppEvtRecordingOff -= OffEvent;
+            this.Proxy.AppEvtRecordingOn -= OnEvent;
         }
         protected override void RunCommand(String actionParameter) => this.Proxy.AppToggleRecording();
 

@@ -9,7 +9,6 @@
     
         private const String IMG_CollectionSelected = "Loupedeck.GenStreamPlugin.icons.SourceOn.png";
         private const String IMG_CollectionUnselected = "Loupedeck.GenStreamPlugin.icons.SourceOff.png";
-        private const String IMG_CollectionInaccessible = "Loupedeck.GenStreamPlugin.icons.CloseDesktop.png";
         private const String IMG_Offline = "Loupedeck.GenStreamPlugin.icons.SoftwareNotFound.png";
         private const String CollectionNameUnknown = "Offline";
 
@@ -20,7 +19,7 @@
             this.GroupName = "Scene Collections";
 
             this.AddState("Unselected", "Scene collection unselected");
-            this.AddState("Selected", "Scenc collection selected");
+            this.AddState("Selected", "Scene collection selected");
         }
 
         protected override Boolean OnLoad()
@@ -114,14 +113,7 @@
             if ( !String.IsNullOrEmpty(actionParameter) && this.Proxy.IsAppConnected)
             {
 
-                if (actionParameter == this.Proxy.CurrentSceneCollection)
-                {
-                    imageName = IMG_CollectionSelected;
-                }
-                else
-                {
-                    imageName = IMG_CollectionUnselected;
-                }
+                imageName = actionParameter == this.Proxy.CurrentSceneCollection ? IMG_CollectionSelected : IMG_CollectionUnselected;
             }
 
             return GenStreamPlugin.NameOverBitmap(imageSize, imageName, collName);

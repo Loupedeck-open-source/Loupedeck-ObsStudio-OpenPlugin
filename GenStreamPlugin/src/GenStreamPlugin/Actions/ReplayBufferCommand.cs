@@ -28,8 +28,8 @@
         }
         protected override void DisconnectAppEvents(EventHandler<EventArgs> OnEvent, EventHandler<EventArgs> OffEvent)
         {
-            this.Proxy.AppEvtReplayBufferOff += OffEvent;
-            this.Proxy.AppEvtReplayBufferOn += OnEvent;
+            this.Proxy.AppEvtReplayBufferOff -= OffEvent;
+            this.Proxy.AppEvtReplayBufferOn -= OnEvent;
         }
 
         protected override void RunCommand(String actionParameter) => this.Proxy.AppToggleReplayBuffer();
