@@ -74,28 +74,4 @@
         }
         public static String Encode(String coll, String scene, String source) => new SceneItemKey(coll, scene, source).Stringize();
     }
-    public class SourceDictItem
-    {
-        public String CollectionName;
-        public String SceneName;
-        public String SceneNameProp => this.SceneItemProps.ItemName;
-        public String SourceName => this.SceneItemDetails.SourceName;
-
-        public Boolean Visible { get { return this.SceneItemProps.Visible; } set { this.SceneItemProps.Visible = value; } }
-
-        private readonly OBSWebsocketDotNet.Types.SceneItemDetails SceneItemDetails;
-        private readonly OBSWebsocketDotNet.Types.SceneItemProperties SceneItemProps;
-        public SourceDictItem(String coll, String scene, OBSWebsocketDotNet.Types.SceneItemDetails item, OBSWebsocketDotNet.Types.SceneItemProperties props)
-        {
-            this.CollectionName = coll;
-            this.SceneItemDetails = item;
-            this.SceneItemProps = props;
-            this.SceneName = scene;
-
-            if (scene != this.SceneNameProp)
-            {
-                Tracer.Trace($"SourceDictItem ctor: Scene name {scene} Scene Name in details: { this.SceneNameProp}");
-            }
-        }
-    }
 }
