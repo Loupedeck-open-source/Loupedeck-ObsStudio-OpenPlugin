@@ -47,7 +47,5 @@ namespace Loupedeck.GenStreamPlugin
                                         : ClientApplicationStatus.NotInstalled
                 : ClientApplicationStatus.NotInstalled;
         }
-
-
     }
 }

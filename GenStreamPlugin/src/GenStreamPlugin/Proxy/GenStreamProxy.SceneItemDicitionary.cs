@@ -1,14 +1,15 @@
 ﻿namespace Loupedeck.GenStreamPlugin
- {
+{
     using System;
     using System.Collections.Generic;
+
     using OBSWebsocketDotNet;
 
     /// <summary>
     /// Proxy to OBS websocket server, for API reference see
     /// https://github.com/obsproject/obs-websocket/blob/4.x-compat/docs/generated/protocol.md
     /// </summary>
-    public partial class GenStreamProxy 
+    public partial class GenStreamProxy
     {
         // NOTE: The searching ONLY in the current scene
         private Boolean AddSceneItemToDictionary(String sceneName, String sourceName)
@@ -32,7 +33,7 @@
 
             if (sourceDictItem != null)
             {
-                this.allSceneItems.Add(SceneItemKey.Encode(this.CurrentSceneCollection, sceneName, item.SourceName),
+                this.AllSceneItems.Add(SceneItemKey.Encode(this.CurrentSceneCollection, sceneName, item.SourceName),
                                     sourceDictItem);
                 return true;
             }
@@ -41,17 +42,16 @@
                 this.Trace($"Cannot get props for item {item.SourceName} of scene {sceneName}");
                 return false;
             }
-
         }
 
-        //Retreives all scene items for all scenes in current collection
+        // Retreives all scene items for all scenes in current collection
         private void OnObsSceneCollectionChange_FetchSceneItems()
         {
-            this.allSceneItems.Clear();
+            this.AllSceneItems.Clear();
 
             this.Trace("Adding scene items");
 
-            //sources 
+            // sources
             foreach (var scene in this.Scenes)
             {
                 if (!Helpers.TryExecuteFunc(() => { return this.GetSceneItemList(scene.Name); }, out var sceneDetailsList))
@@ -68,7 +68,7 @@
                         var sourceDictItem = SceneItemDescriptor.CreateSourceDictItem(this.CurrentSceneCollection, scene.Name, sceneItem, this, null, item);
                         if (sourceDictItem != null)
                         {
-                            this.allSceneItems.Add(SceneItemKey.Encode(this.CurrentSceneCollection, scene.Name, item.SourceName), sourceDictItem);
+                            this.AllSceneItems.Add(SceneItemKey.Encode(this.CurrentSceneCollection, scene.Name, item.SourceName), sourceDictItem);
                         }
                         else
                         {
@@ -80,31 +80,32 @@
                         this.Trace($"Warning: Cannot get SceneItemList for scene {scene.Name}");
                     }
                 }
-
             }
         }
 
         /// <summary>
         /// Our own dictionary of scene items of all scenes in current collection, with all properties
-        /// Note: Scene item is an instance of the source in particular scene.  Most of the source 
+        /// Note: Scene item is an instance of the source in particular scene.  Most of the source
         /// properties are shared among scenes with just a few (like visibility) being scene-specif
-        /// 
+        ///
         /// </summary>
-         //'Main' dictionary, with Scene-Item ID being a key
-        //Dictionary 
-        public Dictionary<String, SceneItemDescriptor> allSceneItems = new Dictionary<String, SceneItemDescriptor>();
+         // 'Main' dictionary, with Scene-Item ID being a key
+        // Dictionary
+        public Dictionary<String, SceneItemDescriptor> AllSceneItems = new Dictionary<String, SceneItemDescriptor>();
 
         public class SceneItemDescriptor
         {
             public String CollectionName;
             public String SceneName;
+
             public String SceneNameProp => this.SceneItemProps.ItemName;
+
             public String SourceName => this.SceneItemDetails.SourceName;
 
             public Boolean Visible { get { return this.SceneItemProps.Visible; } set { this.SceneItemProps.Visible = value; } }
 
-            //private readonly volumeinfo;
-            private readonly OBSWebsocketDotNet.Types.SceneItem SceneItem;
+            // private readonly volumeinfo;
+            private readonly OBSWebsocketDotNet.Types.SceneItem _sceneItem;
             private readonly OBSWebsocketDotNet.Types.SceneItemDetails SceneItemDetails;
             private readonly OBSWebsocketDotNet.Types.SceneItemProperties SceneItemProps;
 
@@ -114,21 +115,21 @@
             /// <param name="in_collection">Collection</param>
             /// <param name="in_sceneName">SceneName</param>
             /// <param name="in_sceneItem">SceneItem descriptor</param>
-            /// <param name="_obs">OBS Websocket</param>
+            /// <param name="obs">OBS Websocket</param>
             /// <param name="in_props">properties</param>
             /// <param name="in_details">details</param>
             /// <returns></returns>
-            public static SceneItemDescriptor CreateSourceDictItem(String in_collection, String in_sceneName, OBSWebsocketDotNet.Types.SceneItem in_sceneItem, OBSWebsocketDotNet.OBSWebsocket _obs,
+            public static SceneItemDescriptor CreateSourceDictItem(String in_collection, String in_sceneName, OBSWebsocketDotNet.Types.SceneItem in_sceneItem, OBSWebsocketDotNet.OBSWebsocket obs,
                                     OBSWebsocketDotNet.Types.SceneItemProperties in_props = null, OBSWebsocketDotNet.Types.SceneItemDetails in_details = null)
             {
                 try
                 {
-                    var props = in_props ?? _obs.GetSceneItemProperties(in_sceneItem.SourceName, in_sceneName);
+                    var props = in_props ?? obs.GetSceneItemProperties(in_sceneItem.SourceName, in_sceneName);
                     var details = in_details;
 
                     if (in_details == null)
                     {
-                        var list = _obs.GetSceneItemList(in_sceneName);
+                        var list = obs.GetSceneItemList(in_sceneName);
                         foreach (var detail in list)
                         {
                             if (detail.SourceName == in_sceneItem.SourceName)
@@ -159,7 +160,7 @@
             protected SceneItemDescriptor(String coll, String scene, OBSWebsocketDotNet.Types.SceneItem item, OBSWebsocketDotNet.Types.SceneItemDetails details, OBSWebsocketDotNet.Types.SceneItemProperties props)
             {
                 this.CollectionName = coll;
-                this.SceneItem = item;
+                this._sceneItem = item;
                 this.SceneName = scene;
                 this.SceneItemDetails = details;
                 this.SceneItemProps = props;
@@ -170,7 +171,6 @@
                 }
             }
         }
-
     }
 }
 

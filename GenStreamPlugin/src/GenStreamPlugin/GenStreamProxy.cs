@@ -1,27 +1,25 @@
 ﻿namespace Loupedeck.GenStreamPlugin
 {
-    //TODO: 
+    // TODO:
 
-    //TEST: Scene item added / removed
+    // TEST: Scene item added / removed
 
     // Multistate-Parameter actions
-    //  * Volume Mixer Mute 
+    //  * Volume Mixer Mute
     //  * Volume Mixer
-    //  * General Audio Mute 
+    //  * General Audio Mute
     //  * General Audio
 
     // OnObsSourceRename
     // HOW TO STOP SHOWING SOURCES THAT ARE NOT VISIBLE IN MIXER
 
     // Simple actions
-    //  Transition 
+    //  Transition
     //  Save replay buffer
 
     // Toggle
     //  Recording pause/resume
-
-
-    //Special
+    // Special
     //  Universal toggle (Tree)
     // CPU
     //  Add Multistate-Parameter Profile
@@ -35,18 +33,17 @@
 
     // --> FOr later, upgrade to new OBS websocket and see if port/password can be parsed from the Ini file in C:\Users\[User]\AppData\Roaming\obs-studio
 
-
     using System;
-    using System.Collections.Generic;
-    
+
     /// <summary>
     /// Proxy to OBS websocket server, for API reference see
     /// https://github.com/obsproject/obs-websocket/blob/4.x-compat/docs/generated/protocol.md
     /// </summary>
     public partial class GenStreamProxy : OBSWebsocketDotNet.OBSWebsocket
     {
-        // Our 'own' events       
+        // Our 'own' events
         public event EventHandler<EventArgs> EvtAppConnected;
+
         public event EventHandler<EventArgs> EvtAppDisconnected;
 
         // Properties
@@ -54,10 +51,9 @@
 
         public GenStreamProxy()
         {
-            //OBS Websocket events
+            // OBS Websocket events
             this.Connected += this.OnAppConnected;
             this.Disconnected += this.OnAppDisconnected;
-            
         }
 
         ~GenStreamProxy()
@@ -66,7 +62,8 @@
             this.Disconnected -= this.OnAppDisconnected;
         }
 
-        public void Trace(String s) => Tracer.Trace("GSP:"+s);
+        public void Trace(String s) => Tracer.Trace("GSP:" + s);
+
         private void OnAppConnected(Object sender, EventArgs e)
         {
             this.Trace("Entering AppConnected");
@@ -79,8 +76,8 @@
             // Fetching initial states for controls
             this.RecordingStateChanged += this.OnObsRecordingStateChange;
             this.StreamingStateChanged += this.OnObsStreamingStateChange;
-            this.VirtualCameraStarted  += this.OnObsVirtualCameraStarted;
-            this.VirtualCameraStopped  += this.OnObsVirtualCameraStopped;
+            this.VirtualCameraStarted += this.OnObsVirtualCameraStarted;
+            this.VirtualCameraStopped += this.OnObsVirtualCameraStopped;
             this.StudioModeSwitched += this.OnObsStudioModeStateChange;
             this.ReplayBufferStateChanged += this.OnObsReplayBufferStateChange;
 
@@ -92,7 +89,7 @@
             this.SceneItemVisibilityChanged += this.OnObsSceneItemVisibilityChanged;
             this.SceneItemAdded += this.OnObsSceneItemAdded;
             this.SceneItemRemoved += this.OnObsSceneItemRemoved;
-            
+
             this.SourceMuteStateChanged += this.OnObsSourceMuteStateChanged;
             this.SourceVolumeChanged += this.OnObsSourceVolumeChanged;
 
@@ -114,11 +111,11 @@
                     this.OnObsRecordingStateChange(this, streamingStatus.IsRecording ? OBSWebsocketDotNet.Types.OutputState.Started : OBSWebsocketDotNet.Types.OutputState.Stopped);
                     this.OnObsStreamingStateChange(this, streamingStatus.IsStreaming ? OBSWebsocketDotNet.Types.OutputState.Started : OBSWebsocketDotNet.Types.OutputState.Stopped);
                 }
-                
-                if( vcamstatus != null && vcamstatus.IsActive )
+
+                if (vcamstatus != null && vcamstatus.IsActive)
                 {
                     this.OnObsVirtualCameraStarted(sender, e);
-                } 
+                }
                 else
                 {
                     this.OnObsVirtualCameraStopped(sender, e);
@@ -130,14 +127,13 @@
                 this.OnObsSceneCollectionChanged(sender, e);
 
                 // this.OnObsSceneListChanged(sender, e) is called form SceneCollectionChanged
-                
-
             });
-
         }
+
         private void OnAppDisconnected(Object sender, EventArgs e)
         {
             this.Trace("Entering AppDisconnected");
+
             // Unsubscribing from App events here
             this.RecordingStateChanged -= this.OnObsRecordingStateChange;
             this.StreamingStateChanged -= this.OnObsStreamingStateChange;

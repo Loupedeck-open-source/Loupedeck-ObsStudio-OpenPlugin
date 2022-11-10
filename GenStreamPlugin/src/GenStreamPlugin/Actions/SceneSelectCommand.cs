@@ -2,14 +2,14 @@
 {
     using System;
 
-    class SceneSelectCommand : PluginMultistateDynamicCommand
+    public class SceneSelectCommand : PluginMultistateDynamicCommand
     {
         private GenStreamProxy Proxy => (this.Plugin as GenStreamPlugin).Proxy;
-    
-        private const String IMG_SceneSelected = "Loupedeck.GenStreamPlugin.icons.SceneOn.png";
-        private const String IMG_SceneUnselected = "Loupedeck.GenStreamPlugin.icons.SceneOff.png";
-        private const String IMG_SceneInaccessible = "Loupedeck.GenStreamPlugin.icons.CloseDesktop.png";
-        private const String IMG_Offline = "Loupedeck.GenStreamPlugin.icons.SoftwareNotFound.png";
+
+        private const String IMGSceneSelected = "Loupedeck.GenStreamPlugin.icons.SceneOn.png";
+        private const String IMGSceneUnselected = "Loupedeck.GenStreamPlugin.icons.SceneOff.png";
+        private const String IMGSceneInaccessible = "Loupedeck.GenStreamPlugin.icons.CloseDesktop.png";
+        private const String IMGOffline = "Loupedeck.GenStreamPlugin.icons.SoftwareNotFound.png";
         private const String SceneNameUnknown = "Offline";
 
         public SceneSelectCommand()
@@ -18,14 +18,12 @@
             this.Description = "Activates Scene";
             this.GroupName = "Scenes";
 
-
             this.AddState("Unselected", "Scene unselected");
             this.AddState("Selected", "Scene selected");
         }
 
         protected override Boolean OnLoad()
         {
-
             this.Proxy.EvtAppConnected += this.OnAppConnected;
             this.Proxy.EvtAppDisconnected += this.OnAppDisconnected;
 
@@ -55,12 +53,12 @@
                 this.Proxy.AppSwitchToScene(key.Scene);
             }
         }
-        
+
         private void ResetParameters(Boolean readContent)
         {
             this.RemoveAllParameters();
 
-            if(readContent)
+            if (readContent)
             {
                 this.Proxy.Trace($"Adding {this.Proxy.Scenes?.Count} scene items");
                 foreach (var scene in this.Proxy.Scenes)
@@ -80,7 +78,7 @@
         private void OnCurrentSceneChanged(Object sender, EventArgs e)
         {
             // resetting selection
-            foreach(var par in this.GetParameters())
+            foreach (var par in this.GetParameters())
             {
                 this.SetCurrentState(par.Name, 0);
             }
@@ -94,8 +92,8 @@
         }
 
         private void OnAppConnected(Object sender, EventArgs e)
-        { 
-            //We expect to get SceneCollectionChange so doin' nothin' here. 
+        {
+            // We expect to get SceneCollectionChange so doin' nothin' here.
         }
 
         private void OnAppDisconnected(Object sender, EventArgs e)
@@ -106,19 +104,18 @@
 
         protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
         {
-            var imageName = IMG_Offline;
+            var imageName = IMGOffline;
             var sceneName = SceneNameUnknown;
             if (SceneKey.TryParse(actionParameter, out var parsed) && this.TryGetCurrentStateIndex(actionParameter, out var currentState))
             {
                 sceneName = parsed.Scene;
 
                 imageName = parsed.Collection != this.Proxy.CurrentSceneCollection
-                    ? IMG_SceneInaccessible
-                    : currentState == 1 ? IMG_SceneSelected : IMG_SceneUnselected;
+                    ? IMGSceneInaccessible
+                    : currentState == 1 ? IMGSceneSelected : IMGSceneUnselected;
             }
 
             return GenStreamPlugin.NameOverBitmap(imageSize, imageName, sceneName);
         }
-
     }
 }

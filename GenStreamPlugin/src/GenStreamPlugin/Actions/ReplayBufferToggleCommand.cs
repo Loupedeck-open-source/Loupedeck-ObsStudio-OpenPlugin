@@ -6,10 +6,10 @@
     {
         private GenStreamProxy Proxy => (this.Plugin as GenStreamPlugin).Proxy;
 
-        public ReplayBufferToggleCommand() 
-                : base("Replay Buffer", "Toggles Replay Buffer", /*no group*/"", 
-                new String[] {  
-                    "Command unavailable", 
+        public ReplayBufferToggleCommand()
+                : base("Replay Buffer", "Toggles Replay Buffer", /*no group*/"",
+                new String[] {
+                    "Command unavailable",
                     "Start Replay Buffer",
                     "Stop Replay Buffer"
                 },
@@ -19,17 +19,18 @@
                   "Loupedeck.GenStreamPlugin.icons.STREAM_StopReplayBuffer.png"
                 })
         {
+        }
 
-        }
-        protected override void ConnectAppEvents(EventHandler<EventArgs> OnEvent, EventHandler<EventArgs> OffEvent)
+        protected override void ConnectAppEvents(EventHandler<EventArgs> onEvent, EventHandler<EventArgs> offEvent)
         {
-            this.Proxy.AppEvtReplayBufferOff += OffEvent;
-            this.Proxy.AppEvtReplayBufferOn += OnEvent;
+            this.Proxy.AppEvtReplayBufferOff += offEvent;
+            this.Proxy.AppEvtReplayBufferOn += onEvent;
         }
-        protected override void DisconnectAppEvents(EventHandler<EventArgs> OnEvent, EventHandler<EventArgs> OffEvent)
+
+        protected override void DisconnectAppEvents(EventHandler<EventArgs> onEvent, EventHandler<EventArgs> offEvent)
         {
-            this.Proxy.AppEvtReplayBufferOff -= OffEvent;
-            this.Proxy.AppEvtReplayBufferOn -= OnEvent;
+            this.Proxy.AppEvtReplayBufferOff -= offEvent;
+            this.Proxy.AppEvtReplayBufferOn -= onEvent;
         }
 
         protected override void RunCommand(String actionParameter) => this.Proxy.AppToggleReplayBuffer();

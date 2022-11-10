@@ -2,16 +2,19 @@
 {
     using System;
     using System.Collections.Generic;
+
     using OBSWebsocketDotNet;
- 
+
     /// <summary>
     /// Proxy to OBS websocket server, for API reference see
     /// https://github.com/obsproject/obs-websocket/blob/4.x-compat/docs/generated/protocol.md
     /// </summary>
-    public partial class GenStreamProxy 
+    public partial class GenStreamProxy
     {
         public event EventHandler<EventArgs> AppEvtReplayBufferOn;
+
         public event EventHandler<EventArgs> AppEvtReplayBufferOff;
+
         private void OnObsReplayBufferStateChange(OBSWebsocket sender, OBSWebsocketDotNet.Types.OutputState newState)
         {
             this.Trace($"OBS Replay buffer state change, new state {newState}");

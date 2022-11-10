@@ -2,15 +2,17 @@
 {
     using System;
     using System.Collections.Generic;
+
     using OBSWebsocketDotNet;
 
     /// <summary>
     /// Proxy to OBS websocket server, for API reference see
     /// https://github.com/obsproject/obs-websocket/blob/4.x-compat/docs/generated/protocol.md
     /// </summary>
-    public partial class GenStreamProxy 
+    public partial class GenStreamProxy
     {
         public event EventHandler<EventArgs> AppEvtSceneCollectionsChanged;
+
         public event EventHandler<EventArgs> AppEvtCurrentSceneCollectionChanged;
 
         public List<String> SceneCollections { get; private set; }
@@ -31,11 +33,12 @@
 
         private void OnObsSceneCollectionChanged(Object sender, EventArgs e)
         {
-            var oldSceneCollection = this.CurrentSceneCollection ; 
+            var oldSceneCollection = this.CurrentSceneCollection;
             if (Helpers.TryExecuteSafe(() => { this.CurrentSceneCollection = this.GetCurrentSceneCollection(); }))
             {
                 this.Trace($"OBS Current Scene collection changed from {oldSceneCollection} to {this.CurrentSceneCollection}");
-                //Regenerating all internal structures
+
+                // Regenerating all internal structures
                 this.OnObsSceneListChanged(sender, e);
                 this.AppEvtCurrentSceneCollectionChanged?.Invoke(sender, e);
             }
@@ -52,7 +55,6 @@
                 this.Trace($"Switching to Scene Collection {newCollection}");
                 Helpers.TryExecuteSafe(() => this.SetCurrentSceneCollection(newCollection));
             }
-
         }
     }
 }

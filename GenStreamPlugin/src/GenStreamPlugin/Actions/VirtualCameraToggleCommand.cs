@@ -2,14 +2,14 @@
 {
     using System;
 
-    class VirtualCameraToggleCommand : GenericOnOffSwitch
+    public class VirtualCameraToggleCommand : GenericOnOffSwitch
     {
         private GenStreamProxy Proxy => (this.Plugin as GenStreamPlugin).Proxy;
 
-        public VirtualCameraToggleCommand() 
-                : base("Virtual Camera", "Toggles Virtual Camera on or off", /*no group*/"", 
-                new String[] {  
-                    "Command unavailable", 
+        public VirtualCameraToggleCommand()
+                : base("Virtual Camera", "Toggles Virtual Camera on or off", /*no group*/"",
+                new String[] {
+                    "Command unavailable",
                     "Start Virtual Camera",
                     "Stop Virtual Camera"
                 },
@@ -19,17 +19,18 @@
                   "Loupedeck.GenStreamPlugin.icons.VirtualWebcamOff.png"
                 })
         {
+        }
 
-        }
-        protected override void ConnectAppEvents(EventHandler<EventArgs> OnEvent, EventHandler<EventArgs> OffEvent)
+        protected override void ConnectAppEvents(EventHandler<EventArgs> onEvent, EventHandler<EventArgs> offEvent)
         {
-            this.Proxy.AppEvtVirtualCamOff += OffEvent;
-            this.Proxy.AppEvtVirtualCamOn += OnEvent;
+            this.Proxy.AppEvtVirtualCamOff += offEvent;
+            this.Proxy.AppEvtVirtualCamOn += onEvent;
         }
-        protected override void DisconnectAppEvents(EventHandler<EventArgs> OnEvent, EventHandler<EventArgs> OffEvent)
+
+        protected override void DisconnectAppEvents(EventHandler<EventArgs> onEvent, EventHandler<EventArgs> offEvent)
         {
-            this.Proxy.AppEvtVirtualCamOff -= OffEvent;
-            this.Proxy.AppEvtVirtualCamOn -= OnEvent;
+            this.Proxy.AppEvtVirtualCamOff -= offEvent;
+            this.Proxy.AppEvtVirtualCamOn -= onEvent;
         }
 
         protected override void RunCommand(String actionParameter) => this.Proxy.AppToggleVirtualCam();
