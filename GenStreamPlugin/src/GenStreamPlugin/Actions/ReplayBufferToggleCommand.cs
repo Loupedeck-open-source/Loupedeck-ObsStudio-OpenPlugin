@@ -2,11 +2,11 @@
 {
     using System;
 
-    class ReplayBufferCommand : GenericOnOffSwitch
+    class ReplayBufferToggleCommand : GenericOnOffSwitch
     {
         private GenStreamProxy Proxy => (this.Plugin as GenStreamPlugin).Proxy;
 
-        public ReplayBufferCommand() 
+        public ReplayBufferToggleCommand() 
                 : base("Replay Buffer", "Toggles Replay Buffer", /*no group*/"", 
                 new String[] {  
                     "Command unavailable", 

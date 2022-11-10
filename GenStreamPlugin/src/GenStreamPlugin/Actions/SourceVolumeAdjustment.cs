@@ -8,9 +8,9 @@
 
         private GenStreamProxy Proxy => (this.Plugin as GenStreamPlugin).Proxy;
     
-        private const String IMG_SceneSelected = "Loupedeck.GenStreamPlugin.icons.SourceOn.png";
-        private const String IMG_SceneUnselected = "Loupedeck.GenStreamPlugin.icons.SourceOff.png";
-        private const String IMG_SceneInaccessible = "Loupedeck.GenStreamPlugin.icons.CloseDesktop.png";
+        private const String IMG_SourceSelected = "Loupedeck.GenStreamPlugin.icons.SourceOn.png";
+        private const String IMG_SourceUnselected = "Loupedeck.GenStreamPlugin.icons.SourceOff.png";
+        private const String IMG_SourceInaccessible = "Loupedeck.GenStreamPlugin.icons.CloseDesktop.png";
         private const String IMG_Offline = "Loupedeck.GenStreamPlugin.icons.SoftwareNotFound.png";
         private const String SourceNameUnknown = "Offline";
         private const String SpecialSourceGroupName = "General Audio";
@@ -137,11 +137,11 @@
 
             var sourceName = SourceNameUnknown;
             var imageName = IMG_Offline;
-            if ( SceneItemKey.TryParse(actionParameter, out var parsed))
+            if ( SceneKey.TryParse(actionParameter, out var parsed))
             {
                 sourceName = parsed.Source; 
 
-                imageName = parsed.Collection != this.Proxy.CurrentSceneCollection ? IMG_SceneInaccessible :  IMG_SceneSelected;
+                imageName = parsed.Collection != this.Proxy.CurrentSceneCollection ? IMG_SourceInaccessible : this.muteStates[actionParameter] ? IMG_SourceUnselected : IMG_SourceSelected;
             }
 
             return GenStreamPlugin.NameOverBitmap(imageSize, imageName, sourceName);

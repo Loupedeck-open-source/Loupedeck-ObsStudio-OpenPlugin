@@ -2,11 +2,11 @@
 {
     using System;
 
-    class RecordingCommand : GenericOnOffSwitch
+    class RecordingToggleCommand : GenericOnOffSwitch
     {
         private GenStreamProxy Proxy => (this.Plugin as GenStreamPlugin).Proxy;
 
-        public RecordingCommand() 
+        public RecordingToggleCommand() 
                 : base("Toggles Recording", "Toggles Recording on or off", /*no group*/"", 
                 new String[] {  
                     "Command unavailable", 

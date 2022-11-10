@@ -2,11 +2,11 @@
 {
     using System;
 
-    class VirtualCameraCommand : GenericOnOffSwitch
+    class VirtualCameraToggleCommand : GenericOnOffSwitch
     {
         private GenStreamProxy Proxy => (this.Plugin as GenStreamPlugin).Proxy;
 
-        public VirtualCameraCommand() 
+        public VirtualCameraToggleCommand() 
                 : base("Virtual Camera", "Toggles Virtual Camera on or off", /*no group*/"", 
                 new String[] {  
                     "Command unavailable", 

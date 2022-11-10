@@ -2,7 +2,7 @@
 {
     using System;
 
-    class SceneCommand : PluginMultistateDynamicCommand
+    class SceneSelectCommand : PluginMultistateDynamicCommand
     {
         private GenStreamProxy Proxy => (this.Plugin as GenStreamPlugin).Proxy;
     
@@ -12,7 +12,7 @@
         private const String IMG_Offline = "Loupedeck.GenStreamPlugin.icons.SoftwareNotFound.png";
         private const String SceneNameUnknown = "Offline";
 
-        public SceneCommand()
+        public SceneSelectCommand()
         {
             this.Name = "Scenes";
             this.Description = "Activates Scene";

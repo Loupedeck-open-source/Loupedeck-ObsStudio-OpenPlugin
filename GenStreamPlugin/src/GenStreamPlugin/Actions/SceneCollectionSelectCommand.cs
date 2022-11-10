@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Generic;
 
-    class SceneCollectionCommand : PluginMultistateDynamicCommand
+    class SceneCollectionSelectCommand : PluginMultistateDynamicCommand
     {
         private GenStreamProxy Proxy => (this.Plugin as GenStreamPlugin).Proxy;
     
@@ -12,7 +12,7 @@
         private const String IMG_Offline = "Loupedeck.GenStreamPlugin.icons.SoftwareNotFound.png";
         private const String CollectionNameUnknown = "Offline";
 
-        public SceneCollectionCommand()
+        public SceneCollectionSelectCommand()
         {
             this.Name = "Scene Collections";
             this.Description = "Activates Scene collection";
