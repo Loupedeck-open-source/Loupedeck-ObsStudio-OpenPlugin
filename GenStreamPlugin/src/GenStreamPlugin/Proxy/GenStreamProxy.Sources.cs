@@ -22,7 +22,7 @@
         public SceneItemUpdateCallback AppEvtSceneItemRemoved;
         public SceneItemVisibilityChangedCallback AppEvtSceneItemVisibilityChanged;
 
-        void OnObsSceneItemVisibilityChanged(OBSWebsocket sender, String sceneName, String itemName, Boolean isVisible)
+        private void OnObsSceneItemVisibilityChanged(OBSWebsocket sender, String sceneName, String itemName, Boolean isVisible)
         {
             var key = SceneItemKey.Encode(this.CurrentSceneCollection, sceneName, itemName);
             if (!Helpers.TryExecuteSafe(() => this.allSceneItems[key].Visible = isVisible))
@@ -53,7 +53,7 @@
             }
         }
 
-        void OnObsSceneItemRemoved(OBSWebsocket sender, String sceneName, String itemName)
+        private void OnObsSceneItemRemoved(OBSWebsocket sender, String sceneName, String itemName)
         {
             this.Trace($"OBS: Scene Item {itemName} removed from scene {sceneName}");
 
@@ -70,18 +70,17 @@
         }
 
 
-        public void AppToggleSceneItemVisibility(String sourceName)
+        public void AppToggleSceneItemVisibility(String key)
         {
-            var item = this.allSceneItems[sourceName];
-
-            if( this.IsAppConnected )
+            if( this.IsAppConnected) 
             { 
                 if(!Helpers.TryExecuteAction(() =>
                     {
+                        var item = this.allSceneItems[key];
                         this.SetSourceRender(item.SourceName, !item.Visible, item.SceneName);
                     }))
                 {
-                    this.Trace($"Warning: Cannot set visibility to source {sourceName}");
+                    this.Trace($"Warning: Cannot set visibility to key {key}");
                 }
             }
         }

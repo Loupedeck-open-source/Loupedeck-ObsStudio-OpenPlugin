@@ -13,7 +13,12 @@
 
         public SourceMuteStateChangedCallback AppEvtSourceMuteStateChanged;
         public SourceVolumeChangedCallback AppEvtSourceVolumeChanged;
-        
+
+        private readonly Dictionary<String, String> specialSources = new Dictionary<String, String>();
+        private readonly List<String> AudioSourceTypes = new List<String>();
+
+        public Dictionary<String, AudioSourceDesc> currentAudioSources = new Dictionary<String, AudioSourceDesc>();
+
         public class AudioSourceDesc
         {
             public Boolean SpecialSource; 
@@ -39,11 +44,6 @@
             }
         };
 
-        public Dictionary<String, AudioSourceDesc> currentAudioSources = new Dictionary<String, AudioSourceDesc>();
-
-        public Dictionary<String, String> specialSources = new Dictionary<String, String>();
-
-        private readonly List<String> AudioSourceTypes = new List<String>();
 
         //this.Trace($"Source Settings: Name: {settings.SourceName}, Kind {settings.SourceKind}, Type {settings.SourceType}.  IS AUDIO {this.AudioSourceTypes.Contains(settings.SourceType)}");
         private Boolean IsAudioSourceType(OBSWebsocketDotNet.Types.SourceSettings settings) => this.AudioSourceTypes.Contains(settings.SourceKind ?? settings.SourceType);
@@ -151,7 +151,7 @@
         }
 
         //Once, upon connection
-        public void OnAppConnected_RetreiveSourceTypes()
+        private void OnAppConnected_RetreiveSourceTypes()
         {
             this.AudioSourceTypes.Clear();            
 
@@ -170,7 +170,7 @@
                 this.Trace($"Warning: Cannot get list of supported audio types from OBS");
             }
         }
-        public void OnAppConnected_RetreiveSpecialSources()
+        private void OnAppConnected_RetreiveSpecialSources()
         {
             this.specialSources.Clear();
 

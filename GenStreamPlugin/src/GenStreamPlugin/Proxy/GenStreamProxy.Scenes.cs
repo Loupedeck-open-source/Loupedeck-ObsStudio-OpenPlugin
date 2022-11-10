@@ -19,7 +19,7 @@
 
         public Boolean SceneInCurrentCollection(String scene) => Helpers.TryExecuteFunc(() => this.Scenes.Find(x => x.Name == scene), out var item) && item != null;
 
-        void OnObsSceneListChanged(Object sender, EventArgs e)
+        private void OnObsSceneListChanged(Object sender, EventArgs e)
         {
             //Rescan the scene list   
             if (this.IsAppConnected && Helpers.TryExecuteFunc(() => this.GetSceneList(), out var listInfo))
@@ -52,7 +52,7 @@
             }
         }
 
-        void OnObsSceneChanged(Object sender, String newScene)
+        private void OnObsSceneChanged(Object sender, String newScene)
         {
             try
             {

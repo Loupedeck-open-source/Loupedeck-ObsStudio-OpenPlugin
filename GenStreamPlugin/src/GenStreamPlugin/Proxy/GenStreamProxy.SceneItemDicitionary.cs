@@ -92,7 +92,7 @@
         /// </summary>
          //'Main' dictionary, with Scene-Item ID being a key
         //Dictionary 
-        public Dictionary<String, SceneItemDescriptor> allSceneItems;
+        public Dictionary<String, SceneItemDescriptor> allSceneItems = new Dictionary<String, SceneItemDescriptor>();
 
         public class SceneItemDescriptor
         {

@@ -57,7 +57,7 @@
             //OBS Websocket events
             this.Connected += this.OnAppConnected;
             this.Disconnected += this.OnAppDisconnected;
-            this.allSceneItems = new Dictionary<String, SceneItemDescriptor>();
+            
         }
 
         ~GenStreamProxy()

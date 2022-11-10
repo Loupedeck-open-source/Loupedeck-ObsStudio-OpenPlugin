@@ -17,7 +17,7 @@
 
         public String CurrentSceneCollection { get; private set; }
 
-        void OnObsSceneCollectionListChanged(Object sender, EventArgs e)
+        private void OnObsSceneCollectionListChanged(Object sender, EventArgs e)
         {
             this.Trace("OBS SceneCollectionList changed");
 
@@ -29,7 +29,7 @@
             }
         }
 
-        void OnObsSceneCollectionChanged(Object sender, EventArgs e)
+        private void OnObsSceneCollectionChanged(Object sender, EventArgs e)
         {
             var oldSceneCollection = this.CurrentSceneCollection ; 
             if (Helpers.TryExecuteSafe(() => { this.CurrentSceneCollection = this.GetCurrentSceneCollection(); }))
@@ -42,16 +42,6 @@
             else
             {
                 this.Trace($"OBS Warning: cannot handle Collection Changed");
-            }
-        }
-
-        public void CycleSceneCollections()
-        {
-            if (this.IsAppConnected && this.SceneCollections != null && this.CurrentSceneCollection != "")
-            {
-                var index = this.SceneCollections.IndexOf(this.CurrentSceneCollection);
-                index = index != this.SceneCollections.Count - 1 ? index + 1 : 0;
-                this.AppSwitchToSceneCollection(this.SceneCollections[index]);
             }
         }
 
