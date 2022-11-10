@@ -7,8 +7,8 @@
 
         private GenStreamProxy Proxy => (this.Plugin as GenStreamPlugin).Proxy;
     
-        private const String IMG_SourceMuted = "Loupedeck.GenStreamPlugin.icons.SourceOn.png";
-        private const String IMG_SourceUnmuted = "Loupedeck.GenStreamPlugin.icons.SourceOff.png";
+        private const String IMG_SourceMuted = "Loupedeck.GenStreamPlugin.icons.AudioOn.png";
+        private const String IMG_SourceUnmuted = "Loupedeck.GenStreamPlugin.icons.AudioOff.png";
         private const String IMG_SourceInaccessible = "Loupedeck.GenStreamPlugin.icons.CloseDesktop.png";
         private const String IMG_Offline = "Loupedeck.GenStreamPlugin.icons.SoftwareNotFound.png";
         private const String SourceNameUnknown = "Offline";

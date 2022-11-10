@@ -10,13 +10,6 @@
     /// </summary>
     public partial class GenStreamProxy 
     {
-        //        internal SceneItemProperties GetSceneItemProps(String itemName, String sceneName) => Helpers.TryExecuteSafe(()
-        //        => this.Proxy.GetSceneItemProperties(itemName, sceneName), out var ret) ? ret : null;
-        //SceneItemVisibilityChanged
-        //    SceneItemRemoved
-        //    SceneItemAdded
-        //SetSourceRender
-        //public event EventHandler<EventArgs> AppEvtSceneItemVisibilityChanged;
 
         public SceneItemUpdateCallback AppEvtSceneItemAdded;
         public SceneItemUpdateCallback AppEvtSceneItemRemoved;
@@ -69,18 +62,18 @@
             }
         }
 
-
         public void AppToggleSceneItemVisibility(String key)
         {
             if( this.IsAppConnected) 
-            { 
-                if(!Helpers.TryExecuteAction(() =>
-                    {
-                        var item = this.allSceneItems[key];
-                        this.SetSourceRender(item.SourceName, !item.Visible, item.SceneName);
-                    }))
+            {
+                try
                 {
-                    this.Trace($"Warning: Cannot set visibility to key {key}");
+                    var item = this.allSceneItems[key];
+                    this.SetSourceRender(item.SourceName, !item.Visible, item.SceneName);
+                }
+                catch (Exception ex)
+                {
+                    this.Trace($"Warning: Exception {ex.Message} when toggling visibility to {key}");
                 }
             }
         }

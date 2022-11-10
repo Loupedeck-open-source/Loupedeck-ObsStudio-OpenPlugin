@@ -6,8 +6,8 @@
     {
         private GenStreamProxy Proxy => (this.Plugin as GenStreamPlugin).Proxy;
     
-        private const String IMG_SceneSelected = "Loupedeck.GenStreamPlugin.icons.SourceOn.png";
-        private const String IMG_SceneUnselected = "Loupedeck.GenStreamPlugin.icons.SourceOff.png";
+        private const String IMG_SceneSelected = "Loupedeck.GenStreamPlugin.icons.SceneOn.png";
+        private const String IMG_SceneUnselected = "Loupedeck.GenStreamPlugin.icons.SceneOff.png";
         private const String IMG_SceneInaccessible = "Loupedeck.GenStreamPlugin.icons.CloseDesktop.png";
         private const String IMG_Offline = "Loupedeck.GenStreamPlugin.icons.SoftwareNotFound.png";
         private const String SceneNameUnknown = "Offline";

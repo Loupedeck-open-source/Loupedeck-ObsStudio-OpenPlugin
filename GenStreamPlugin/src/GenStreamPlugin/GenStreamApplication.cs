@@ -41,13 +41,11 @@ namespace Loupedeck.GenStreamPlugin
         // For OBS Studio we can tell for sure, is it installed or not
         public override ClientApplicationStatus GetApplicationStatus()
         {
-            if (Helpers.IsWindows())
-            {
-                return File.Exists(this.GetExecutablePath())
+            return Helpers.IsWindows()
+                ? File.Exists(this.GetExecutablePath())
                                         ? ClientApplicationStatus.Installed
-                                        : ClientApplicationStatus.NotInstalled;
-            }
-            return ClientApplicationStatus.NotInstalled;
+                                        : ClientApplicationStatus.NotInstalled
+                : ClientApplicationStatus.NotInstalled;
         }
 
 
