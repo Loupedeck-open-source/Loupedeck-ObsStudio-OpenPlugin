@@ -2,15 +2,14 @@
 {
     using System;
 
-    class SourceVisibilityCommand : PluginMultistateDynamicCommand
+    public  class SourceVisibilityCommand : PluginMultistateDynamicCommand
     {
-
         private GenStreamProxy Proxy => (this.Plugin as GenStreamPlugin).Proxy;
-    
-        private const String IMG_SceneSelected = "Loupedeck.GenStreamPlugin.icons.SourceOn.png";
-        private const String IMG_SceneUnselected = "Loupedeck.GenStreamPlugin.icons.SourceOff.png";
-        private const String IMG_SceneInaccessible = "Loupedeck.GenStreamPlugin.icons.CloseDesktop.png";
-        private const String IMG_Offline = "Loupedeck.GenStreamPlugin.icons.SoftwareNotFound.png";
+
+        private const String IMGSceneSelected = "Loupedeck.GenStreamPlugin.icons.SourceOn.png";
+        private const String IMGSceneUnselected = "Loupedeck.GenStreamPlugin.icons.SourceOff.png";
+        private const String IMGSceneInaccessible = "Loupedeck.GenStreamPlugin.icons.CloseDesktop.png";
+        private const String IMGOffline = "Loupedeck.GenStreamPlugin.icons.SoftwareNotFound.png";
         private const String SourceNameUnknown = "Offline";
 
         public SourceVisibilityCommand()
@@ -20,7 +19,7 @@
             this.GroupName = "Current Sources";
 
             this.AddState("Hidden", "Source hidden");
-            this.AddState("Visible","Source visible");
+            this.AddState("Visible", "Source visible");
         }
 
         protected override Boolean OnLoad()
@@ -37,7 +36,7 @@
             this.Proxy.AppEvtSceneItemRemoved += this.OnSceneItemRemoved;
 
             this.OnAppDisconnected(this, null);
-            
+
             return true;
         }
 
@@ -74,36 +73,37 @@
             this.ParametersChanged();
         }
 
-        private void OnAppConnected(Object sender, EventArgs e)
-        { 
-            //We expect to get SceneCollectionChange so doin' nothin' here. 
-        }
+        private void OnAppConnected(Object sender, EventArgs e) => this.IsEnabled = true;
 
         private void OnAppDisconnected(Object sender, EventArgs e)
         {
+            this.IsEnabled = false;
+
             this.ResetParameters(false);
             this.ActionImageChanged();
         }
+
         protected void OnSceneItemVisibilityChanged(OBSWebsocketDotNet.OBSWebsocket sender, String sceneName, String itemName, Boolean isVisible)
         {
             var actionParameter = SceneItemKey.Encode(this.Proxy?.CurrentSceneCollection, sceneName, itemName);
             this.SetCurrentState(actionParameter, isVisible ? 1 : 0);
             this.ActionImageChanged();
         }
+
         protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
         {
             var sourceName = SourceNameUnknown;
-            var imageName = IMG_Offline;
-            if ( SceneItemKey.TryParse(actionParameter, out var parsed) && this.TryGetCurrentStateIndex(actionParameter, out var currentState))
+            var imageName = IMGOffline;
+            if (SceneItemKey.TryParse(actionParameter, out var parsed) && this.TryGetCurrentStateIndex(actionParameter, out var currentState))
             {
-                sourceName = parsed.Source; 
+                sourceName = parsed.Source;
 
                 imageName = parsed.Collection != this.Proxy.CurrentSceneCollection
-                    ? IMG_SceneInaccessible
-                    : currentState == 1 ? IMG_SceneSelected : IMG_SceneUnselected;
+                    ? IMGSceneInaccessible
+                    : currentState == 1 ? IMGSceneSelected : IMGSceneUnselected;
             }
 
-            //FIXME: We need to learn to cache bitmaps. Here the key can be same 3 items: image name, state # and sourceName text
+            // FIXME: We need to learn to cache bitmaps. Here the key can be same 3 items: image name, state # and sourceName text
             return GenStreamPlugin.NameOverBitmap(imageSize, imageName, sourceName);
         }
 
@@ -111,7 +111,7 @@
         {
             var key = SceneItemKey.Encode(this.Proxy.CurrentSceneCollection, sceneName, itemName);
             this.AddParameter(key, $"{itemName} ({sceneName})", this.GroupName);
-            this.SetCurrentState(key, this.Proxy.allSceneItems[key].Visible ? 1 : 0);
+            this.SetCurrentState(key, this.Proxy.AllSceneItems[key].Visible ? 1 : 0);
         }
 
         internal void ResetParameters(Boolean readContent)
@@ -120,9 +120,9 @@
 
             if (readContent)
             {
-                this.Proxy.Trace($"Adding {this.Proxy.allSceneItems?.Count} sources");
+                this.Proxy.Trace($"Adding {this.Proxy.AllSceneItems?.Count} sources");
 
-                foreach (var item in this.Proxy.allSceneItems)
+                foreach (var item in this.Proxy.AllSceneItems)
                 {
                     this.AddSceneItemParameter(item.Value.SceneName, item.Value.SourceName);
                 }
@@ -130,6 +130,5 @@
 
             this.ParametersChanged();
         }
-
     }
 }

@@ -7,7 +7,7 @@ namespace Loupedeck.GenStreamPlugin
     public class GenStreamPlugin : Plugin
     {
         public readonly GenStreamProxy Proxy;
-        
+
         // Gets a value indicating whether this is an Universal plugin or an Application plugin.
         public override Boolean UsesApplicationApiOnly => true;
 
@@ -19,7 +19,7 @@ namespace Loupedeck.GenStreamPlugin
         public GenStreamPlugin()
         {
             this.Proxy = new GenStreamProxy();
-            this._connector = new ObsConnector(this.Proxy, this.GetPluginDataDirectory() +"\\..\\ObsStudio",  /*"C:\\Users\\Andrei Laperie\\AppData\\Local\\Loupedeck\\PluginData\\ObsStudio"/**/
+            this._connector = new ObsConnector(this.Proxy, this.GetPluginDataDirectory() + "\\..\\ObsStudio",  /*"C:\\Users\\Andrei Laperie\\AppData\\Local\\Loupedeck\\PluginData\\ObsStudio"/**/
                                 () => this.OnPluginStatusChanged(Loupedeck.PluginStatus.Warning, this.Localization.GetString("Connecting to OBS"), "https://support.loupedeck.com/obs-guide", ""));
         }
 
@@ -56,19 +56,17 @@ namespace Loupedeck.GenStreamPlugin
             this.Proxy.EvtAppConnected -= this.OnAppConnStatusChange;
             this.Proxy.EvtAppDisconnected -= this.OnAppConnStatusChange;
 
-            //this.Proxy = null;
+            // this.Proxy = null;
         }
 
         private void OnAppConnStatusChange(Object sender, EventArgs e) => this.Update_PluginStatus();
 
         private void OnApplicationStarted(Object sender, EventArgs e)
         {
-            
         }
 
         private void OnApplicationStopped(Object sender, EventArgs e)
         {
-        
         }
 
         private void Update_PluginStatus()
@@ -85,12 +83,15 @@ namespace Loupedeck.GenStreamPlugin
             {
                 this.OnPluginStatusChanged(Loupedeck.PluginStatus.Warning, "Not connected to App", "https://support.GenStreamPlugin.com", "more details");
             }
-
         }
 
         /// <summary>
         ///  Draws text over the bitmap. Bad location but in absence of the better components, put it here.
         /// </summary>
+        /// <param name="imageSize">size of the image</param>
+        /// <param name="imageName">Image file name</param>
+        /// <param name="text">text to render</param>
+        /// <returns>bitmap with text rendered</returns>
         public static BitmapImage NameOverBitmap(PluginImageSize imageSize, String imageName, String text)
         {
             using (var bitmapBuilder = new BitmapBuilder(imageSize))
@@ -105,6 +106,5 @@ namespace Loupedeck.GenStreamPlugin
                 return bitmapBuilder.ToImage();
             }
         }
-
     }
 }

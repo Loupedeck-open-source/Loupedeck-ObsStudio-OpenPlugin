@@ -2,15 +2,14 @@
 {
     using System;
 
-    class SourceMuteCommand : PluginMultistateDynamicCommand
+    public class SourceMuteCommand : PluginMultistateDynamicCommand
     {
-
         private GenStreamProxy Proxy => (this.Plugin as GenStreamPlugin).Proxy;
-    
-        private const String IMG_SourceMuted = "Loupedeck.GenStreamPlugin.icons.SourceOn.png";
-        private const String IMG_SourceUnmuted = "Loupedeck.GenStreamPlugin.icons.SourceOff.png";
-        private const String IMG_SourceInaccessible = "Loupedeck.GenStreamPlugin.icons.CloseDesktop.png";
-        private const String IMG_Offline = "Loupedeck.GenStreamPlugin.icons.SoftwareNotFound.png";
+
+        private const String IMGSourceMuted = "Loupedeck.GenStreamPlugin.icons.AudioOn.png";
+        private const String IMGSourceUnmuted = "Loupedeck.GenStreamPlugin.icons.AudioOff.png";
+        private const String IMGSourceInaccessible = "Loupedeck.GenStreamPlugin.icons.CloseDesktop.png";
+        private const String IMGOffline = "Loupedeck.GenStreamPlugin.icons.SoftwareNotFound.png";
         private const String SourceNameUnknown = "Offline";
         private const String SpecialSourceGroupName = "General Audio";
 
@@ -38,7 +37,7 @@
             this.Proxy.AppEvtSourceDestroyed += this.OnSourceDestroyed;
 
             this.OnAppDisconnected(this, null);
-            
+
             return true;
         }
 
@@ -59,7 +58,7 @@
 
         protected override void RunCommand(String actionParameter)
         {
-            if (SceneKey.TryParse(actionParameter, out var key) && key.Collection.Equals(this.Proxy.CurrentSceneCollection) )
+            if (SceneKey.TryParse(actionParameter, out var key) && key.Collection.Equals(this.Proxy.CurrentSceneCollection))
             {
                 this.Proxy.AppToggleMute(key.Source);
             }
@@ -83,12 +82,10 @@
                 this.RemoveParameter(key);
                 this.ParametersChanged();
             }
-            
         }
 
         private void OnAppConnected(Object sender, EventArgs e)
-        { 
-
+        {
         }
 
         private void OnAppDisconnected(Object sender, EventArgs e)
@@ -96,11 +93,13 @@
             this.ResetParameters(false);
             this.ActionImageChanged();
         }
+
         protected void OnSourceMuteStateChanged(OBSWebsocketDotNet.OBSWebsocket sender, String sourceName, Boolean isMuted)
         {
             var actionParameter = SceneKey.Encode(this.Proxy.CurrentSceneCollection, sourceName);
-            //FIXME: Check if this 'has parameter' check is needed.
-            if( this.TryGetParameter(actionParameter,out var param) )
+
+            // FIXME: Check if this 'has parameter' check is needed.
+            if (this.TryGetParameter(actionParameter, out var param))
             {
                 this.SetCurrentState(actionParameter, isMuted ? 0 : 1);
                 this.ActionImageChanged();
@@ -110,17 +109,17 @@
         protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
         {
             var sourceName = SourceNameUnknown;
-            var imageName = IMG_Offline;
-            if ( SceneKey.TryParse(actionParameter, out var parsed) && this.TryGetCurrentStateIndex(actionParameter, out var currentState))
+            var imageName = IMGOffline;
+            if (SceneKey.TryParse(actionParameter, out var parsed) && this.TryGetCurrentStateIndex(actionParameter, out var currentState))
             {
-                sourceName = parsed.Source; 
+                sourceName = parsed.Source;
 
                 imageName = parsed.Collection != this.Proxy.CurrentSceneCollection
-                    ? IMG_SourceInaccessible
-                    : currentState == 1 ? IMG_SourceMuted : IMG_SourceUnmuted;
+                    ? IMGSourceInaccessible
+                    : currentState == 1 ? IMGSourceMuted : IMGSourceUnmuted;
             }
 
-            //FIXME: We need to learn to cache bitmaps. Here the key can be same 3 items: image name, state # and sourceName text
+            // FIXME: We need to learn to cache bitmaps. Here the key can be same 3 items: image name, state # and sourceName text
             return GenStreamPlugin.NameOverBitmap(imageSize, imageName, sourceName);
         }
 
@@ -137,9 +136,9 @@
 
             if (readContent)
             {
-                this.Proxy.Trace($"Adding {this.Proxy.currentAudioSources.Count} sources");
+                this.Proxy.Trace($"Adding {this.Proxy.CurrentAudioSources.Count} sources");
 
-                foreach (var item in this.Proxy.currentAudioSources)
+                foreach (var item in this.Proxy.CurrentAudioSources)
                 {
                     this.AddSource(item.Key, item.Value.SpecialSource);
                 }
@@ -147,6 +146,5 @@
 
             this.ParametersChanged();
         }
-
     }
 }

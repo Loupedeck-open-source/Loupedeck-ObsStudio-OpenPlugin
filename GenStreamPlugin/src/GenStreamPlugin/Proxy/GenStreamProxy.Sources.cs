@@ -1,31 +1,23 @@
 ﻿namespace Loupedeck.GenStreamPlugin
 {
     using System;
-    using System.Collections.Generic;
+
     using OBSWebsocketDotNet;
 
     /// <summary>
     /// Proxy to OBS websocket server, for API reference see
     /// https://github.com/obsproject/obs-websocket/blob/4.x-compat/docs/generated/protocol.md
     /// </summary>
-    public partial class GenStreamProxy 
+    public partial class GenStreamProxy
     {
-        //        internal SceneItemProperties GetSceneItemProps(String itemName, String sceneName) => Helpers.TryExecuteSafe(()
-        //        => this.Proxy.GetSceneItemProperties(itemName, sceneName), out var ret) ? ret : null;
-        //SceneItemVisibilityChanged
-        //    SceneItemRemoved
-        //    SceneItemAdded
-        //SetSourceRender
-        //public event EventHandler<EventArgs> AppEvtSceneItemVisibilityChanged;
-
         public SceneItemUpdateCallback AppEvtSceneItemAdded;
         public SceneItemUpdateCallback AppEvtSceneItemRemoved;
         public SceneItemVisibilityChangedCallback AppEvtSceneItemVisibilityChanged;
 
-        void OnObsSceneItemVisibilityChanged(OBSWebsocket sender, String sceneName, String itemName, Boolean isVisible)
+        private void OnObsSceneItemVisibilityChanged(OBSWebsocket sender, String sceneName, String itemName, Boolean isVisible)
         {
             var key = SceneItemKey.Encode(this.CurrentSceneCollection, sceneName, itemName);
-            if (!Helpers.TryExecuteSafe(() => this.allSceneItems[key].Visible = isVisible))
+            if (!Helpers.TryExecuteSafe(() => this.AllSceneItems[key].Visible = isVisible))
             {
                 this.Trace($"WARNING: Cannot update visiblity for item {itemName} scene {sceneName} from dictionary");
             }
@@ -36,10 +28,11 @@
         private void OnObsSceneItemAdded(OBSWebsocket sender, String sceneName, String itemName)
         {
             this.Trace($"OBS: Scene Item {itemName} added to scene {sceneName}");
-            //Re-reading current scene
-            if (Helpers.TryExecuteFunc(() => { return this.GetCurrentScene(); }, out var currscene))
+
+            // Re-reading current scene
+            if (Helpers.TryExecuteFunc(() => this.GetCurrentScene(), out var currscene))
             {
-                //Re=reading current scene to make sure all items are there
+                // Re=reading current scene to make sure all items are there
                 this.CurrentScene = currscene;
             }
 
@@ -48,19 +41,19 @@
                 this.Trace($"Warning: Cannot add item {itemName} to scene {sceneName}");
             }
             else
-            { 
+            {
                 this.AppEvtSceneItemAdded?.Invoke(this, sceneName, itemName);
             }
         }
 
-        void OnObsSceneItemRemoved(OBSWebsocket sender, String sceneName, String itemName)
+        private void OnObsSceneItemRemoved(OBSWebsocket sender, String sceneName, String itemName)
         {
             this.Trace($"OBS: Scene Item {itemName} removed from scene {sceneName}");
 
             var key = SceneItemKey.Encode(this.CurrentSceneCollection, sceneName, itemName);
-            if (this.allSceneItems.ContainsKey(key))
+            if (this.AllSceneItems.ContainsKey(key))
             {
-                this.allSceneItems.Remove(key);
+                this.AllSceneItems.Remove(key);
                 this.AppEvtSceneItemRemoved?.Invoke(this, sceneName, itemName);
             }
             else
@@ -69,22 +62,20 @@
             }
         }
 
-
-        public void AppToggleSceneItemVisibility(String sourceName)
+        public void AppToggleSceneItemVisibility(String key)
         {
-            var item = this.allSceneItems[sourceName];
-
-            if( this.IsAppConnected )
-            { 
-                if(!Helpers.TryExecuteAction(() =>
-                    {
-                        this.SetSourceRender(item.SourceName, !item.Visible, item.SceneName);
-                    }))
+            if (this.IsAppConnected)
+            {
+                try
                 {
-                    this.Trace($"Warning: Cannot set visibility to source {sourceName}");
+                    var item = this.AllSceneItems[key];
+                    this.SetSourceRender(item.SourceName, !item.Visible, item.SceneName);
+                }
+                catch (Exception ex)
+                {
+                    this.Trace($"Warning: Exception {ex.Message} when toggling visibility to {key}");
                 }
             }
         }
-
     }
 }
