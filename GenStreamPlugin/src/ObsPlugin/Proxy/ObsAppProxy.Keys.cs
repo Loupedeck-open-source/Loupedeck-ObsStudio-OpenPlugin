@@ -1,4 +1,4 @@
-﻿namespace Loupedeck.GenStreamPlugin
+﻿namespace Loupedeck.ObsPlugin
 {
     using System;
 

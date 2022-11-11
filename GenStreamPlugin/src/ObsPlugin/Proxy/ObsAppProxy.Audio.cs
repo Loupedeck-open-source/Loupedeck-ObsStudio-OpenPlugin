@@ -1,4 +1,4 @@
-﻿namespace Loupedeck.GenStreamPlugin
+﻿namespace Loupedeck.ObsPlugin
 {
     using System;
     using System.Collections.Generic;
@@ -9,7 +9,7 @@
     /// Proxy to OBS websocket server, for API reference see
     /// https://github.com/obsproject/obs-websocket/blob/4.x-compat/docs/generated/protocol.md
     /// </summary>
-    public partial class GenStreamProxy
+    public partial class ObsAppProxy
     {
         public SourceMuteStateChangedCallback AppEvtSourceMuteStateChanged;
         public SourceVolumeChangedCallback AppEvtSourceVolumeChanged;
@@ -51,16 +51,47 @@
         public AppSourceCreatedCb AppEvtSourceCreated;
         public AppSourceCreatedCb AppEvtSourceDestroyed;
 
+        private void OnObsSourceAudioActivated(OBSWebsocket sender, String sourceName)
+        {
+            // NOTE: We do not testSettings (type of the source) -> It's audio for sure!
+            if (this.AddCurrentAudioSource(sourceName, false, false))
+            {
+                this.AppEvtSourceCreated?.Invoke(sourceName);
+            }
+        }
+
+        //NOTE: See if we need to do anything regarding 
+        private void OnObsSourceAudioDeactivated(OBSWebsocket sender, String sourceName) => this.OnObsSourceDestroyed(sender, sourceName, "", "");
+
+        /// <summary>
+        /// Adds a source to CurrentAudioSources list
+        /// </summary>
+        /// <param name="sourceName">Name of the source</param>
+        /// <param name="testAudio">Test if source has audio active</param>
+        /// <returns>True if source is added</returns>
+        internal Boolean AddCurrentAudioSource(String sourceName, Boolean testSettings=true, Boolean testAudio=true)
+        {
+            if(!this.CurrentAudioSources.ContainsKey(sourceName) &&
+                    Helpers.TryExecuteFunc( () => (!testSettings || this.IsAudioSourceType(this.GetSourceSettings(sourceName)))
+                                                  && (!testAudio || this.GetAudioActive(sourceName)), out var good) && good)
+            {
+                this.CurrentAudioSources.Add(sourceName, new AudioSourceDesc(sourceName, this));
+                this.Trace($"Adding Regular audio source {sourceName}");
+                return true;
+            }
+            return false;
+        }
+
         private void OnObsSourceCreated(OBSWebsocket sender, OBSWebsocketDotNet.Types.SourceSettings settings)
         {
             // Check if we should care
-            if (this.IsAudioSourceType(settings))
+            if (this.IsAudioSourceType(settings) )
             {
-                var src = new OBSWebsocketDotNet.Types.SourceInfo();
-                src.Name = settings.SourceName;
-                src.TypeID = settings.SourceType;
-                this.CurrentAudioSources[src.Name] = new AudioSourceDesc(src.Name, this);
-                this.AppEvtSourceCreated?.Invoke(src.Name);
+                if( this.AddCurrentAudioSource(settings.SourceName, false, true) )
+                {
+                    this.AppEvtSourceCreated?.Invoke(settings.SourceName);
+                }
+                
             }
         }
 
@@ -193,16 +224,18 @@
             this.CurrentAudioSources.Clear();
             try
             {
-                foreach (var specSource in this._specialSources)
+                /*foreach (var specSource in this._specialSources)
                 {
                     this.CurrentAudioSources.Add(specSource.Key, new AudioSourceDesc(specSource.Key, this, true));
                     this.Trace($"Adding General audio source {specSource.Key}");
                 }
-
+                */
                 foreach (var source in this.GetSourcesList())
                 {
-                    // NOTE: Special sources are seen as in GetSourcesList too! (they're present as 'value' specSource.Value
-                    if (!this._specialSources.ContainsValue(source.Name) && this.IsAudioSourceType(this.GetSourceSettings(source.Name)))
+                    // NOTE: Special sources are seen as in GetSourcesList too! (they're present as 'value' specSource.Value)
+                    if (    /*!this._specialSources.ContainsValue(source.Name) 
+                            &&*/ this.IsAudioSourceType(this.GetSourceSettings(source.Name))
+                            && this.GetAudioActive(source.Name))
                     {
                         // Adding audio source and populating initial values
                         this.CurrentAudioSources.Add(source.Name, new AudioSourceDesc(source.Name, this));

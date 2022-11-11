@@ -1,4 +1,4 @@
-﻿namespace Loupedeck.GenStreamPlugin
+﻿namespace Loupedeck.ObsPlugin
 {
     using System;
     using System.Collections.Generic;
@@ -9,7 +9,7 @@
     /// Proxy to OBS websocket server, for API reference see
     /// https://github.com/obsproject/obs-websocket/blob/4.x-compat/docs/generated/protocol.md
     /// </summary>
-    public partial class GenStreamProxy
+    public partial class ObsAppProxy
     {
         public event EventHandler<EventArgs> AppEvtReplayBufferOn;
 
@@ -33,10 +33,23 @@
         {
             if (this.IsAppConnected)
             {
-                this.Trace("Toggle replayBuffer");
-
-                Helpers.TryExecuteSafe(() => this.ToggleReplayBuffer());
+                if(!Helpers.TryExecuteSafe(() => this.ToggleReplayBuffer()))
+                {
+                    this.Trace("Warning: Cannot toggle replayBuffer");
+                }
             }
         }
+        public void AppSaveReplayBuffer()
+        {
+            if (this.IsAppConnected)
+            {
+                if (!Helpers.TryExecuteSafe(() => this.SaveReplayBuffer()))
+                {
+                    this.Trace("Warning: Cannot save replayBuffer");
+                }
+            }
+
+        }
+
     }
 }
