@@ -1,22 +1,22 @@
-﻿namespace Loupedeck.GenStreamPlugin.Actions
+﻿namespace Loupedeck.ObsPlugin.Actions
 {
     using System;
 
     class ReplayBufferToggleCommand : GenericOnOffSwitch
     {
-        private GenStreamProxy Proxy => (this.Plugin as GenStreamPlugin).Proxy;
+        private ObsAppProxy Proxy => (this.Plugin as ObsPlugin).Proxy;
 
         public ReplayBufferToggleCommand()
-                : base("Replay Buffer", "Toggles Replay Buffer", /*no group*/"",
+                : base("Replay Buffer Toggle", "Start/Stop recording into the Replay Buffer", /*no group*/"",
                 new String[] {
                     "Command unavailable",
-                    "Start Replay Buffer",
-                    "Stop Replay Buffer"
+                    "Start recording into the Replay Buffer",
+                    "Stop recording into the Replay Buffer."
                 },
                 new String[] {
-                  "Loupedeck.GenStreamPlugin.icons.SoftwareNotFound.png",
-                  "Loupedeck.GenStreamPlugin.icons.STREAM_StartReplayBuffer.png",
-                  "Loupedeck.GenStreamPlugin.icons.STREAM_StopReplayBuffer.png"
+                  "Loupedeck.ObsPlugin.icons.SoftwareNotFound.png",
+                  "Loupedeck.ObsPlugin.icons.STREAM_StartReplayBuffer.png",
+                  "Loupedeck.ObsPlugin.icons.STREAM_StopReplayBuffer.png"
                 })
         {
         }

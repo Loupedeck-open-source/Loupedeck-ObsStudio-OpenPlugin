@@ -1,22 +1,22 @@
-﻿namespace Loupedeck.GenStreamPlugin.Actions
+﻿namespace Loupedeck.ObsPlugin.Actions
 {
     using System;
 
     public class StreamingToggleCommand : GenericOnOffSwitch
     {
-        private GenStreamProxy Proxy => (this.Plugin as GenStreamPlugin).Proxy;
+        private ObsAppProxy Proxy => (this.Plugin as ObsPlugin).Proxy;
 
         public StreamingToggleCommand()
-                : base("Toggles Streaming", "Toggles Streaming on or off", /*no group*/"",
+                : base("Toggle Streaming", "Toggles Streaming on or off", /*no group*/"",
                 new String[] {
                     "Command unavailable",
                     "Toggle On",
                     "Toggle Off"
                 },
                 new String[] {
-                  "Loupedeck.GenStreamPlugin.icons.SoftwareNotFound.png",
-                  "Loupedeck.GenStreamPlugin.icons.STREAM_StartStreamingGreen.png",
-                  "Loupedeck.GenStreamPlugin.icons.STREAM_StopStreamingRed.png"
+                  "Loupedeck.ObsPlugin.icons.SoftwareNotFound.png",
+                  "Loupedeck.ObsPlugin.icons.STREAM_StartStreamingGreen.png",
+                  "Loupedeck.ObsPlugin.icons.STREAM_StopStreamingRed.png"
                 })
         {
         }

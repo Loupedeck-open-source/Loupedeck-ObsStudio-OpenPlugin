@@ -1,15 +1,15 @@
-﻿namespace Loupedeck.GenStreamPlugin.Actions
+﻿namespace Loupedeck.ObsPlugin.Actions
 {
     using System;
     using System.Collections.Generic;
 
     public class SceneCollectionSelectCommand : PluginMultistateDynamicCommand
     {
-        private GenStreamProxy Proxy => (this.Plugin as GenStreamPlugin).Proxy;
+        private ObsAppProxy Proxy => (this.Plugin as ObsPlugin).Proxy;
 
-        private const String IMGCollectionSelected = "Loupedeck.GenStreamPlugin.icons.SourceOn.png";
-        private const String IMGCollectionUnselected = "Loupedeck.GenStreamPlugin.icons.SourceOff.png";
-        private const String IMGOffline = "Loupedeck.GenStreamPlugin.icons.SoftwareNotFound.png";
+        private const String IMGCollectionSelected = "Loupedeck.ObsPlugin.icons.SourceOn.png";
+        private const String IMGCollectionUnselected = "Loupedeck.ObsPlugin.icons.SourceOff.png";
+        private const String IMGOffline = "Loupedeck.ObsPlugin.icons.SoftwareNotFound.png";
         private const String CollectionNameUnknown = "Offline";
 
         public SceneCollectionSelectCommand()
@@ -112,7 +112,7 @@
                 imageName = actionParameter == this.Proxy.CurrentSceneCollection ? IMGCollectionSelected : IMGCollectionUnselected;
             }
 
-            return GenStreamPlugin.NameOverBitmap(imageSize, imageName, collName);
+            return ObsPlugin.NameOverBitmap(imageSize, imageName, collName);
         }
     }
 }

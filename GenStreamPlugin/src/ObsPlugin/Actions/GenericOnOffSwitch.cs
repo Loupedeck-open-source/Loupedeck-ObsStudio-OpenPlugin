@@ -1,4 +1,4 @@
-﻿namespace Loupedeck.GenStreamPlugin.Actions
+﻿namespace Loupedeck.ObsPlugin.Actions
 {
     using System;
 
@@ -11,7 +11,7 @@
             STATE_ON,
         }
 
-        private GenStreamProxy Proxy => (this.Plugin as GenStreamPlugin).Proxy;
+        private ObsAppProxy Proxy => (this.Plugin as ObsPlugin).Proxy;
 
         private readonly String[] _stateIcons;
 

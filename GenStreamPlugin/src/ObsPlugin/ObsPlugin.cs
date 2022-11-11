@@ -1,12 +1,12 @@
-namespace Loupedeck.GenStreamPlugin
+namespace Loupedeck.ObsPlugin
 {
     using System;
 
     // This class contains the plugin-level logic of the Loupedeck plugin.
 
-    public class GenStreamPlugin : Plugin
+    public class ObsPlugin : Plugin
     {
-        public readonly GenStreamProxy Proxy;
+        public readonly ObsAppProxy Proxy;
 
         // Gets a value indicating whether this is an Universal plugin or an Application plugin.
         public override Boolean UsesApplicationApiOnly => true;
@@ -16,9 +16,9 @@ namespace Loupedeck.GenStreamPlugin
 
         private readonly ObsConnector _connector;
 
-        public GenStreamPlugin()
+        public ObsPlugin()
         {
-            this.Proxy = new GenStreamProxy();
+            this.Proxy = new ObsAppProxy();
             this._connector = new ObsConnector(this.Proxy, this.GetPluginDataDirectory() + "\\..\\ObsStudio",  /*"C:\\Users\\Andrei Laperie\\AppData\\Local\\Loupedeck\\PluginData\\ObsStudio"/**/
                                 () => this.OnPluginStatusChanged(Loupedeck.PluginStatus.Warning, this.Localization.GetString("Connecting to OBS"), "https://support.loupedeck.com/obs-guide", ""));
         }
@@ -73,7 +73,7 @@ namespace Loupedeck.GenStreamPlugin
         {
             if (!this.IsApplicationInstalled())
             {
-                this.OnPluginStatusChanged(Loupedeck.PluginStatus.Error, "App is not installed", "https://support.GenStreamPlugin.com", "more details");
+                this.OnPluginStatusChanged(Loupedeck.PluginStatus.Error, "App is not installed", "https://support.ObsPlugin.com", "more details");
             }
             else if (this.Proxy != null && this.Proxy.IsAppConnected)
             {
@@ -81,7 +81,7 @@ namespace Loupedeck.GenStreamPlugin
             }
             else
             {
-                this.OnPluginStatusChanged(Loupedeck.PluginStatus.Warning, "Not connected to App", "https://support.GenStreamPlugin.com", "more details");
+                this.OnPluginStatusChanged(Loupedeck.PluginStatus.Warning, "Not connected to App", "https://support.ObsPlugin.com", "more details");
             }
         }
 

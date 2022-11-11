@@ -1,16 +1,16 @@
-﻿namespace Loupedeck.GenStreamPlugin.Actions
+﻿namespace Loupedeck.ObsPlugin.Actions
 {
     using System;
     using System.Collections.Generic;
 
     public class SourceVolumeAdjustment : PluginDynamicAdjustment
     {
-        private GenStreamProxy Proxy => (this.Plugin as GenStreamPlugin).Proxy;
+        private ObsAppProxy Proxy => (this.Plugin as ObsPlugin).Proxy;
 
-        private const String IMGSourceSelected = "Loupedeck.GenStreamPlugin.icons.SourceOn.png";
-        private const String IMGSourceUnselected = "Loupedeck.GenStreamPlugin.icons.SourceOff.png";
-        private const String IMGSourceInaccessible = "Loupedeck.GenStreamPlugin.icons.CloseDesktop.png";
-        private const String IMGOffline = "Loupedeck.GenStreamPlugin.icons.SoftwareNotFound.png";
+        private const String IMGSourceSelected = "Loupedeck.ObsPlugin.icons.SourceOn.png";
+        private const String IMGSourceUnselected = "Loupedeck.ObsPlugin.icons.SourceOff.png";
+        private const String IMGSourceInaccessible = "Loupedeck.ObsPlugin.icons.CloseDesktop.png";
+        private const String IMGOffline = "Loupedeck.ObsPlugin.icons.SoftwareNotFound.png";
         private const String SourceNameUnknown = "Offline";
         private const String SpecialSourceGroupName = "General Audio";
 
@@ -143,7 +143,7 @@
                 imageName = parsed.Collection != this.Proxy.CurrentSceneCollection ? IMGSourceInaccessible : this._muteStates[actionParameter] ? IMGSourceUnselected : IMGSourceSelected;
             }
 
-            return GenStreamPlugin.NameOverBitmap(imageSize, imageName, sourceName);
+            return ObsPlugin.NameOverBitmap(imageSize, imageName, sourceName);
         }
 
         private void OnSourceCreated(String sourceName)
@@ -169,7 +169,10 @@
         internal void AddSource(String sourceName, Boolean isSpecialSource = false)
         {
             var key = SceneKey.Encode(this.Proxy.CurrentSceneCollection, sourceName);
-            this.AddParameter(key, $"{sourceName}", isSpecialSource ? SpecialSourceGroupName : this.GroupName);
+            var displayName = sourceName +  (isSpecialSource ? "(G)" : "");
+            this.AddParameter(key, displayName, this.GroupName);
+
+            //Moving to same group this.AddParameter(key, $"{sourceName}", isSpecialSource ? SpecialSourceGroupName : this.GroupName);
             this._muteStates[key] = this.Proxy.AppGetMute(sourceName);
         }
 

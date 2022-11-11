@@ -1,15 +1,15 @@
-﻿namespace Loupedeck.GenStreamPlugin.Actions
+﻿namespace Loupedeck.ObsPlugin.Actions
 {
     using System;
 
     public  class SourceVisibilityCommand : PluginMultistateDynamicCommand
     {
-        private GenStreamProxy Proxy => (this.Plugin as GenStreamPlugin).Proxy;
+        private ObsAppProxy Proxy => (this.Plugin as ObsPlugin).Proxy;
 
-        private const String IMGSceneSelected = "Loupedeck.GenStreamPlugin.icons.SourceOn.png";
-        private const String IMGSceneUnselected = "Loupedeck.GenStreamPlugin.icons.SourceOff.png";
-        private const String IMGSceneInaccessible = "Loupedeck.GenStreamPlugin.icons.CloseDesktop.png";
-        private const String IMGOffline = "Loupedeck.GenStreamPlugin.icons.SoftwareNotFound.png";
+        private const String IMGSceneSelected = "Loupedeck.ObsPlugin.icons.SourceOn.png";
+        private const String IMGSceneUnselected = "Loupedeck.ObsPlugin.icons.SourceOff.png";
+        private const String IMGSceneInaccessible = "Loupedeck.ObsPlugin.icons.CloseDesktop.png";
+        private const String IMGOffline = "Loupedeck.ObsPlugin.icons.SoftwareNotFound.png";
         private const String SourceNameUnknown = "Offline";
 
         public SourceVisibilityCommand()
@@ -104,13 +104,13 @@
             }
 
             // FIXME: We need to learn to cache bitmaps. Here the key can be same 3 items: image name, state # and sourceName text
-            return GenStreamPlugin.NameOverBitmap(imageSize, imageName, sourceName);
+            return ObsPlugin.NameOverBitmap(imageSize, imageName, sourceName);
         }
 
         internal void AddSceneItemParameter(String sceneName, String itemName)
         {
             var key = SceneItemKey.Encode(this.Proxy.CurrentSceneCollection, sceneName, itemName);
-            this.AddParameter(key, $"{itemName} ({sceneName})", this.GroupName);
+            this.AddParameter(key, $"{itemName}", $"{this.GroupName}{CommonStrings.SubgroupSeparator}{sceneName}");
             this.SetCurrentState(key, this.Proxy.AllSceneItems[key].Visible ? 1 : 0);
         }
 

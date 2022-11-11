@@ -1,22 +1,22 @@
-﻿namespace Loupedeck.GenStreamPlugin.Actions
+﻿namespace Loupedeck.ObsPlugin.Actions
 {
     using System;
 
     public class SourceMuteCommand : PluginMultistateDynamicCommand
     {
-        private GenStreamProxy Proxy => (this.Plugin as GenStreamPlugin).Proxy;
+        private ObsAppProxy Proxy => (this.Plugin as ObsPlugin).Proxy;
 
-        private const String IMGSourceMuted = "Loupedeck.GenStreamPlugin.icons.AudioOn.png";
-        private const String IMGSourceUnmuted = "Loupedeck.GenStreamPlugin.icons.AudioOff.png";
-        private const String IMGSourceInaccessible = "Loupedeck.GenStreamPlugin.icons.CloseDesktop.png";
-        private const String IMGOffline = "Loupedeck.GenStreamPlugin.icons.SoftwareNotFound.png";
+        private const String IMGSourceMuted = "Loupedeck.ObsPlugin.icons.AudioOn.png";
+        private const String IMGSourceUnmuted = "Loupedeck.ObsPlugin.icons.AudioOff.png";
+        private const String IMGSourceInaccessible = "Loupedeck.ObsPlugin.icons.CloseDesktop.png";
+        private const String IMGOffline = "Loupedeck.ObsPlugin.icons.SoftwareNotFound.png";
         private const String SourceNameUnknown = "Offline";
         private const String SpecialSourceGroupName = "General Audio";
 
         public SourceMuteCommand()
         {
             this.Name = "Audio Source Mute";
-            this.Description = "Mutes/Unmute Audio Source ";
+            this.Description = "Mutes/Unmutes Audio Source ";
             this.GroupName = "Audio Sources";
 
             this.AddState("Muted", "Audio source muted");
@@ -119,15 +119,19 @@
                     : currentState == 1 ? IMGSourceMuted : IMGSourceUnmuted;
             }
 
-            // FIXME: We need to learn to cache bitmaps. Here the key can be same 3 items: image name, state # and sourceName text
-            return GenStreamPlugin.NameOverBitmap(imageSize, imageName, sourceName);
+            // TODO: We need to learn to cache bitmaps. Here the key can be same 3 items: image name, state # and sourceName text
+            return ObsPlugin.NameOverBitmap(imageSize, imageName, sourceName);
         }
 
         internal void AddSource(String sourceName, Boolean isSpecialSource = false)
         {
             var key = SceneKey.Encode(this.Proxy.CurrentSceneCollection, sourceName);
-            this.AddParameter(key, $"{sourceName} mute", isSpecialSource ? SpecialSourceGroupName : this.GroupName);
+
+            var displayName = sourceName + (isSpecialSource ? "(G)" : "") + " mute";
+            this.AddParameter(key, displayName, this.GroupName);          
             this.SetCurrentState(key, this.Proxy.AppGetMute(sourceName) ? 0 : 1);
+
+            // this.AddParameter(key, $"{sourceName} mute", isSpecialSource ? SpecialSourceGroupName : this.GroupName);
         }
 
         internal void ResetParameters(Boolean readContent)

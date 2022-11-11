@@ -1,22 +1,22 @@
-﻿namespace Loupedeck.GenStreamPlugin.Actions
+﻿namespace Loupedeck.ObsPlugin.Actions
 {
     using System;
 
     public class StudioModeToggleCommand : GenericOnOffSwitch
     {
-        private GenStreamProxy Proxy => (this.Plugin as GenStreamPlugin).Proxy;
+        private ObsAppProxy Proxy => (this.Plugin as ObsPlugin).Proxy;
 
         public StudioModeToggleCommand()
-                : base("Studio Mode", "Toggles Studio Mode on or off", /*no group*/"",
+                : base("Studio Mode toggle", "Enables or disables Studio Mode", /*no group*/"",
                 new String[] {
                     "Command unavailable",
-                    "Toggle On",
-                    "Toggle Off"
+                    "Enable Studio Mode",
+                    "Disable Studio Mode"
                 },
                 new String[] {
-                  "Loupedeck.GenStreamPlugin.icons.SoftwareNotFound.png",
-                  "Loupedeck.GenStreamPlugin.icons.STREAM_EnableStudioMode.png",
-                  "Loupedeck.GenStreamPlugin.icons.STREAM_DisableStudioMode2.png"
+                  "Loupedeck.ObsPlugin.icons.SoftwareNotFound.png",
+                  "Loupedeck.ObsPlugin.icons.STREAM_EnableStudioMode.png",
+                  "Loupedeck.ObsPlugin.icons.STREAM_DisableStudioMode2.png"
                 })
         {
         }

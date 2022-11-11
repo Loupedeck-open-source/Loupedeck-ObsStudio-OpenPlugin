@@ -20,7 +20,7 @@
     The optional (non-blocking) OnConnecting callback (passed in constructor) is just before a connection attempt is made.
     All other connection progress can be monitored using OBS built-in OnConnected and OnDisconnected events.
     */
-namespace Loupedeck.GenStreamPlugin
+namespace Loupedeck.ObsPlugin
 {
     using System;
     using System.IO;

@@ -1,22 +1,22 @@
-﻿namespace Loupedeck.GenStreamPlugin.Actions
+﻿namespace Loupedeck.ObsPlugin.Actions
 {
     using System;
 
     public class RecordingToggleCommand : GenericOnOffSwitch
     {
-        private GenStreamProxy Proxy => (this.Plugin as GenStreamPlugin).Proxy;
+        private ObsAppProxy Proxy => (this.Plugin as ObsPlugin).Proxy;
 
         public RecordingToggleCommand()
-                : base("Toggles Recording", "Toggles Recording on or off", /*no group*/"",
+                : base("Recording Toggle", "Toggles Recording on or off", /*no group*/"",
                 new String[] {
                     "Command unavailable",
                     "Start Recording",
                     "Stop Recording"
                 },
                 new String[] {
-                  "Loupedeck.GenStreamPlugin.icons.SoftwareNotFound.png",
-                  "Loupedeck.GenStreamPlugin.icons.STREAM_ToggleRecord2.png",
-                  "Loupedeck.GenStreamPlugin.icons.STREAM_ToggleRecord1.png"
+                  "Loupedeck.ObsPlugin.icons.SoftwareNotFound.png",
+                  "Loupedeck.ObsPlugin.icons.STREAM_ToggleRecord2.png",
+                  "Loupedeck.ObsPlugin.icons.STREAM_ToggleRecord1.png"
                 })
         {
         }

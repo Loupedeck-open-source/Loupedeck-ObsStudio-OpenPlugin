@@ -1,22 +1,22 @@
-﻿namespace Loupedeck.GenStreamPlugin.Actions
+﻿namespace Loupedeck.ObsPlugin.Actions
 {
     using System;
 
     public class VirtualCameraToggleCommand : GenericOnOffSwitch
     {
-        private GenStreamProxy Proxy => (this.Plugin as GenStreamPlugin).Proxy;
+        private ObsAppProxy Proxy => (this.Plugin as ObsPlugin).Proxy;
 
         public VirtualCameraToggleCommand()
-                : base("Virtual Camera", "Toggles Virtual Camera on or off", /*no group*/"",
+                : base("Virtual Camera toggle", "Toggles Virtual Camera on or off", /*no group*/"",
                 new String[] {
                     "Command unavailable",
                     "Start Virtual Camera",
                     "Stop Virtual Camera"
                 },
                 new String[] {
-                  "Loupedeck.GenStreamPlugin.icons.SoftwareNotFound.png",
-                  "Loupedeck.GenStreamPlugin.icons.VirtualWebcam.png",
-                  "Loupedeck.GenStreamPlugin.icons.VirtualWebcamOff.png"
+                  "Loupedeck.ObsPlugin.icons.SoftwareNotFound.png",
+                  "Loupedeck.ObsPlugin.icons.VirtualWebcam.png",
+                  "Loupedeck.ObsPlugin.icons.VirtualWebcamOff.png"
                 })
         {
         }

@@ -1,13 +1,13 @@
-namespace Loupedeck.GenStreamPlugin
+namespace Loupedeck.ObsPlugin
 {
     using System;
     using System.IO;
 
     // This class can be used to connect the Loupedeck plugin to an application.
 
-    public class GenStreamApplication : ClientApplication
+    public class ObsApplication : ClientApplication
     {
-        public GenStreamApplication()
+        public ObsApplication()
         {
         }
 

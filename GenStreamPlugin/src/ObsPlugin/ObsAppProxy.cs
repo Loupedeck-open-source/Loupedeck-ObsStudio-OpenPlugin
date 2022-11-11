@@ -1,4 +1,4 @@
-﻿namespace Loupedeck.GenStreamPlugin
+﻿namespace Loupedeck.ObsPlugin
 {
     // TODO:
 
@@ -14,24 +14,21 @@
     // HOW TO STOP SHOWING SOURCES THAT ARE NOT VISIBLE IN MIXER
 
     // Simple actions
-    //  Transition
-    //  Save replay buffer
+    //*  Transition
+    //*  Save replay buffer
 
     // Toggle
-    //  Recording pause/resume
+    //*  Recording pause/resume
     // Special
     //  Universal toggle (Tree)
     // CPU
     //  Add Multistate-Parameter Profile
     // Useful command -- RefreshBrowserSource
     // NB for sources -- TakeSourceScreenshot
-
-    // ? Visualiue source action?
-
+    // ? source action?
     // For all actions,
     //  - Handle added/deleted/created/destroyed signals (editing)
-
-    // --> FOr later, upgrade to new OBS websocket and see if port/password can be parsed from the Ini file in C:\Users\[User]\AppData\Roaming\obs-studio
+    // --> For later, upgrade to new OBS websocket and see if port/password can be parsed from the Ini file in C:\Users\[User]\AppData\Roaming\obs-studio
 
     using System;
 
@@ -39,7 +36,7 @@
     /// Proxy to OBS websocket server, for API reference see
     /// https://github.com/obsproject/obs-websocket/blob/4.x-compat/docs/generated/protocol.md
     /// </summary>
-    public partial class GenStreamProxy : OBSWebsocketDotNet.OBSWebsocket
+    public partial class ObsAppProxy : OBSWebsocketDotNet.OBSWebsocket
     {
         // Our 'own' events
         public event EventHandler<EventArgs> EvtAppConnected;
@@ -49,14 +46,14 @@
         // Properties
         public Boolean IsAppConnected => this.IsConnected;
 
-        public GenStreamProxy()
+        public ObsAppProxy()
         {
             // OBS Websocket events
             this.Connected += this.OnAppConnected;
             this.Disconnected += this.OnAppDisconnected;
         }
 
-        ~GenStreamProxy()
+        ~ObsAppProxy()
         {
             this.Connected -= this.OnAppConnected;
             this.Disconnected -= this.OnAppDisconnected;
@@ -75,6 +72,8 @@
             // Notifying all subscribers on App Connected
             // Fetching initial states for controls
             this.RecordingStateChanged += this.OnObsRecordingStateChange;
+            this.RecordingPaused += this.OnObsRecordPaused;
+            this.RecordingResumed += this.OnObsRecordResumed;
             this.StreamingStateChanged += this.OnObsStreamingStateChange;
             this.VirtualCameraStarted += this.OnObsVirtualCameraStarted;
             this.VirtualCameraStopped += this.OnObsVirtualCameraStopped;
@@ -95,6 +94,9 @@
 
             this.SourceCreated += this.OnObsSourceCreated;
             this.SourceDestroyed += this.OnObsSourceDestroyed;
+
+            this.SourceAudioActivated += this.OnObsSourceAudioActivated;
+            this.SourceAudioDeactivated += this.OnObsSourceAudioDeactivated;
 
             this.EvtAppConnected?.Invoke(sender, e);
 
@@ -136,6 +138,9 @@
 
             // Unsubscribing from App events here
             this.RecordingStateChanged -= this.OnObsRecordingStateChange;
+            this.RecordingPaused -= this.OnObsRecordPaused;
+            this.RecordingResumed -= this.OnObsRecordResumed;
+
             this.StreamingStateChanged -= this.OnObsStreamingStateChange;
             this.VirtualCameraStarted -= this.OnObsVirtualCameraStarted;
             this.VirtualCameraStopped -= this.OnObsVirtualCameraStopped;
@@ -155,6 +160,9 @@
             this.SourceDestroyed -= this.OnObsSourceDestroyed;
 
             this.SourceMuteStateChanged -= this.OnObsSourceMuteStateChanged;
+
+            this.SourceAudioActivated -= this.OnObsSourceAudioActivated;
+            this.SourceAudioDeactivated -= this.OnObsSourceAudioDeactivated;
 
             this.EvtAppDisconnected?.Invoke(sender, e);
         }
