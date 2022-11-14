@@ -7,8 +7,8 @@
     <ProjectGuid>{162A9B7F-0A18-47E8-B039-0AA4C924EA5B}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Loupedeck.GenStreamPlugin</RootNamespace>
-    <AssemblyName>GenStreamPlugin</AssemblyName>
+    <RootNamespace>Loupedeck.ObsPlugin</RootNamespace>
+    <AssemblyName>ObsPlugin</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -20,8 +20,8 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath Condition="$(OS) == 'Windows_NT'">$(LocalAppData)\Loupedeck\Plugins\GenStream\win\</OutputPath>
-    <OutputPath Condition="$(OS) != 'Windows_NT'">$(HOME)/.local/share/Loupedeck/Plugins/GenStream/mac/</OutputPath>
+    <OutputPath Condition="$(OS) == 'Windows_NT'">$(LocalAppData)\Loupedeck\Plugins\ObsPlugin\win\</OutputPath>
+    <OutputPath Condition="$(OS) != 'Windows_NT'">$(HOME)/.local/share/Loupedeck/Plugins/ObsPlugin/mac/</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -32,7 +32,7 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
+    <Optimize>false</Optimize>
     <OutputPath Condition="$(OS) == 'Windows_NT'">$(BaseOutputPath)$(Configuration)\win\</OutputPath>
     <OutputPath Condition="$(OS) != 'Windows_NT'">$(BaseOutputPath)$(Configuration)/mac/</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
@@ -42,11 +42,13 @@
   <ItemGroup>
     <Reference Include="LoupedeckShared">
       <HintPath>..\..\..\..\..\Program Files (x86)\Loupedeck\Loupedeck2\LoupedeckShared.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="PluginApi, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath Condition="$(OS) == 'Windows_NT'">C:\Program Files (x86)\Loupedeck\Loupedeck2\PluginApi.dll</HintPath>
       <HintPath Condition="$(OS) != 'Windows_NT'">/Applications/Loupedeck.app/Contents/MonoBundle/PluginApi.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -157,6 +159,19 @@
   <ItemGroup>
     <EmbeddedResource Include="icons\STREAM_RecordPause.png" />
     <EmbeddedResource Include="icons\STREAM_RecordResume.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="metadata\Icon16x16.png" />
+    <EmbeddedResource Include="metadata\Icon256x256.png" />
+    <EmbeddedResource Include="metadata\Icon32x32.png" />
+    <EmbeddedResource Include="metadata\Icon48x48.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="icons\animated-camera.gif" />
+    <EmbeddedResource Include="icons\animated-pause.gif" />
+    <EmbeddedResource Include="icons\animated-record.gif" />
+    <EmbeddedResource Include="icons\animated-streaming.gif" />
+    <EmbeddedResource Include="icons\animated-studio.gif" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
