@@ -11,7 +11,7 @@
         private const String IMGSourceInaccessible = "Loupedeck.ObsPlugin.icons.CloseDesktop.png";
         private const String IMGOffline = "Loupedeck.ObsPlugin.icons.SoftwareNotFound.png";
         private const String SourceNameUnknown = "Offline";
-        private const String SpecialSourceGroupName = "General Audio";
+        // private const String SpecialSourceGroupName = "General Audio";
 
         public SourceMuteCommand()
         {
@@ -19,8 +19,8 @@
             this.Description = "Mutes/Unmutes Audio Source ";
             this.GroupName = "Audio Sources";
 
-            this.AddState("Muted", "Audio source muted");
-            this.AddState("Unmuted", "Audio source unmuted");
+            _ = this.AddState("Muted", "Audio source muted");
+            _ = this.AddState("Unmuted", "Audio source unmuted");
         }
 
         protected override Boolean OnLoad()
@@ -77,7 +77,7 @@
         private void OnSourceDestroyed(String sourceName)
         {
             var key = SceneKey.Encode(this.Proxy.CurrentSceneCollection, sourceName);
-            if (this.TryGetParameter(key, out var param))
+            if (this.TryGetParameter(key, out _))
             {
                 this.RemoveParameter(key);
                 this.ParametersChanged();
@@ -98,10 +98,11 @@
         {
             var actionParameter = SceneKey.Encode(this.Proxy.CurrentSceneCollection, sourceName);
 
+
             // FIXME: Check if this 'has parameter' check is needed.
-            if (this.TryGetParameter(actionParameter, out var param))
+            if (this.TryGetParameter(actionParameter, out _))
             {
-                this.SetCurrentState(actionParameter, isMuted ? 0 : 1);
+                _ = this.SetCurrentState(actionParameter, isMuted ? 0 : 1);
                 this.ActionImageChanged();
             }
         }
@@ -128,8 +129,8 @@
             var key = SceneKey.Encode(this.Proxy.CurrentSceneCollection, sourceName);
 
             var displayName = sourceName + (isSpecialSource ? "(G)" : "") + " mute";
-            this.AddParameter(key, displayName, this.GroupName);          
-            this.SetCurrentState(key, this.Proxy.AppGetMute(sourceName) ? 0 : 1);
+            this.AddParameter(key, displayName, this.GroupName);
+            _ = this.SetCurrentState(key, this.Proxy.AppGetMute(sourceName) ? 0 : 1);
 
             // this.AddParameter(key, $"{sourceName} mute", isSpecialSource ? SpecialSourceGroupName : this.GroupName);
         }
@@ -140,7 +141,7 @@
 
             if (readContent)
             {
-                this.Proxy.Trace($"Adding {this.Proxy.CurrentAudioSources.Count} sources");
+                ObsPlugin.Trace($"Adding {this.Proxy.CurrentAudioSources.Count} sources");
 
                 foreach (var item in this.Proxy.CurrentAudioSources)
                 {

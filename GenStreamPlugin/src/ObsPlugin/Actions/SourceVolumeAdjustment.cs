@@ -12,7 +12,7 @@
         private const String IMGSourceInaccessible = "Loupedeck.ObsPlugin.icons.CloseDesktop.png";
         private const String IMGOffline = "Loupedeck.ObsPlugin.icons.SoftwareNotFound.png";
         private const String SourceNameUnknown = "Offline";
-        private const String SpecialSourceGroupName = "General Audio";
+        // private const String SpecialSourceGroupName = "General Audio";
 
         public SourceVolumeAdjustment()
             : base(false)
@@ -80,7 +80,7 @@
             }
             else
             {
-                this.Proxy.Trace($"Warning: Cannot  parse actionParameter {actionParameter}");
+                ObsPlugin.Trace($"Warning: Cannot  parse actionParameter {actionParameter}");
             }
         }
 
@@ -100,8 +100,9 @@
         {
             var actionParameter = SceneKey.Encode(this.Proxy.CurrentSceneCollection, sourceName);
 
+
             // FIXME: Check if this 'has parameter' check is needed.
-            if (this.TryGetParameter(actionParameter, out var param))
+            if (this.TryGetParameter(actionParameter, out _))
             {
                 this._muteStates[actionParameter] = isMuted;
 
@@ -155,10 +156,11 @@
         private void OnSourceDestroyed(String sourceName)
         {
             var key = SceneKey.Encode(this.Proxy.CurrentSceneCollection, sourceName);
-            if (this.TryGetParameter(key, out var param))
+
+            if (this.TryGetParameter(key, out _))
             {
                 this.RemoveParameter(key);
-                this._muteStates.Remove(key);
+                _ = this._muteStates.Remove(key);
                 this.ParametersChanged();
             }
         }

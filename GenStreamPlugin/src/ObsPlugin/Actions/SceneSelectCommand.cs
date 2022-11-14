@@ -18,8 +18,8 @@
             this.Description = "Activates Scene";
             this.GroupName = "Scenes";
 
-            this.AddState("Unselected", "Scene unselected");
-            this.AddState("Selected", "Scene selected");
+            _ = this.AddState("Unselected", "Scene unselected");
+            _ = this.AddState("Selected", "Scene selected");
         }
 
         protected override Boolean OnLoad()
@@ -60,12 +60,12 @@
 
             if (readContent)
             {
-                this.Proxy.Trace($"Adding {this.Proxy.Scenes?.Count} scene items");
+                ObsPlugin.Trace($"Adding {this.Proxy.Scenes?.Count} scene items");
                 foreach (var scene in this.Proxy.Scenes)
                 {
                     var key = SceneKey.Encode(this.Proxy.CurrentSceneCollection, scene.Name);
                     this.AddParameter(key, scene.Name, this.GroupName);
-                    this.SetCurrentState(key, scene.Name.Equals(this.Proxy.CurrentScene?.Name) ? 1 : 0);
+                    _ = this.SetCurrentState(key, scene.Name.Equals(this.Proxy.CurrentScene?.Name) ? 1 : 0);
                 }
             }
 
@@ -80,12 +80,12 @@
             // resetting selection
             foreach (var par in this.GetParameters())
             {
-                this.SetCurrentState(par.Name, 0);
+                _ = this.SetCurrentState(par.Name, 0);
             }
 
             if (!String.IsNullOrEmpty(this.Proxy.CurrentScene?.Name))
             {
-                this.SetCurrentState(SceneKey.Encode(this.Proxy.CurrentSceneCollection, this.Proxy.CurrentScene?.Name), 1);
+                _ = this.SetCurrentState(SceneKey.Encode(this.Proxy.CurrentSceneCollection, this.Proxy.CurrentScene?.Name), 1);
             }
 
             this.ActionImageChanged();

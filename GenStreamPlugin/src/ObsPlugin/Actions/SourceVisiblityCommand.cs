@@ -18,8 +18,8 @@
             this.Description = "Shows/Hides a Source";
             this.GroupName = "Current Sources";
 
-            this.AddState("Hidden", "Source hidden");
-            this.AddState("Visible", "Source visible");
+            _ = this.AddState("Hidden", "Source hidden");
+            _ = this.AddState("Visible", "Source visible");
         }
 
         protected override Boolean OnLoad()
@@ -86,7 +86,7 @@
         protected void OnSceneItemVisibilityChanged(OBSWebsocketDotNet.OBSWebsocket sender, String sceneName, String itemName, Boolean isVisible)
         {
             var actionParameter = SceneItemKey.Encode(this.Proxy?.CurrentSceneCollection, sceneName, itemName);
-            this.SetCurrentState(actionParameter, isVisible ? 1 : 0);
+            _ = this.SetCurrentState(actionParameter, isVisible ? 1 : 0);
             this.ActionImageChanged();
         }
 
@@ -111,7 +111,7 @@
         {
             var key = SceneItemKey.Encode(this.Proxy.CurrentSceneCollection, sceneName, itemName);
             this.AddParameter(key, $"{itemName}", $"{this.GroupName}{CommonStrings.SubgroupSeparator}{sceneName}");
-            this.SetCurrentState(key, this.Proxy.AllSceneItems[key].Visible ? 1 : 0);
+            _ = this.SetCurrentState(key, this.Proxy.AllSceneItems[key].Visible ? 1 : 0);
         }
 
         internal void ResetParameters(Boolean readContent)
@@ -120,7 +120,7 @@
 
             if (readContent)
             {
-                this.Proxy.Trace($"Adding {this.Proxy.AllSceneItems?.Count} sources");
+                ObsPlugin.Trace($"Adding {this.Proxy.AllSceneItems?.Count} sources");
 
                 foreach (var item in this.Proxy.AllSceneItems)
                 {
