@@ -1,0 +1,62 @@
+﻿namespace Loupedeck.ObsPlugin
+{
+    using System;
+    using System.Collections.Generic;
+
+    using OBSWebsocketDotNet;
+
+    /// <summary>
+    /// Proxy to OBS websocket server, for API reference see
+    /// https://github.com/obsproject/obs-websocket/blob/4.x-compat/docs/generated/protocol.md
+    /// </summary>
+    public partial class ObsAppProxy
+    {
+        public event EventHandler<EventArgs> AppEvtSceneCollectionsChanged;
+
+        public event EventHandler<EventArgs> AppEvtCurrentSceneCollectionChanged;
+
+        public List<String> SceneCollections { get; private set; }
+
+        public String CurrentSceneCollection { get; private set; }
+
+        private void OnObsSceneCollectionListChanged(Object sender, EventArgs e)
+        {
+            ObsPlugin.Trace("OBS SceneCollectionList changed");
+
+            if (Helpers.TryExecuteSafe(() => this.SceneCollections = this.ListSceneCollections()))
+            {
+                ObsPlugin.Trace($"Retreived list of {this.SceneCollections.Count} collections");
+
+                this.AppEvtSceneCollectionsChanged?.Invoke(sender, e);
+            }
+        }
+
+        private void OnObsSceneCollectionChanged(Object sender, EventArgs e)
+        {
+            var oldSceneCollection = this.CurrentSceneCollection;
+#pragma warning disable IDE0053 // Use expression body for lambda expressions
+            if (Helpers.TryExecuteSafe(() => { this.CurrentSceneCollection = this.GetCurrentSceneCollection(); }))
+#pragma warning restore IDE0053 // Use expression body for lambda expressions
+            {
+                ObsPlugin.Trace($"OBS Current Scene collection changed from {oldSceneCollection} to {this.CurrentSceneCollection}");
+
+                // Regenerating all internal structures
+                this.OnObsSceneListChanged(sender, e);
+                this.AppEvtCurrentSceneCollectionChanged?.Invoke(sender, e);
+            }
+            else
+            {
+                ObsPlugin.Trace($"OBS Warning: cannot handle Collection Changed");
+            }
+        }
+
+        public void AppSwitchToSceneCollection(String newCollection)
+        {
+            if (this.IsAppConnected && this.SceneCollections.Contains(newCollection) && this.CurrentSceneCollection != newCollection)
+            {
+                ObsPlugin.Trace($"Switching to Scene Collection {newCollection}");
+                _ = Helpers.TryExecuteSafe(() => this.SetCurrentSceneCollection(newCollection));
+            }
+        }
+    }
+}
