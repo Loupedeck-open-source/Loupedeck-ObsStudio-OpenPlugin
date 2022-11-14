@@ -2,6 +2,9 @@ namespace Loupedeck.ObsPlugin
 {
     using System;
 
+    // NOTE: FOR RELEASE BUILD, 'optimization needs to be turned  off in the Build tab of project properties
+    // In order to make ReadEmbedded images properly working!
+
     // This class contains the plugin-level logic of the Loupedeck plugin.
 
     public class ObsPlugin : Plugin
@@ -100,11 +103,15 @@ namespace Loupedeck.ObsPlugin
 
                 if (!String.IsNullOrEmpty(text))
                 {
+                    // TODO: Draw darker text in the bottom third of the image
                     bitmapBuilder.DrawText(text);
+                    
                 }
 
                 return bitmapBuilder.ToImage();
             }
         }
+
+        public static void Trace(String line) => Tracer.Trace("GSP:" + line); /*System.Diagnostics.Debug.WriteLine(*/
     }
 }

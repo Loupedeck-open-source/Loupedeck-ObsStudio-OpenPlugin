@@ -59,11 +59,9 @@
             this.Disconnected -= this.OnAppDisconnected;
         }
 
-        public void Trace(String s) => Tracer.Trace("GSP:" + s);
-
         private void OnAppConnected(Object sender, EventArgs e)
         {
-            this.Trace("Entering AppConnected");
+            ObsPlugin.Trace("Entering AppConnected");
 
             this.OnAppConnected_RetreiveSourceTypes();
             this.OnAppConnected_RetreiveSpecialSources();
@@ -100,33 +98,33 @@
 
             this.EvtAppConnected?.Invoke(sender, e);
 
-            this.Trace("AppConnected: Initializing data");
+            ObsPlugin.Trace("AppConnected: Initializing data");
 
-            Helpers.TryExecuteSafe(() =>
-            {
-                var streamingStatus = this.GetStreamingStatus();
-                var vcamstatus = this.GetVirtualCamStatus();
-                var studioModeStatus = this.StudioModeEnabled();
+            _ = Helpers.TryExecuteSafe(() =>
+              {
+                  var streamingStatus = this.GetStreamingStatus();
+                  var vcamstatus = this.GetVirtualCamStatus();
+                  var studioModeStatus = this.StudioModeEnabled();
 
-                if (streamingStatus != null)
-                {
-                    this.OnObsRecordingStateChange(this, streamingStatus.IsRecording ? OBSWebsocketDotNet.Types.OutputState.Started : OBSWebsocketDotNet.Types.OutputState.Stopped);
-                    this.OnObsStreamingStateChange(this, streamingStatus.IsStreaming ? OBSWebsocketDotNet.Types.OutputState.Started : OBSWebsocketDotNet.Types.OutputState.Stopped);
-                }
+                  if (streamingStatus != null)
+                  {
+                      this.OnObsRecordingStateChange(this, streamingStatus.IsRecording ? OBSWebsocketDotNet.Types.OutputState.Started : OBSWebsocketDotNet.Types.OutputState.Stopped);
+                      this.OnObsStreamingStateChange(this, streamingStatus.IsStreaming ? OBSWebsocketDotNet.Types.OutputState.Started : OBSWebsocketDotNet.Types.OutputState.Stopped);
+                  }
 
-                if (vcamstatus != null && vcamstatus.IsActive)
-                {
-                    this.OnObsVirtualCameraStarted(sender, e);
-                }
-                else
-                {
-                    this.OnObsVirtualCameraStopped(sender, e);
-                }
+                  if (vcamstatus != null && vcamstatus.IsActive)
+                  {
+                      this.OnObsVirtualCameraStarted(sender, e);
+                  }
+                  else
+                  {
+                      this.OnObsVirtualCameraStopped(sender, e);
+                  }
 
-                this.OnObsStudioModeStateChange(sender, studioModeStatus);
+                  this.OnObsStudioModeStateChange(sender, studioModeStatus);
 
-                this.OnObsSceneCollectionListChanged(sender, e);
-                this.OnObsSceneCollectionChanged(sender, e);
+                  this.OnObsSceneCollectionListChanged(sender, e);
+                  this.OnObsSceneCollectionChanged(sender, e);
 
                 // this.OnObsSceneListChanged(sender, e) is called form SceneCollectionChanged
             });
@@ -134,7 +132,7 @@
 
         private void OnAppDisconnected(Object sender, EventArgs e)
         {
-            this.Trace("Entering AppDisconnected");
+            ObsPlugin.Trace("Entering AppDisconnected");
 
             // Unsubscribing from App events here
             this.RecordingStateChanged -= this.OnObsRecordingStateChange;

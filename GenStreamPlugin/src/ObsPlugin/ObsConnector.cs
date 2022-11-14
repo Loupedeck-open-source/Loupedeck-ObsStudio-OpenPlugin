@@ -62,7 +62,7 @@ namespace Loupedeck.ObsPlugin
             this._obs = obs;
             this.ConnectingCallback = connectingCallback;
 
-            IoHelpers.EnsureDirectoryExists(plugin_data_directory);
+            _ = IoHelpers.EnsureDirectoryExists(plugin_data_directory);
             this._fs_watcher = new FileSystemWatcher(plugin_data_directory);
             this._fs_watcher.NotifyFilter = NotifyFilters.CreationTime
                                | NotifyFilters.FileName
@@ -98,7 +98,7 @@ namespace Loupedeck.ObsPlugin
             this._fs_watcher.EnableRaisingEvents = true;
 
             // Attempting to connect right away
-            Task.Run(() => Helpers.TryExecuteSafe(() => this.Connect()));
+            _ = Task.Run(() => Helpers.TryExecuteSafe(() => this.Connect()));
         }
 
         public void Stop() =>
@@ -117,7 +117,7 @@ namespace Loupedeck.ObsPlugin
         {
             // Starting the timer
             this._connect_retry_timer.Enabled = true;
-            Tracer.Trace($"OBS: Re-trying connection in {this._connect_retry_timer.Interval} ms ");
+            ObsPlugin.Trace($"OBS: Re-trying connection in {this._connect_retry_timer.Interval} ms ");
         }
 
         private void Connect()
@@ -158,7 +158,7 @@ namespace Loupedeck.ObsPlugin
                 // Actual connection
                 var obs_ws_conn = $"ws://localhost:{wsPort}";
 
-                Tracer.Trace($"OBS: connecting to '{obs_ws_conn}' ");
+                ObsPlugin.Trace($"OBS: connecting to '{obs_ws_conn}' ");
 
                 this.ConnectingCallback?.Invoke();
 
