@@ -18,8 +18,8 @@
             this.Description = "Activates Scene collection";
             this.GroupName = "Scene Collections";
 
-            this.AddState("Unselected", "Scene collection unselected");
-            this.AddState("Selected", "Scene collection selected");
+            _ = this.AddState("Unselected", "Scene collection unselected");
+            _ = this.AddState("Selected", "Scene collection selected");
         }
 
         protected override Boolean OnLoad()
@@ -62,11 +62,11 @@
                 foreach (var coll in this.Proxy.SceneCollections)
                 {
                     this.AddParameter(coll, coll, this.GroupName);
-                    this.SetCurrentState(coll, 0);
+                    _ = this.SetCurrentState(coll, 0);
                 }
                 if (!String.IsNullOrEmpty(this.Proxy.CurrentSceneCollection))
                 {
-                    this.SetCurrentState(this.Proxy.CurrentSceneCollection, 1);
+                    _ = this.SetCurrentState(this.Proxy.CurrentSceneCollection, 1);
                 }
             }
 
@@ -80,12 +80,12 @@
         {
             foreach (var par in this.GetParameters())
             {
-                this.SetCurrentState(par.Name, 0);
+                _ = this.SetCurrentState(par.Name, 0);
             }
 
             if (!String.IsNullOrEmpty(this.Proxy.CurrentSceneCollection))
             {
-                this.SetCurrentState(this.Proxy.CurrentSceneCollection, 1);
+                _ = this.SetCurrentState(this.Proxy.CurrentSceneCollection, 1);
             }
 
             this.ActionImageChanged();
