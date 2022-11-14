@@ -4,7 +4,7 @@
 
     public class ReplayBufferSaveCommand: PluginDynamicCommand
     {
-        private const String IMGAction = "Loupedeck.ObsPlugin.icons.STREAM_SaveReplayBuffer.png";
+        private const String IMGAction = "Loupedeck.ObsPlugin.icons.STREAM_SaveReplay.png";                                          
 
         private ObsAppProxy Proxy => (this.Plugin as ObsPlugin).Proxy;
 
