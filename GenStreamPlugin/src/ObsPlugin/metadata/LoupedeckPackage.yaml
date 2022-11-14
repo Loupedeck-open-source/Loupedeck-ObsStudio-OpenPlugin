@@ -1,4 +1,4 @@
-)=# ==================================================================================================
+# ==================================================================================================
 # GENERAL SETTINGS
 # ==================================================================================================
 
@@ -6,13 +6,13 @@
 type: plugin4
 
 # Name of the plugin.
-name: OBS Studio V2
+name: ObsPlugin
 
 # Name that is displayed in the Loupedeck configuration application.
-displayName: OBS StudioV2
+displayName: OBS Studio Plugin
 
 # Name of the plugin library file.
-pluginFileName: GenStreamPlugin.dll
+pluginFileName: ObsPlugin.dll 
 
 # Plugin version.
 version: 0.1
