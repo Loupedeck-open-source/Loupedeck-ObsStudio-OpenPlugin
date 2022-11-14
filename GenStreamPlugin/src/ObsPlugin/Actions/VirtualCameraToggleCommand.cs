@@ -7,32 +7,29 @@
         private ObsAppProxy Proxy => (this.Plugin as ObsPlugin).Proxy;
 
         public VirtualCameraToggleCommand()
-                : base("Virtual Camera toggle", "Toggles Virtual Camera on or off", /*no group*/"",
-                new String[] {
-                    "Command unavailable",
-                    "Start Virtual Camera",
-                    "Stop Virtual Camera"
-                },
-                new String[] {
-                  "Loupedeck.ObsPlugin.icons.SoftwareNotFound.png",
-                  "Loupedeck.ObsPlugin.icons.VirtualWebcam.png",
-                  "Loupedeck.ObsPlugin.icons.VirtualWebcamOff.png"
-                })
+                  : base(displayName: "Virtual Camera Toggle",
+                    description: "Toggles Virtual Camera on or off",
+                    groupName: "",
+                    offStateName: "Start Virtual Camera",
+                    onStateName: "Stop Virtual Camera",
+                    offStateImage: "Loupedeck.ObsPlugin.icons.VirtualWebcam.png",
+                    onStateImage: "Loupedeck.ObsPlugin.icons.animated-camera.gif")
         {
         }
 
-        protected override void ConnectAppEvents(EventHandler<EventArgs> onEvent, EventHandler<EventArgs> offEvent)
+        protected override void ConnectAppEvents(EventHandler<EventArgs> eventSwitchedOff, EventHandler<EventArgs> eventSwitchedOn)
         {
-            this.Proxy.AppEvtVirtualCamOff += offEvent;
-            this.Proxy.AppEvtVirtualCamOn += onEvent;
+            this.Proxy.AppEvtVirtualCamOff += eventSwitchedOn;
+            this.Proxy.AppEvtVirtualCamOn += eventSwitchedOff;
         }
 
-        protected override void DisconnectAppEvents(EventHandler<EventArgs> onEvent, EventHandler<EventArgs> offEvent)
+        protected override void DisconnectAppEvents(EventHandler<EventArgs> eventSwitchedOff, EventHandler<EventArgs> eventSwitchedOn)
         {
-            this.Proxy.AppEvtVirtualCamOff -= offEvent;
-            this.Proxy.AppEvtVirtualCamOn -= onEvent;
+            this.Proxy.AppEvtVirtualCamOff -= eventSwitchedOn;
+            this.Proxy.AppEvtVirtualCamOn -= eventSwitchedOff;
         }
 
-        protected override void RunCommand(String actionParameter) => this.Proxy.AppToggleVirtualCam();
+        protected override void RunToggle() => this.Proxy.AppToggleVirtualCam();
+
     }
 }

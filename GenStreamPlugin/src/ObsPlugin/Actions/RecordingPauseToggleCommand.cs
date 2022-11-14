@@ -7,58 +7,63 @@
         private ObsAppProxy Proxy => (this.Plugin as ObsPlugin).Proxy;
 
         public RecordingPauseToggleCommand()
-                : base("Recording Pause", "Pauses/Resumes recording", /*no group*/"",
-                new String[] {
-                    "Command unavailable",
-                    "Pause recording",
-                    "Resume recording"
-                },
-                new String[] {
-                  "Loupedeck.ObsPlugin.icons.SoftwareNotFound.png",
-                  "Loupedeck.ObsPlugin.icons.STREAM_RecordPause.png",
-                  "Loupedeck.ObsPlugin.icons.STREAM_RecordResume.png"
-                })
+                : base(displayName:    "Recording Pause", 
+                       description:    "Pauses/resumes recording", 
+                       groupName:      "",
+                       offStateName:   "Pause recording",
+                       onStateName:    "Resume recording",
+                       offStateImage:  "Loupedeck.ObsPlugin.icons.STREAM_RecordPause.png",
+                       onStateImage:   "Loupedeck.ObsPlugin.icons.animated-pause.gif")
         {
         }
 
         protected void OnAppRecordingStarted(Object sender, EventArgs e)
         {
-            this.SetCurrentState(0); 
+            //Note the command is only enabled if there is recording!
+            this.TurnOff();
             this.IsEnabled = true;
+            this.isPaused = false;
         }
+
+        private Boolean isPaused = false; 
 
         protected void OnAppRecordingStopped(Object sender, EventArgs e)
         {
+            this.TurnOff();
             this.IsEnabled = false;
-            this.SetCurrentState(0); 
+            this.isPaused = false;
         }
 
         protected void OnAppRecordingResumed(Object sender, EventArgs e)
         {
-            //Note this can be called from OnLoad as well (OffEvent) in which case we check if we are InRecording
+            //Note this can be called from OnLoad as well (eventSwitchedOn) in which case we check if we are InRecording
             this.IsEnabled = this.Proxy.InRecording;
-            this.ActionImageChanged();
+            this.isPaused = false;
+            this.TurnOff();
+            
         }
 
         protected void OnAppRecordingPaused(Object sender, EventArgs e)
         {
-            this.ActionImageChanged();
+            this.isPaused = true;
+            this.TurnOn();
         }
 
-        protected override void ConnectAppEvents(EventHandler<EventArgs> onEvent, EventHandler<EventArgs> offEvent)
+        protected override void ConnectAppEvents(EventHandler<EventArgs> eventSwitchedOff, EventHandler<EventArgs> eventSwitchedOn)
         {
-            this.Proxy.AppEvtRecordingResumed += onEvent;
-            this.Proxy.AppEvtRecordingPaused += offEvent;
+            this.Proxy.AppEvtRecordingResumed += eventSwitchedOff;
+            this.Proxy.AppEvtRecordingPaused += eventSwitchedOn;
+
             this.Proxy.AppEvtRecordingOff += this.OnAppRecordingStopped;
             this.Proxy.AppEvtRecordingOn += this.OnAppRecordingStarted;
             this.Proxy.AppEvtRecordingPaused += this.OnAppRecordingPaused;
             this.Proxy.AppEvtRecordingResumed += this.OnAppRecordingResumed;
         }
 
-        protected override void DisconnectAppEvents(EventHandler<EventArgs> onEvent, EventHandler<EventArgs> offEvent)
+        protected override void DisconnectAppEvents(EventHandler<EventArgs> eventSwitchedOff, EventHandler<EventArgs> eventSwitchedOn)
         {
-            this.Proxy.AppEvtRecordingResumed -= onEvent;
-            this.Proxy.AppEvtRecordingPaused -= offEvent;
+            this.Proxy.AppEvtRecordingResumed -= eventSwitchedOff;
+            this.Proxy.AppEvtRecordingPaused -= eventSwitchedOn;
             this.Proxy.AppEvtRecordingOff -= this.OnAppRecordingStopped;
             this.Proxy.AppEvtRecordingOn -= this.OnAppRecordingStarted;
             this.Proxy.AppEvtRecordingPaused -= this.OnAppRecordingPaused;
@@ -66,18 +71,15 @@
 
         }
 
-        protected override void RunCommand(String actionParameter)
+        protected override void RunToggle()
         {
-            if(this.TryGetCurrentStateIndex(out var currentState))
+            if(this.isPaused)
             {
-                if(currentState == 0)
-                {
-                    this.Proxy.AppPauseRecording();
-                }
-                else
-                {
-                    this.Proxy.AppResumeRecording();
-                }
+                this.Proxy.AppResumeRecording();
+            }
+            else
+            {
+                this.Proxy.AppPauseRecording();
             }
         }
     }

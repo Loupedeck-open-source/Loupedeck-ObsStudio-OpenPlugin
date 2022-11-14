@@ -7,32 +7,29 @@
         private ObsAppProxy Proxy => (this.Plugin as ObsPlugin).Proxy;
 
         public StreamingToggleCommand()
-                : base("Toggle Streaming", "Toggles Streaming on or off", /*no group*/"",
-                new String[] {
-                    "Command unavailable",
-                    "Toggle On",
-                    "Toggle Off"
-                },
-                new String[] {
-                  "Loupedeck.ObsPlugin.icons.SoftwareNotFound.png",
-                  "Loupedeck.ObsPlugin.icons.STREAM_StartStreamingGreen.png",
-                  "Loupedeck.ObsPlugin.icons.STREAM_StopStreamingRed.png"
-                })
+                     : base(displayName: "Streaming Toggle",
+                    description: "Toggles Streaming on or off",
+                    groupName: "",
+                    offStateName: "Start streaming",
+                    onStateName: "Stop streaming",
+                    offStateImage: "Loupedeck.ObsPlugin.icons.STREAM_StartStreamingGreen.png",
+                    onStateImage: "Loupedeck.ObsPlugin.icons.animated-streaming.gif")
         {
         }
 
-        protected override void ConnectAppEvents(EventHandler<EventArgs> onEvent, EventHandler<EventArgs> offEvent)
+
+        protected override void ConnectAppEvents(EventHandler<EventArgs> eventSwitchedOff, EventHandler<EventArgs> eventSwitchedOn)
         {
-            this.Proxy.AppEvtStreamingOff += offEvent;
-            this.Proxy.AppEvtStreamingOn += onEvent;
+            this.Proxy.AppEvtStreamingOff += eventSwitchedOn;
+            this.Proxy.AppEvtStreamingOn += eventSwitchedOff;
         }
 
-        protected override void DisconnectAppEvents(EventHandler<EventArgs> onEvent, EventHandler<EventArgs> offEvent)
+        protected override void DisconnectAppEvents(EventHandler<EventArgs> eventSwitchedOff, EventHandler<EventArgs> eventSwitchedOn)
         {
-            this.Proxy.AppEvtStreamingOff -= offEvent;
-            this.Proxy.AppEvtStreamingOn -= onEvent;
+            this.Proxy.AppEvtStreamingOff -= eventSwitchedOn;
+            this.Proxy.AppEvtStreamingOn -= eventSwitchedOff;
         }
 
-        protected override void RunCommand(String actionParameter) => this.Proxy.AppToggleStreaming();
+        protected override void RunToggle() => this.Proxy.AppToggleStreaming();
     }
 }

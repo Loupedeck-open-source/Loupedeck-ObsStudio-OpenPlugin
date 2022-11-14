@@ -7,32 +7,29 @@
         private ObsAppProxy Proxy => (this.Plugin as ObsPlugin).Proxy;
 
         public StudioModeToggleCommand()
-                : base("Studio Mode toggle", "Enables or disables Studio Mode", /*no group*/"",
-                new String[] {
-                    "Command unavailable",
-                    "Enable Studio Mode",
-                    "Disable Studio Mode"
-                },
-                new String[] {
-                  "Loupedeck.ObsPlugin.icons.SoftwareNotFound.png",
-                  "Loupedeck.ObsPlugin.icons.STREAM_EnableStudioMode.png",
-                  "Loupedeck.ObsPlugin.icons.STREAM_DisableStudioMode2.png"
-                })
+                  : base(displayName: "Studio Mode Toggle",
+                    description:  "Enables or disables Studio Mode",
+                    groupName:    "",
+                    offStateName: "Enable Studio Mode",
+                    onStateName:  "Disable Studio Mode",
+                    offStateImage:"Loupedeck.ObsPlugin.icons.STREAM_EnableStudioMode.png",
+                    onStateImage: "Loupedeck.ObsPlugin.icons.animated-studio.gif")
         {
         }
 
-        protected override void ConnectAppEvents(EventHandler<EventArgs> onEvent, EventHandler<EventArgs> offEvent)
+        protected override void ConnectAppEvents(EventHandler<EventArgs> eventSwitchedOff, EventHandler<EventArgs> eventSwitchedOn)
         {
-            this.Proxy.AppEvtStudioModeOff += offEvent;
-            this.Proxy.AppEvtStudioModeOn += onEvent;
+            this.Proxy.AppEvtStudioModeOff += eventSwitchedOn;
+            this.Proxy.AppEvtStudioModeOn += eventSwitchedOff;
         }
 
-        protected override void DisconnectAppEvents(EventHandler<EventArgs> onEvent, EventHandler<EventArgs> offEvent)
+        protected override void DisconnectAppEvents(EventHandler<EventArgs> eventSwitchedOff, EventHandler<EventArgs> eventSwitchedOn)
         {
-            this.Proxy.AppEvtStudioModeOff -= offEvent;
-            this.Proxy.AppEvtStudioModeOn -= onEvent;
+            this.Proxy.AppEvtStudioModeOff -= eventSwitchedOn;
+            this.Proxy.AppEvtStudioModeOn -= eventSwitchedOff;
         }
 
-        protected override void RunCommand(String actionParameter) => this.Proxy.AppToggleStudioMode();
+        protected override void RunToggle() => this.Proxy.AppToggleStudioMode();
+        
     }
 }
