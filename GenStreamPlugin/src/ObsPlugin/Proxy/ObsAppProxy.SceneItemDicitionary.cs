@@ -22,7 +22,7 @@
                 }
             }
 
-            this.Trace($"Cannot get sceneItem for item {sourceName} of scene {sceneName}");
+            ObsPlugin.Trace($"Cannot get sceneItem for item {sourceName} of scene {sceneName}");
 
             return false;
         }
@@ -39,7 +39,7 @@
             }
             else
             {
-                this.Trace($"Cannot get props for item {item.SourceName} of scene {sceneName}");
+                ObsPlugin.Trace($"Cannot get props for item {item.SourceName} of scene {sceneName}");
                 return false;
             }
         }
@@ -49,14 +49,14 @@
         {
             this.AllSceneItems.Clear();
 
-            this.Trace("Adding scene items");
+            ObsPlugin.Trace("Adding scene items");
 
             // sources
             foreach (var scene in this.Scenes)
             {
-                if (!Helpers.TryExecuteFunc(() => { return this.GetSceneItemList(scene.Name); }, out var sceneDetailsList))
+                if (!Helpers.TryExecuteFunc(() => this.GetSceneItemList(scene.Name), out var sceneDetailsList))
                 {
-                    this.Trace($"Warning: Cannot get SceneList for scene {scene.Name}");
+                    ObsPlugin.Trace($"Warning: Cannot get SceneList for scene {scene.Name}");
                     continue;
                 }
 
@@ -72,12 +72,12 @@
                         }
                         else
                         {
-                            this.Trace($"Warning: Cannot get CreateSourceDictItem for scene {scene.Name}, item {sceneItem.SourceName}");
+                            ObsPlugin.Trace($"Warning: Cannot get CreateSourceDictItem for scene {scene.Name}, item {sceneItem.SourceName}");
                         }
                     }
                     else
                     {
-                        this.Trace($"Warning: Cannot get SceneItemList for scene {scene.Name}");
+                        ObsPlugin.Trace($"Warning: Cannot get SceneItemList for scene {scene.Name}");
                     }
                 }
             }
@@ -102,10 +102,10 @@
 
             public String SourceName => this.SceneItemDetails.SourceName;
 
-            public Boolean Visible { get { return this.SceneItemProps.Visible; } set { this.SceneItemProps.Visible = value; } }
+            public Boolean Visible { get => this.SceneItemProps.Visible; set => this.SceneItemProps.Visible = value; }
 
             // private readonly volumeinfo;
-            private readonly OBSWebsocketDotNet.Types.SceneItem _sceneItem;
+            // private readonly OBSWebsocketDotNet.Types.SceneItem _sceneItem;
             private readonly OBSWebsocketDotNet.Types.SceneItemDetails SceneItemDetails;
             private readonly OBSWebsocketDotNet.Types.SceneItemProperties SceneItemProps;
 
@@ -151,7 +151,7 @@
                 }
                 catch (Exception ex)
                 {
-                    Tracer.Trace($"Warning: Exception {ex.Message} in creating source item for item {in_sceneItem.SourceName} of scene {in_sceneName}  ");
+                    ObsPlugin.Trace($"Warning: Exception {ex.Message} in creating source item for item {in_sceneItem.SourceName} of scene {in_sceneName}  ");
                 }
 
                 return null;
@@ -160,14 +160,14 @@
             protected SceneItemDescriptor(String coll, String scene, OBSWebsocketDotNet.Types.SceneItem item, OBSWebsocketDotNet.Types.SceneItemDetails details, OBSWebsocketDotNet.Types.SceneItemProperties props)
             {
                 this.CollectionName = coll;
-                this._sceneItem = item;
+                //this._sceneItem = item;
                 this.SceneName = scene;
                 this.SceneItemDetails = details;
                 this.SceneItemProps = props;
 
                 if (scene != this.SceneNameProp)
                 {
-                    Tracer.Trace($"SourceDictItem ctor: Scene name {scene} Scene Name in details: { this.SceneNameProp}");
+                    ObsPlugin.Trace($"SourceDictItem ctor: Scene name {scene} Scene Name in details: { this.SceneNameProp}");
                 }
             }
         }

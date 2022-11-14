@@ -21,7 +21,7 @@
 
         private void OnObsStudioModeStateChange(Object sender, Boolean enabled)
         {
-            this.Trace($"OBS StudioMode State change, enabled={enabled}");
+            ObsPlugin.Trace($"OBS StudioMode State change, enabled={enabled}");
             this._studioMode = enabled;
             if (enabled)
             {
@@ -37,13 +37,13 @@
         {
            if(this.IsAppConnected && this._studioMode )
            {
-                if( Helpers.TryExecuteSafe(() => { this.TransitionToProgram(); }))
+                if( Helpers.TryExecuteSafe(() => this.TransitionToProgram()))
                 {
-                    this.Trace("Transition executed successfully");
+                    ObsPlugin.Trace("Transition executed successfully");
                 }
                 else
                 {
-                    this.Trace("Cannot run transition");
+                    ObsPlugin.Trace("Cannot run transition");
                 }
 
             }
@@ -54,8 +54,8 @@
         {
             if (this.IsAppConnected)
             {
-                this.Trace("Toggling studio mode");
-                Helpers.TryExecuteSafe(() => this.ToggleStudioMode());
+                ObsPlugin.Trace("Toggling studio mode");
+                _ = Helpers.TryExecuteSafe(() => this.ToggleStudioMode());
             }
         }
     }

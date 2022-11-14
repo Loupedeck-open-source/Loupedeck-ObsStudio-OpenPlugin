@@ -1,9 +1,6 @@
 ﻿namespace Loupedeck.ObsPlugin
 {
     using System;
-    using System.Collections.Generic;
-
-    using OBSWebsocketDotNet;
 
     /// <summary>
     /// Proxy to OBS websocket server, for API reference see
@@ -17,13 +14,13 @@
 
         private void OnObsVirtualCameraStarted(Object sender, EventArgs e)
         {
-            this.Trace("Obs Virtual camera started");
+            ObsPlugin.Trace("Obs Virtual camera started");
             this.AppEvtVirtualCamOn?.Invoke(this, new EventArgs());
         }
 
         private void OnObsVirtualCameraStopped(Object sender, EventArgs e)
         {
-            this.Trace("Obs Virtual camera stopped");
+            ObsPlugin.Trace("Obs Virtual camera stopped");
             this.AppEvtVirtualCamOff?.Invoke(this, new EventArgs());
         }
 
@@ -31,7 +28,7 @@
         {
             if (this.IsAppConnected)
             {
-                Helpers.TryExecuteSafe(() => this.ToggleVirtualCam());
+                _ = Helpers.TryExecuteSafe(() => this.ToggleVirtualCam());
             }
         }
     }

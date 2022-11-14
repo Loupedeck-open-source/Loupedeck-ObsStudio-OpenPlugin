@@ -21,11 +21,11 @@
 
         private void OnObsSceneCollectionListChanged(Object sender, EventArgs e)
         {
-            this.Trace("OBS SceneCollectionList changed");
+            ObsPlugin.Trace("OBS SceneCollectionList changed");
 
-            if (Helpers.TryExecuteSafe(() => { this.SceneCollections = this.ListSceneCollections(); }))
+            if (Helpers.TryExecuteSafe(() => this.SceneCollections = this.ListSceneCollections()))
             {
-                this.Trace($"Retreived list of {this.SceneCollections.Count} collections");
+                ObsPlugin.Trace($"Retreived list of {this.SceneCollections.Count} collections");
 
                 this.AppEvtSceneCollectionsChanged?.Invoke(sender, e);
             }
@@ -34,9 +34,11 @@
         private void OnObsSceneCollectionChanged(Object sender, EventArgs e)
         {
             var oldSceneCollection = this.CurrentSceneCollection;
+#pragma warning disable IDE0053 // Use expression body for lambda expressions
             if (Helpers.TryExecuteSafe(() => { this.CurrentSceneCollection = this.GetCurrentSceneCollection(); }))
+#pragma warning restore IDE0053 // Use expression body for lambda expressions
             {
-                this.Trace($"OBS Current Scene collection changed from {oldSceneCollection} to {this.CurrentSceneCollection}");
+                ObsPlugin.Trace($"OBS Current Scene collection changed from {oldSceneCollection} to {this.CurrentSceneCollection}");
 
                 // Regenerating all internal structures
                 this.OnObsSceneListChanged(sender, e);
@@ -44,7 +46,7 @@
             }
             else
             {
-                this.Trace($"OBS Warning: cannot handle Collection Changed");
+                ObsPlugin.Trace($"OBS Warning: cannot handle Collection Changed");
             }
         }
 
@@ -52,8 +54,8 @@
         {
             if (this.IsAppConnected && this.SceneCollections.Contains(newCollection) && this.CurrentSceneCollection != newCollection)
             {
-                this.Trace($"Switching to Scene Collection {newCollection}");
-                Helpers.TryExecuteSafe(() => this.SetCurrentSceneCollection(newCollection));
+                ObsPlugin.Trace($"Switching to Scene Collection {newCollection}");
+                _ = Helpers.TryExecuteSafe(() => this.SetCurrentSceneCollection(newCollection));
             }
         }
     }

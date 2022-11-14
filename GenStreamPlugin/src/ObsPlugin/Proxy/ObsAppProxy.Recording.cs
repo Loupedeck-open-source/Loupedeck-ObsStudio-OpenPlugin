@@ -32,7 +32,7 @@
         // FIXME: Provide customized images for starting/started... -- For that, create special event handler on Action side.
         private void OnObsRecordingStateChange(OBSWebsocket sender, OBSWebsocketDotNet.Types.OutputState newState)
         {
-            this.Trace($"OBS Recording state change, new state is {newState}");
+            ObsPlugin.Trace($"OBS Recording state change, new state is {newState}");
 
             if ((newState == OBSWebsocketDotNet.Types.OutputState.Started) || (newState == OBSWebsocketDotNet.Types.OutputState.Starting))
             {
@@ -52,9 +52,9 @@
         {
             if (this.IsAppConnected)
             {
-                this.Trace("Toggle recording");
+                ObsPlugin.Trace("Toggle recording");
 
-                Helpers.TryExecuteSafe(() => this.ToggleRecording());
+                _ = Helpers.TryExecuteSafe(() => this.ToggleRecording());
             }
         }
 
@@ -62,9 +62,9 @@
         {
             if (this.IsAppConnected)
             {
-                this.Trace("Start recording");
+                ObsPlugin.Trace("Start recording");
 
-                Helpers.TryExecuteSafe(() => this.StartRecording());
+                _ = Helpers.TryExecuteSafe(() => this.StartRecording());
             }
         }
 
@@ -72,9 +72,9 @@
         {
             if (this.IsAppConnected)
             {
-                this.Trace("Stop recording");
+                ObsPlugin.Trace("Stop recording");
 
-                Helpers.TryExecuteSafe(() => this.StopRecording());
+                _ = Helpers.TryExecuteSafe(() => this.StopRecording());
             }
         }
 
@@ -82,9 +82,9 @@
         {
             if (this.IsAppConnected)
             {
-                this.Trace("Pause recording");
+                ObsPlugin.Trace("Pause recording");
 
-                Helpers.TryExecuteSafe(() => this.PauseRecording());
+                _ = Helpers.TryExecuteSafe(() => this.PauseRecording());
             }
         }
 
@@ -92,9 +92,9 @@
         {
             if (this.IsAppConnected)
             {
-                this.Trace("Resume recording");
+                ObsPlugin.Trace("Resume recording");
 
-                Helpers.TryExecuteSafe(() => this.ResumeRecording());
+                _ = Helpers.TryExecuteSafe(() => this.ResumeRecording());
             }
         }
     }

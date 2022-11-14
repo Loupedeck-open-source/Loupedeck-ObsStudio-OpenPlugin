@@ -19,7 +19,7 @@
             var key = SceneItemKey.Encode(this.CurrentSceneCollection, sceneName, itemName);
             if (!Helpers.TryExecuteSafe(() => this.AllSceneItems[key].Visible = isVisible))
             {
-                this.Trace($"WARNING: Cannot update visiblity for item {itemName} scene {sceneName} from dictionary");
+                ObsPlugin.Trace($"WARNING: Cannot update visiblity for item {itemName} scene {sceneName} from dictionary");
             }
 
             this.AppEvtSceneItemVisibilityChanged?.Invoke(sender, sceneName, itemName, isVisible);
@@ -27,7 +27,7 @@
 
         private void OnObsSceneItemAdded(OBSWebsocket sender, String sceneName, String itemName)
         {
-            this.Trace($"OBS: Scene Item {itemName} added to scene {sceneName}");
+            ObsPlugin.Trace($"OBS: Scene Item {itemName} added to scene {sceneName}");
 
             // Re-reading current scene
             if (Helpers.TryExecuteFunc(() => this.GetCurrentScene(), out var currscene))
@@ -38,7 +38,7 @@
 
             if (!this.AddSceneItemToDictionary(sceneName, itemName))
             {
-                this.Trace($"Warning: Cannot add item {itemName} to scene {sceneName}");
+                ObsPlugin.Trace($"Warning: Cannot add item {itemName} to scene {sceneName}");
             }
             else
             {
@@ -48,17 +48,17 @@
 
         private void OnObsSceneItemRemoved(OBSWebsocket sender, String sceneName, String itemName)
         {
-            this.Trace($"OBS: Scene Item {itemName} removed from scene {sceneName}");
+            ObsPlugin.Trace($"OBS: Scene Item {itemName} removed from scene {sceneName}");
 
             var key = SceneItemKey.Encode(this.CurrentSceneCollection, sceneName, itemName);
             if (this.AllSceneItems.ContainsKey(key))
             {
-                this.AllSceneItems.Remove(key);
+                _ = this.AllSceneItems.Remove(key);
                 this.AppEvtSceneItemRemoved?.Invoke(this, sceneName, itemName);
             }
             else
             {
-                this.Trace($"Warning: Cannot find item {itemName} in scene {sceneName}");
+                ObsPlugin.Trace($"Warning: Cannot find item {itemName} in scene {sceneName}");
             }
         }
 
@@ -73,7 +73,7 @@
                 }
                 catch (Exception ex)
                 {
-                    this.Trace($"Warning: Exception {ex.Message} when toggling visibility to {key}");
+                    ObsPlugin.Trace($"Warning: Exception {ex.Message} when toggling visibility to {key}");
                 }
             }
         }

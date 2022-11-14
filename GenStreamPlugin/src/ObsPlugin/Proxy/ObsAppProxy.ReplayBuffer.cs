@@ -17,7 +17,7 @@
 
         private void OnObsReplayBufferStateChange(OBSWebsocket sender, OBSWebsocketDotNet.Types.OutputState newState)
         {
-            this.Trace($"OBS Replay buffer state change, new state {newState}");
+            ObsPlugin.Trace($"OBS Replay buffer state change, new state {newState}");
 
             if ((newState == OBSWebsocketDotNet.Types.OutputState.Started) || (newState == OBSWebsocketDotNet.Types.OutputState.Starting))
             {
@@ -35,7 +35,7 @@
             {
                 if(!Helpers.TryExecuteSafe(() => this.ToggleReplayBuffer()))
                 {
-                    this.Trace("Warning: Cannot toggle replayBuffer");
+                    ObsPlugin.Trace("Warning: Cannot toggle replayBuffer");
                 }
             }
         }
@@ -45,7 +45,7 @@
             {
                 if (!Helpers.TryExecuteSafe(() => this.SaveReplayBuffer()))
                 {
-                    this.Trace("Warning: Cannot save replayBuffer");
+                    ObsPlugin.Trace("Warning: Cannot save replayBuffer");
                 }
             }
 

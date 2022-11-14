@@ -39,7 +39,7 @@
                 }
                 catch (Exception ex)
                 {
-                    Tracer.Trace($"Exception {ex.Message} getting volume information for source {name}");
+                    ObsPlugin.Trace($"Exception {ex.Message} getting volume information for source {name}");
                 }
             }
         }
@@ -76,7 +76,7 @@
                                                   && (!testAudio || this.GetAudioActive(sourceName)), out var good) && good)
             {
                 this.CurrentAudioSources.Add(sourceName, new AudioSourceDesc(sourceName, this));
-                this.Trace($"Adding Regular audio source {sourceName}");
+                ObsPlugin.Trace($"Adding Regular audio source {sourceName}");
                 return true;
             }
             return false;
@@ -99,12 +99,12 @@
         {
             if (this.CurrentAudioSources.ContainsKey(sourceName))
             {
-                this.CurrentAudioSources.Remove(sourceName);
+                _ = this.CurrentAudioSources.Remove(sourceName);
                 this.AppEvtSourceDestroyed?.Invoke(sourceName);
             }
             else
             {
-                this.Trace($"SourceDestroyed: Source {sourceName} is not found in audioSources");
+                ObsPlugin.Trace($"SourceDestroyed: Source {sourceName} is not found in audioSources");
             }
         }
 
@@ -112,7 +112,7 @@
         {
             if (!Helpers.TryExecuteAction(() => this.CurrentAudioSources[volDesc.SourceName].Volume = volDesc.Volume))
             {
-                this.Trace($"OBS: Error updating volume to {volDesc?.Volume} for source {volDesc?.SourceName}");
+                ObsPlugin.Trace($"OBS: Error updating volume to {volDesc?.Volume} for source {volDesc?.SourceName}");
             }
 
             this.AppEvtSourceVolumeChanged?.Invoke(sender, volDesc);
@@ -122,7 +122,7 @@
         {
             if (!Helpers.TryExecuteAction(() => this.CurrentAudioSources[sourceName].Muted = isMuted))
             {
-                this.Trace($"OBS: Error setting muted state to {isMuted} for source {sourceName}");
+                ObsPlugin.Trace($"OBS: Error setting muted state to {isMuted} for source {sourceName}");
             }
 
             this.AppEvtSourceMuteStateChanged?.Invoke(sender, sourceName, isMuted);
@@ -147,12 +147,12 @@
                 }
                 catch (Exception ex)
                 {
-                    this.Trace($"Warning: Exception {ex.InnerException.Message} -- Cannot set mute for source {sourceName}");
+                    ObsPlugin.Trace($"Warning: Exception {ex.InnerException.Message} -- Cannot set mute for source {sourceName}");
                 }
             }
             else
             {
-                this.Trace($"Warning: source {sourceName} not found in current sources, ignoring");
+                ObsPlugin.Trace($"Warning: source {sourceName} not found in current sources, ignoring");
             }
         }
 
@@ -162,7 +162,7 @@
             {
                 try
                 {
-                    var current = this.AppGetVolume(sourceName) + ((Single)diff_ticks / 100.0F);
+                    var current = this.AppGetVolume(sourceName) + (Single)diff_ticks / 100.0F;
 
                     current = (Single)(current < 0.0 ? 0.0 : (current > 1.0 ? 1.0 : current));
 
@@ -170,12 +170,12 @@
                 }
                 catch (Exception ex)
                 {
-                    this.Trace($"Warning: Exception {ex.InnerException.Message} -- Cannot set volume for source {sourceName}");
+                    ObsPlugin.Trace($"Warning: Exception {ex.InnerException.Message} -- Cannot set volume for source {sourceName}");
                 }
             }
             else
             {
-                this.Trace($"Warning: source {sourceName} not found in current sources, ignoring");
+                ObsPlugin.Trace($"Warning: source {sourceName} not found in current sources, ignoring");
             }
         }
 
@@ -191,12 +191,12 @@
                         if (type.Capabilities.HasAudio)
                         {
                             this._audioSourceTypes.Add(type.TypeID);
-                            this.Trace($"Type {type.TypeID} will be handled as audio type");
+                            ObsPlugin.Trace($"Type {type.TypeID} will be handled as audio type");
                         }
                     }
                 }))
             {
-                this.Trace($"Warning: Cannot get list of supported audio types from OBS");
+                ObsPlugin.Trace($"Warning: Cannot get list of supported audio types from OBS");
             }
         }
 
@@ -209,12 +209,12 @@
                 foreach (var source in sources)
                 {
                     this._specialSources.Add(source.Key, source.Value);
-                    this.Trace($"Adding Special source {source.Key} Val {source.Value}");
+                    ObsPlugin.Trace($"Adding Special source {source.Key} Val {source.Value}");
                 }
             }
             else
             {
-                this.Trace($"Warning: Cannot retreive list of special sources");
+                ObsPlugin.Trace($"Warning: Cannot retreive list of special sources");
             }
         }
 
@@ -227,7 +227,7 @@
                 /*foreach (var specSource in this._specialSources)
                 {
                     this.CurrentAudioSources.Add(specSource.Key, new AudioSourceDesc(specSource.Key, this, true));
-                    this.Trace($"Adding General audio source {specSource.Key}");
+                    ObsPlugin.Trace($"Adding General audio source {specSource.Key}");
                 }
                 */
                 foreach (var source in this.GetSourcesList())
@@ -239,14 +239,14 @@
                     {
                         // Adding audio source and populating initial values
                         this.CurrentAudioSources.Add(source.Name, new AudioSourceDesc(source.Name, this));
-                        this.Trace($"Adding Regular audio source {source.Name}");
+                        ObsPlugin.Trace($"Adding Regular audio source {source.Name}");
                     }
                 }
             }
             catch (Exception ex)
             {
                 // FIXME: Add Plugin Status -> Error here and to similar places
-                this.Trace($"Warning: Exception {ex.Message} when retreiving list of sources from current scene collection!");
+                ObsPlugin.Trace($"Warning: Exception {ex.Message} when retreiving list of sources from current scene collection!");
             }
         }
     }
