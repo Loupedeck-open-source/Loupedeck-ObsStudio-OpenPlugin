@@ -2,49 +2,36 @@
 {
     using System;
 
-    public abstract class GenericOnOffSwitch : PluginMultistateDynamicCommand
+    public abstract class GenericOnOffSwitch : PluginTwoStateDynamicCommand
     {
-        private enum StateIndex
-        {
-            STATE_DISABLED = 0,
-            STATE_OFF,
-            STATE_ON,
-        }
-
+    
         private ObsAppProxy Proxy => (this.Plugin as ObsPlugin).Proxy;
 
-        private readonly String[] _stateIcons;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="GenericOnOffSwitch"/> class.
-        /// Creates a generic switch.
-        /// </summary>
-        /// <param name="displayName">Command Display Name</param>
-        /// <param name="description">Description in Action Editor</param>
-        /// <param name="groupName">Group name</param>
-        /// <param name="stateNames">Array of 3 strings with Disabled, Off and On state names </param>
-        /// <param name="stateImages">Array of 3 strings with Disabled, Off and On state images </param>
-        ///
-        public GenericOnOffSwitch(String displayName, String description, String groupName, String[] stateNames, String[] stateImages)
-            : base(displayName, description, groupName)
+        public GenericOnOffSwitch(String displayName, String description, String groupName, 
+                                 String offStateName, String onStateName,
+                                 String offStateImage, String onStateImage)
         {
-            if (stateNames == null || stateNames.Length != 3 || stateImages == null || stateImages.Length != 3)
-            {
-                throw new ArgumentException("Cannot create Generic switch: Invalid state or images array");
-            }
+            this.DisplayName = displayName;
+            this.Description = description;
+            this.GroupName = groupName;
 
-            // NOT ADDING STATE EXPLICITLY!  this.AddState(stateNames[0], stateNames[0]);
-            this.AddState(stateNames[1], stateNames[1]);   // When in this state, toggle is is off
-            this.AddState(stateNames[2], stateNames[2]);   // When in this state, toggle is is on
-            this._stateIcons = stateImages;
+
+            this.AddToggleCommand(displayName, 
+                    EmbeddedResources.ReadImage(onStateImage), 
+                    EmbeddedResources.ReadImage(offStateImage));
+
+            //FIXME: NEED CUSTOM STATE NAMES, request Vasily!
         }
 
         protected override Boolean OnLoad()
         {
             this.Proxy.EvtAppConnected += this.OnAppConnected;
             this.Proxy.EvtAppDisconnected += this.OnAppDisconnected;
+            
             this.IsEnabled = false;
             this.ConnectAppEvents(this.AppEvtTurnedOn, this.AppEvtTurnedOff);
+
             return true;
         }
 
@@ -61,32 +48,16 @@
         /// <summary>
         /// Connects command's On and Off events to the source (application)
         /// </summary>
-        /// <param name="onEvent">Event when the switch is turned on</param>
-        /// <param name="offEvent">Event when the switch is turned off</param>
-        protected abstract void ConnectAppEvents(EventHandler<EventArgs> onEvent, EventHandler<EventArgs> offEvent);
+        /// <param name="eventSwitchedOff">Event fired AFTER switch is turned off</param>
+        /// <param name="eventSwitchedOn">Event fired AFTER switch is turned on</param>
+        protected abstract void ConnectAppEvents(EventHandler<EventArgs> eventSwitchedOff, EventHandler<EventArgs> eventSwitchedOn);
 
         /// <summary>
         /// Disconnects command's On and Off events to the source (application)
         /// </summary>
-        /// <param name="onEvent">Event when the switch is turned on</param>
-        /// <param name="offEvent">Event when the switch is turned off</param>
-        protected abstract void DisconnectAppEvents(EventHandler<EventArgs> onEvent, EventHandler<EventArgs> offEvent);
-
-        private void SetStateTo(StateIndex newState)
-        {
-            if (this.TryGetCurrentStateIndex(out var currentStateIndex))
-            {
-                if (currentStateIndex != (Int32)newState)
-                {
-                    this.SetCurrentState((Int32)newState);
-                    this.ActionImageChanged();
-                }
-            }
-            else
-            {
-                this.Proxy.Trace("Warning:Cannot get new state");
-            }
-        }
+        /// <param name="eventSwitchedOff">Event fired AFTER switch is turned off</param>
+        /// <param name="eventSwitchedOn">Event fired AFTER switch is turned on</param>
+        protected abstract void DisconnectAppEvents(EventHandler<EventArgs> eventSwitchedOff, EventHandler<EventArgs> eventSwitchedOn);
 
         private void OnAppConnected(Object sender, EventArgs e)
         {
@@ -96,10 +67,39 @@
 
         private void OnAppDisconnected(Object sender, EventArgs e) => this.IsEnabled = false;
 
-        private void AppEvtTurnedOff(Object sender, EventArgs e) => this.SetStateTo(StateIndex.STATE_OFF);
+        private void AppEvtTurnedOff(Object sender, EventArgs e)
+        {
+            ObsPlugin.Trace($"Action {this.Name}: Setting state to OFF");
+            this.TurnOff();
+        }
 
-        private void AppEvtTurnedOn(Object sender, EventArgs e) => this.SetStateTo(StateIndex.STATE_ON);
+        private void AppEvtTurnedOn(Object sender, EventArgs e)
+        {
+            ObsPlugin.Trace($"Action {this.Name}: Setting state to ON");
+            this.TurnOn();
+        }
 
-        protected override BitmapImage GetCommandImage(String actionParameter, Int32 stateIndex, PluginImageSize imageSize) => EmbeddedResources.ReadImage(this._stateIcons[stateIndex == 0 ? 1 : 2]);
+        /// <summary>
+        /// executes toggle at the application side. 
+        /// </summary>
+        /// <param name="currentState">Index of current state of the control: 0 - off, 1 - on </param>
+        protected abstract void RunToggle();
+        protected override void RunCommand(TwoStateCommand command)
+        {
+            switch (command)
+            {
+                case TwoStateCommand.TurnOff:
+                    //Unimplemented
+           
+                case TwoStateCommand.TurnOn:
+                    ObsPlugin.Trace($"Action {this.Name}: On and Off direct switches not implemented");
+                    break;
+
+                case TwoStateCommand.Toggle:
+                    this.RunToggle();
+                    break;
+            }
+        }
+
     }
 }
