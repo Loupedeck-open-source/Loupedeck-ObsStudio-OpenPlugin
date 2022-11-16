@@ -2,6 +2,7 @@ namespace Loupedeck.ObsPlugin
 {
     using System;
     using System.IO;
+    using System.Linq;
 
     // This class can be used to connect the Loupedeck plugin to an application.
 
@@ -45,7 +46,10 @@ namespace Loupedeck.ObsPlugin
                 ? File.Exists(this.GetExecutablePath())
                                         ? ClientApplicationStatus.Installed
                                         : ClientApplicationStatus.NotInstalled
-                : ClientApplicationStatus.NotInstalled;
+                : Helpers.TryExecuteFunc(() => Directory.GetDirectories(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)).Where(x => x.Contains("OBS.app")).Count() > 0, out var has_dir) && has_dir
+                                        ? ClientApplicationStatus.Installed
+                                        : ClientApplicationStatus.NotInstalled;
         }
     }
 }
+
