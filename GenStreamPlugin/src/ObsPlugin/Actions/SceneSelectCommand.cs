@@ -8,8 +8,7 @@
 
         private const String IMGSceneSelected = "Loupedeck.ObsPlugin.icons.SceneOn.png";
         private const String IMGSceneUnselected = "Loupedeck.ObsPlugin.icons.SceneOff.png";
-        private const String IMGSceneInaccessible = "Loupedeck.ObsPlugin.icons.CloseDesktop.png";
-        private const String IMGOffline = "Loupedeck.ObsPlugin.icons.SoftwareNotFound.png";
+        private const String IMGSceneInaccessible = "Loupedeck.ObsPlugin.icons.SceneOff.png";
         private const String SceneNameUnknown = "Offline";
 
         public SceneSelectCommand()
@@ -17,7 +16,7 @@
             this.Name = "Scenes";
             this.Description = "Activates Scene";
             this.GroupName = "Scenes";
-
+            this.IsEnabled = false;
             _ = this.AddState("Unselected", "Scene unselected");
             _ = this.AddState("Selected", "Scene selected");
         }
@@ -91,28 +90,27 @@
             this.ActionImageChanged();
         }
 
-        private void OnAppConnected(Object sender, EventArgs e)
-        {
-            // We expect to get SceneCollectionChange so doin' nothin' here.
-        }
+        private void OnAppConnected(Object sender, EventArgs e) => this.IsEnabled = true;
 
         private void OnAppDisconnected(Object sender, EventArgs e)
         {
+            this.IsEnabled = false;
             this.ResetParameters(false);
             this.ActionImageChanged();
         }
 
-        protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
+        protected override BitmapImage GetCommandImage(String actionParameter, Int32 stateIndex, PluginImageSize imageSize)
         {
-            var imageName = IMGOffline;
+            var imageName = IMGSceneUnselected;
             var sceneName = SceneNameUnknown;
-            if (SceneKey.TryParse(actionParameter, out var parsed) && this.TryGetCurrentStateIndex(actionParameter, out var currentState))
+
+            if (SceneKey.TryParse(actionParameter, out var parsed))
             {
                 sceneName = parsed.Scene;
 
                 imageName = parsed.Collection != this.Proxy.CurrentSceneCollection
                     ? IMGSceneInaccessible
-                    : currentState == 1 ? IMGSceneSelected : IMGSceneUnselected;
+                    : stateIndex == 1 ? IMGSceneSelected : IMGSceneUnselected;
             }
 
             return ObsPlugin.NameOverBitmap(imageSize, imageName, sceneName);

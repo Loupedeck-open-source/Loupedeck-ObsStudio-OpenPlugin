@@ -9,14 +9,14 @@
 
         private const String IMGCollectionSelected = "Loupedeck.ObsPlugin.icons.SourceOn.png";
         private const String IMGCollectionUnselected = "Loupedeck.ObsPlugin.icons.SourceOff.png";
-        private const String IMGOffline = "Loupedeck.ObsPlugin.icons.SoftwareNotFound.png";
-        private const String CollectionNameUnknown = "Offline";
 
         public SceneCollectionSelectCommand()
         {
             this.Name = "Scene Collections";
             this.Description = "Activates Scene collection";
             this.GroupName = "Scene Collections";
+            
+            this.IsEnabled = false;
 
             _ = this.AddState("Unselected", "Scene collection unselected");
             _ = this.AddState("Selected", "Scene collection selected");
@@ -91,28 +91,20 @@
             this.ActionImageChanged();
         }
 
-        private void OnAppConnected(Object sender, EventArgs e)
-        {
-            // We expect to get SceneCollectionChange so doin' nothin' here.
-        }
+        private void OnAppConnected(Object sender, EventArgs e) => this.IsEnabled = true;
 
         private void OnAppDisconnected(Object sender, EventArgs e)
         {
+            this.IsEnabled = false;
             this.ResetParameters(false);
             this.ActionImageChanged();
         }
 
-        protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
+        protected override BitmapImage GetCommandImage(String actionParameter, Int32 stateIndex, PluginImageSize imageSize) 
         {
-            var imageName = IMGOffline;
-            var collName = CollectionNameUnknown;
+            var imageName = stateIndex == 1 ? IMGCollectionSelected : IMGCollectionUnselected;
 
-            if (!String.IsNullOrEmpty(actionParameter) && this.Proxy.IsAppConnected)
-            {
-                imageName = actionParameter == this.Proxy.CurrentSceneCollection ? IMGCollectionSelected : IMGCollectionUnselected;
-            }
-
-            return ObsPlugin.NameOverBitmap(imageSize, imageName, collName);
+            return ObsPlugin.NameOverBitmap(imageSize, imageName, String.IsNullOrEmpty(actionParameter) ? "Offline" : actionParameter);
         }
     }
 }

@@ -8,8 +8,7 @@
 
         private const String IMGSceneSelected = "Loupedeck.ObsPlugin.icons.SourceOn.png";
         private const String IMGSceneUnselected = "Loupedeck.ObsPlugin.icons.SourceOff.png";
-        private const String IMGSceneInaccessible = "Loupedeck.ObsPlugin.icons.CloseDesktop.png";
-        private const String IMGOffline = "Loupedeck.ObsPlugin.icons.SoftwareNotFound.png";
+        private const String IMGSceneInaccessible = "Loupedeck.ObsPlugin.icons.SourceOff.png";
         private const String SourceNameUnknown = "Offline";
 
         public SourceVisibilityCommand()
@@ -17,7 +16,7 @@
             this.Name = "Source Visibility";
             this.Description = "Shows/Hides a Source";
             this.GroupName = "Current Sources";
-
+            this.IsEnabled = false;
             _ = this.AddState("Hidden", "Source hidden");
             _ = this.AddState("Visible", "Source visible");
         }
@@ -89,22 +88,22 @@
             _ = this.SetCurrentState(actionParameter, isVisible ? 1 : 0);
             this.ActionImageChanged();
         }
-
-        protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
+        protected override BitmapImage GetCommandImage(String actionParameter, Int32 stateIndex, PluginImageSize imageSize) 
         {
             var sourceName = SourceNameUnknown;
-            var imageName = IMGOffline;
-            if (SceneItemKey.TryParse(actionParameter, out var parsed) && this.TryGetCurrentStateIndex(actionParameter, out var currentState))
+            var imageName = IMGSceneInaccessible;
+            if (SceneItemKey.TryParse(actionParameter, out var parsed))
             {
                 sourceName = parsed.Source;
 
                 imageName = parsed.Collection != this.Proxy.CurrentSceneCollection
                     ? IMGSceneInaccessible
-                    : currentState == 1 ? IMGSceneSelected : IMGSceneUnselected;
+                    : stateIndex== 1 ? IMGSceneSelected : IMGSceneUnselected;
             }
 
             // FIXME: We need to learn to cache bitmaps. Here the key can be same 3 items: image name, state # and sourceName text
             return ObsPlugin.NameOverBitmap(imageSize, imageName, sourceName);
+
         }
 
         internal void AddSceneItemParameter(String sceneName, String itemName)

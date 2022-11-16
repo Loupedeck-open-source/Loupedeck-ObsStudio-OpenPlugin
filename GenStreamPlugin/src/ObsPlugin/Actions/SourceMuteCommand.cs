@@ -8,16 +8,16 @@
 
         private const String IMGSourceMuted = "Loupedeck.ObsPlugin.icons.AudioOn.png";
         private const String IMGSourceUnmuted = "Loupedeck.ObsPlugin.icons.AudioOff.png";
-        private const String IMGSourceInaccessible = "Loupedeck.ObsPlugin.icons.CloseDesktop.png";
-        private const String IMGOffline = "Loupedeck.ObsPlugin.icons.SoftwareNotFound.png";
+        private const String IMGSourceInaccessible = "Loupedeck.ObsPlugin.icons.AudioOff.png";
         private const String SourceNameUnknown = "Offline";
-        // private const String SpecialSourceGroupName = "General Audio";
 
         public SourceMuteCommand()
         {
             this.Name = "Audio Source Mute";
             this.Description = "Mutes/Unmutes Audio Source ";
             this.GroupName = "Audio Sources";
+            
+            this.IsEnabled = false;
 
             _ = this.AddState("Muted", "Audio source muted");
             _ = this.AddState("Unmuted", "Audio source unmuted");
@@ -84,12 +84,11 @@
             }
         }
 
-        private void OnAppConnected(Object sender, EventArgs e)
-        {
-        }
+        private void OnAppConnected(Object sender, EventArgs e) => this.IsEnabled = true;
 
         private void OnAppDisconnected(Object sender, EventArgs e)
         {
+            this.IsEnabled = false;
             this.ResetParameters(false);
             this.ActionImageChanged();
         }
@@ -106,18 +105,17 @@
                 this.ActionImageChanged();
             }
         }
-
-        protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
+        protected override BitmapImage GetCommandImage(String actionParameter, Int32 stateIndex, PluginImageSize imageSize)
         {
             var sourceName = SourceNameUnknown;
-            var imageName = IMGOffline;
-            if (SceneKey.TryParse(actionParameter, out var parsed) && this.TryGetCurrentStateIndex(actionParameter, out var currentState))
+            var imageName = IMGSourceInaccessible;
+            if (SceneKey.TryParse(actionParameter, out var parsed))
             {
                 sourceName = parsed.Source;
 
                 imageName = parsed.Collection != this.Proxy.CurrentSceneCollection
                     ? IMGSourceInaccessible
-                    : currentState == 1 ? IMGSourceMuted : IMGSourceUnmuted;
+                    : stateIndex == 1 ? IMGSourceMuted : IMGSourceUnmuted;
             }
 
             // TODO: We need to learn to cache bitmaps. Here the key can be same 3 items: image name, state # and sourceName text
