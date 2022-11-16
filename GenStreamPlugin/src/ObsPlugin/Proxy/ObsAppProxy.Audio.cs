@@ -110,22 +110,28 @@
 
         private void OnObsSourceVolumeChanged(OBSWebsocket sender, OBSWebsocketDotNet.Types.SourceVolume volDesc)
         {
-            if (!Helpers.TryExecuteAction(() => this.CurrentAudioSources[volDesc.SourceName].Volume = volDesc.Volume))
+            if(this.CurrentAudioSources.ContainsKey(volDesc.SourceName))
             {
-                ObsPlugin.Trace($"OBS: Error updating volume to {volDesc?.Volume} for source {volDesc?.SourceName}");
+                this.CurrentAudioSources[volDesc.SourceName].Volume = volDesc.Volume;
+                this.AppEvtSourceVolumeChanged?.Invoke(sender, volDesc);
             }
-
-            this.AppEvtSourceVolumeChanged?.Invoke(sender, volDesc);
+            else
+            {
+                ObsPlugin.Trace($"OBS: Error updating volume: Source {volDesc?.SourceName} not in current sources");
+            }
         }
 
         private void OnObsSourceMuteStateChanged(OBSWebsocket sender, String sourceName, Boolean isMuted)
         {
-            if (!Helpers.TryExecuteAction(() => this.CurrentAudioSources[sourceName].Muted = isMuted))
+            if (this.CurrentAudioSources.ContainsKey(sourceName))
             {
-                ObsPlugin.Trace($"OBS: Error setting muted state to {isMuted} for source {sourceName}");
+                this.CurrentAudioSources[sourceName].Muted = isMuted;
+                this.AppEvtSourceMuteStateChanged?.Invoke(sender, sourceName, isMuted);
             }
-
-            this.AppEvtSourceMuteStateChanged?.Invoke(sender, sourceName, isMuted);
+            else
+            {
+                ObsPlugin.Trace($"OBS: Error updating mute: Source {sourceName} not in current sources");
+            }
         }
 
         // NOTE: We are NOT going to OBS for mute and volume, using cached value instead -- This is for LD UI
@@ -179,42 +185,18 @@
             }
         }
 
-        // Executed once, upon connection
+        // Executed once, upon connection. Note, throws!!
         private void OnAppConnected_RetreiveSourceTypes()
         {
             this._audioSourceTypes.Clear();
 
-            if (!Helpers.TryExecuteAction(() =>
-                {
-                    foreach (var type in this.GetSourceTypesList())
-                    {
-                        if (type.Capabilities.HasAudio)
-                        {
-                            this._audioSourceTypes.Add(type.TypeID);
-                            ObsPlugin.Trace($"Type {type.TypeID} will be handled as audio type");
-                        }
-                    }
-                }))
+            foreach (var type in this.GetSourceTypesList())
             {
-                ObsPlugin.Trace($"Warning: Cannot get list of supported audio types from OBS");
-            }
-        }
-
-        private void OnAppConnected_RetreiveSpecialSources()
-        {
-            this._specialSources.Clear();
-
-            if (Helpers.TryExecuteFunc(() => this.GetSpecialSources(), out var sources))
-            {
-                foreach (var source in sources)
+                if (type.Capabilities.HasAudio)
                 {
-                    this._specialSources.Add(source.Key, source.Value);
-                    ObsPlugin.Trace($"Adding Special source {source.Key} Val {source.Value}");
+                    this._audioSourceTypes.Add(type.TypeID);
+                    ObsPlugin.Trace($"Type {type.TypeID} will be handled as audio type");
                 }
-            }
-            else
-            {
-                ObsPlugin.Trace($"Warning: Cannot retreive list of special sources");
             }
         }
 
@@ -224,12 +206,6 @@
             this.CurrentAudioSources.Clear();
             try
             {
-                /*foreach (var specSource in this._specialSources)
-                {
-                    this.CurrentAudioSources.Add(specSource.Key, new AudioSourceDesc(specSource.Key, this, true));
-                    ObsPlugin.Trace($"Adding General audio source {specSource.Key}");
-                }
-                */
                 foreach (var source in this.GetSourcesList())
                 {
                     // NOTE: Special sources are seen as in GetSourcesList too! (they're present as 'value' specSource.Value)
@@ -245,7 +221,6 @@
             }
             catch (Exception ex)
             {
-                // FIXME: Add Plugin Status -> Error here and to similar places
                 ObsPlugin.Trace($"Warning: Exception {ex.Message} when retreiving list of sources from current scene collection!");
             }
         }
