@@ -17,9 +17,13 @@
         private void OnObsSceneItemVisibilityChanged(OBSWebsocket sender, String sceneName, String itemName, Boolean isVisible)
         {
             var key = SceneItemKey.Encode(this.CurrentSceneCollection, sceneName, itemName);
-            if (!Helpers.TryExecuteSafe(() => this.AllSceneItems[key].Visible = isVisible))
+            if(this.AllSceneItems.ContainsKey(key))
             {
-                ObsPlugin.Trace($"WARNING: Cannot update visiblity for item {itemName} scene {sceneName} from dictionary");
+                this.AllSceneItems[key].Visible = isVisible;
+            }
+            else
+            {
+                ObsPlugin.Trace($"WARNING: Cannot update visiblity: item {itemName} scene {sceneName} not in dictionary");
             }
 
             this.AppEvtSceneItemVisibilityChanged?.Invoke(sender, sceneName, itemName, isVisible);
@@ -29,6 +33,7 @@
         {
             ObsPlugin.Trace($"OBS: Scene Item {itemName} added to scene {sceneName}");
 
+            //FIXME!!! WHY THIS IS DONE SO?
             // Re-reading current scene
             if (Helpers.TryExecuteFunc(() => this.GetCurrentScene(), out var currscene))
             {
