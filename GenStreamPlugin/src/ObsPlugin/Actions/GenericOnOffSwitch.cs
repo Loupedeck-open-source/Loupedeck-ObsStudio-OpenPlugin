@@ -7,7 +7,6 @@
     
         private ObsAppProxy Proxy => (this.Plugin as ObsPlugin).Proxy;
 
-
         public GenericOnOffSwitch(String displayName, String description, String groupName, 
                                  String offStateName, String onStateName,
                                  String offStateImage, String onStateImage)
@@ -16,12 +15,13 @@
             this.Description = description;
             this.GroupName = groupName;
 
-
             this.AddToggleCommand(displayName, 
                     EmbeddedResources.ReadImage(onStateImage), 
                     EmbeddedResources.ReadImage(offStateImage));
 
-            //FIXME: NEED CUSTOM STATE NAMES, request Vasily!
+            this.SetOffStateDisplayName(offStateName);
+            this.SetOnStateDisplayName(onStateName);
+
         }
 
         protected override Boolean OnLoad()
