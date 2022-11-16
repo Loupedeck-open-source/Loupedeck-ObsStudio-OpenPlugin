@@ -8,7 +8,7 @@
 
         private ObsAppProxy Proxy => (this.Plugin as ObsPlugin).Proxy;
 
-         public ReplayBufferSaveCommand() : base(displayName: "Save Replay Buffer", description: "Flush and save the contents of the Replay Buffer to disk. ", groupName: null) { }
+         public ReplayBufferSaveCommand() : base(displayName: "Save Replay Buffer", description: "Flush and save the contents of the Replay Buffer to disk. ", groupName: "") { }
 
         protected override Boolean OnLoad()
         {

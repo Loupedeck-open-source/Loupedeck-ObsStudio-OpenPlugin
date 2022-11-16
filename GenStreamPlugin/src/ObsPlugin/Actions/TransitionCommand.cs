@@ -8,7 +8,7 @@
 
         private ObsAppProxy Proxy => (this.Plugin as ObsPlugin).Proxy;
 
-         public TransitionCommand() : base(displayName: "Transition To Program", description: "Transitions the currently previewed scene to the main output.", groupName: null) { }
+         public TransitionCommand() : base(displayName: "Transition To Program", description: "Transitions the currently previewed scene to the main output.", groupName: "") { }
 
         protected override Boolean OnLoad()
         {
