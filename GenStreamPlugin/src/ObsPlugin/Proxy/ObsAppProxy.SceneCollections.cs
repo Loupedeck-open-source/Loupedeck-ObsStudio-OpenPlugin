@@ -34,6 +34,7 @@
         private void OnObsSceneCollectionChanged(Object sender, EventArgs e)
         {
             var oldSceneCollection = this.CurrentSceneCollection;
+
 #pragma warning disable IDE0053 // Use expression body for lambda expressions
             if (Helpers.TryExecuteSafe(() => { this.CurrentSceneCollection = this.GetCurrentSceneCollection(); }))
 #pragma warning restore IDE0053 // Use expression body for lambda expressions
@@ -43,6 +44,8 @@
                 // Regenerating all internal structures
                 this.OnObsSceneListChanged(sender, e);
                 this.AppEvtCurrentSceneCollectionChanged?.Invoke(sender, e);
+                //SEE THE AppSwitchToSceneCollection
+                this.SubscribeToSceneCollectionEvents();
             }
             else
             {
@@ -50,12 +53,21 @@
             }
         }
 
+
         public void AppSwitchToSceneCollection(String newCollection)
         {
             if (this.IsAppConnected && this.SceneCollections.Contains(newCollection) && this.CurrentSceneCollection != newCollection)
             {
+                // NOTE NOTE: After we issue Switch Scene Collection command, there will be lots of events coming from OBS
+                // BEFORE we get SceneCollectionChanged event
+                //  SINCE OUR INTERNAL DATA STRUCTURES ARE REGENERATED FROM THE LATTER, we temporarily set the 'suspend events' flag
+
                 ObsPlugin.Trace($"Switching to Scene Collection {newCollection}");
+
+                this.UnsubscribeFromSceneCollectionEvents();
+
                 _ = Helpers.TryExecuteSafe(() => this.SetCurrentSceneCollection(newCollection));
+                
             }
         }
     }

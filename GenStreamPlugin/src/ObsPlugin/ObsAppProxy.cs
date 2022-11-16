@@ -4,13 +4,9 @@
 
     // TEST: Scene item added / removed
 
-    // Multistate-Parameter actions
-    //  * Volume Mixer Mute
-    //  * Volume Mixer
-    //  * General Audio Mute
-    //  * General Audio
+    // CONVERTER/Check compatibility with existing OBS plugin
 
-    // OnObsSourceRename
+    // OnObsSourceRename 
     // HOW TO STOP SHOWING SOURCES THAT ARE NOT VISIBLE IN MIXER
 
     // Simple actions
@@ -22,10 +18,11 @@
     // Special
     //  Universal toggle (Tree)
     // CPU
-    //  Add Multistate-Parameter Profile
     // Useful command -- RefreshBrowserSource
+    //  Add Multistate-Parameter Profile
     // NB for sources -- TakeSourceScreenshot
     // ? source action?
+
     // For all actions,
     //  - Handle added/deleted/created/destroyed signals (editing)
     // --> For later, upgrade to new OBS websocket and see if port/password can be parsed from the Ini file in C:\Users\[User]\AppData\Roaming\obs-studio
@@ -59,12 +56,89 @@
             this.Disconnected -= this.OnAppDisconnected;
         }
 
+        private Boolean _scene_collection_events_subscribed = false;
+
+        private void UnsubscribeFromSceneCollectionEvents()
+        {
+            if (!this._scene_collection_events_subscribed)
+            {
+                this.SceneListChanged -= this.OnObsSceneListChanged;
+                this.SceneChanged -= this.OnObsSceneChanged;
+
+                this.SceneItemVisibilityChanged -= this.OnObsSceneItemVisibilityChanged;
+                this.SceneItemAdded -= this.OnObsSceneItemAdded;
+                this.SceneItemRemoved -= this.OnObsSceneItemRemoved;
+
+                this.SourceMuteStateChanged -= this.OnObsSourceMuteStateChanged;
+                this.SourceVolumeChanged -= this.OnObsSourceVolumeChanged;
+
+                this.SourceCreated -= this.OnObsSourceCreated;
+                this.SourceDestroyed -= this.OnObsSourceDestroyed;
+
+                this.SourceAudioActivated -= this.OnObsSourceAudioActivated;
+                this.SourceAudioDeactivated -= this.OnObsSourceAudioDeactivated;
+                this._scene_collection_events_subscribed = true;
+            }
+        }
+
+        private void SubscribeToSceneCollectionEvents()
+        {
+            if (this._scene_collection_events_subscribed)
+            {
+                this.SceneListChanged += this.OnObsSceneListChanged;
+                this.SceneChanged += this.OnObsSceneChanged;
+
+                this.SceneItemVisibilityChanged += this.OnObsSceneItemVisibilityChanged;
+                this.SceneItemAdded += this.OnObsSceneItemAdded;
+                this.SceneItemRemoved += this.OnObsSceneItemRemoved;
+
+                this.SourceMuteStateChanged += this.OnObsSourceMuteStateChanged;
+                this.SourceVolumeChanged += this.OnObsSourceVolumeChanged;
+
+                this.SourceCreated += this.OnObsSourceCreated;
+                this.SourceDestroyed += this.OnObsSourceDestroyed;
+
+                this.SourceAudioActivated += this.OnObsSourceAudioActivated;
+                this.SourceAudioDeactivated += this.OnObsSourceAudioDeactivated;
+                this._scene_collection_events_subscribed = false;
+            }
+        }
+
+        internal void InitializeObsData(Object sender, EventArgs e)
+        {
+            //NOTE: This can throw! Exception handling is done OUTSIDE of this method
+            var streamingStatus = this.GetStreamingStatus();
+            var vcamstatus = this.GetVirtualCamStatus();
+            var studioModeStatus = this.StudioModeEnabled();
+
+            //Retreiving Audio types. 
+            this.OnAppConnected_RetreiveSourceTypes();
+
+            if (streamingStatus != null)
+            {
+                this.OnObsRecordingStateChange(this, streamingStatus.IsRecording ? OBSWebsocketDotNet.Types.OutputState.Started : OBSWebsocketDotNet.Types.OutputState.Stopped);
+                this.OnObsStreamingStateChange(this, streamingStatus.IsStreaming ? OBSWebsocketDotNet.Types.OutputState.Started : OBSWebsocketDotNet.Types.OutputState.Stopped);
+            }
+
+            if (vcamstatus != null && vcamstatus.IsActive)
+            {
+                this.OnObsVirtualCameraStarted(sender, e);
+            }
+            else
+            {
+                this.OnObsVirtualCameraStopped(sender, e);
+            }
+
+            this.OnObsStudioModeStateChange(sender, studioModeStatus);
+
+            this.OnObsSceneCollectionListChanged(sender, e);
+            this.OnObsSceneCollectionChanged(sender, e);
+
+        }
+
         private void OnAppConnected(Object sender, EventArgs e)
         {
             ObsPlugin.Trace("Entering AppConnected");
-
-            this.OnAppConnected_RetreiveSourceTypes();
-            this.OnAppConnected_RetreiveSpecialSources();
 
             // Subscribing to App events
             // Notifying all subscribers on App Connected
@@ -81,53 +155,17 @@
             this.SceneCollectionListChanged += this.OnObsSceneCollectionListChanged;
             this.SceneCollectionChanged += this.OnObsSceneCollectionChanged;
 
-            this.SceneListChanged += this.OnObsSceneListChanged;
-            this.SceneChanged += this.OnObsSceneChanged;
-            this.SceneItemVisibilityChanged += this.OnObsSceneItemVisibilityChanged;
-            this.SceneItemAdded += this.OnObsSceneItemAdded;
-            this.SceneItemRemoved += this.OnObsSceneItemRemoved;
-
-            this.SourceMuteStateChanged += this.OnObsSourceMuteStateChanged;
-            this.SourceVolumeChanged += this.OnObsSourceVolumeChanged;
-
-            this.SourceCreated += this.OnObsSourceCreated;
-            this.SourceDestroyed += this.OnObsSourceDestroyed;
-
-            this.SourceAudioActivated += this.OnObsSourceAudioActivated;
-            this.SourceAudioDeactivated += this.OnObsSourceAudioDeactivated;
-
             this.EvtAppConnected?.Invoke(sender, e);
 
             ObsPlugin.Trace("AppConnected: Initializing data");
-
             _ = Helpers.TryExecuteSafe(() =>
-              {
-                  var streamingStatus = this.GetStreamingStatus();
-                  var vcamstatus = this.GetVirtualCamStatus();
-                  var studioModeStatus = this.StudioModeEnabled();
-
-                  if (streamingStatus != null)
-                  {
-                      this.OnObsRecordingStateChange(this, streamingStatus.IsRecording ? OBSWebsocketDotNet.Types.OutputState.Started : OBSWebsocketDotNet.Types.OutputState.Stopped);
-                      this.OnObsStreamingStateChange(this, streamingStatus.IsStreaming ? OBSWebsocketDotNet.Types.OutputState.Started : OBSWebsocketDotNet.Types.OutputState.Stopped);
-                  }
-
-                  if (vcamstatus != null && vcamstatus.IsActive)
-                  {
-                      this.OnObsVirtualCameraStarted(sender, e);
-                  }
-                  else
-                  {
-                      this.OnObsVirtualCameraStopped(sender, e);
-                  }
-
-                  this.OnObsStudioModeStateChange(sender, studioModeStatus);
-
-                  this.OnObsSceneCollectionListChanged(sender, e);
-                  this.OnObsSceneCollectionChanged(sender, e);
-
-                // this.OnObsSceneListChanged(sender, e) is called form SceneCollectionChanged
+            {
+                this.InitializeObsData(sender, e);
             });
+
+            //Subscribing to all the events that are depenendent on Scene Collection change
+            this._scene_collection_events_subscribed = true;
+            this.SubscribeToSceneCollectionEvents();
         }
 
         private void OnAppDisconnected(Object sender, EventArgs e)
@@ -147,20 +185,9 @@
             this.SceneCollectionListChanged -= this.OnObsSceneCollectionListChanged;
             this.SceneCollectionChanged -= this.OnObsSceneCollectionChanged;
 
-            this.SceneListChanged -= this.OnObsSceneListChanged;
-            this.SceneChanged -= this.OnObsSceneChanged;
-
-            this.SceneItemVisibilityChanged -= this.OnObsSceneItemVisibilityChanged;
-            this.SceneItemAdded -= this.OnObsSceneItemAdded;
-            this.SceneItemRemoved -= this.OnObsSceneItemRemoved;
-
-            this.SourceCreated -= this.OnObsSourceCreated;
-            this.SourceDestroyed -= this.OnObsSourceDestroyed;
-
-            this.SourceMuteStateChanged -= this.OnObsSourceMuteStateChanged;
-
-            this.SourceAudioActivated -= this.OnObsSourceAudioActivated;
-            this.SourceAudioDeactivated -= this.OnObsSourceAudioDeactivated;
+            //Unsubscribing from all the events that are depenendent on Scene Collection change
+            this._scene_collection_events_subscribed = false;
+            this.UnsubscribeFromSceneCollectionEvents();
 
             this.EvtAppDisconnected?.Invoke(sender, e);
         }
