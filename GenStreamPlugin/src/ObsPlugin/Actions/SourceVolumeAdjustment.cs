@@ -9,8 +9,7 @@
 
         private const String IMGSourceSelected = "Loupedeck.ObsPlugin.icons.SourceOn.png";
         private const String IMGSourceUnselected = "Loupedeck.ObsPlugin.icons.SourceOff.png";
-        private const String IMGSourceInaccessible = "Loupedeck.ObsPlugin.icons.CloseDesktop.png";
-        private const String IMGOffline = "Loupedeck.ObsPlugin.icons.SoftwareNotFound.png";
+        private const String IMGSourceInaccessible = "Loupedeck.ObsPlugin.icons.SourceOff.png";
         private const String SourceNameUnknown = "Offline";
         // private const String SpecialSourceGroupName = "General Audio";
 
@@ -21,6 +20,7 @@
             this.DisplayName = "Volume Mixer";
             this.Description = "Controls Audio Source Volume";
             this.GroupName = "Audio Sources";
+            this.IsEnabled = false;
         }
 
         protected override Boolean OnLoad()
@@ -114,13 +114,11 @@
 
         private void OnCurrentSceneChanged(Object sender, EventArgs e) => this.ActionImageChanged();
 
-        private void OnAppConnected(Object sender, EventArgs e)
-        {
-            // We expect to get SceneCollectionChange so doin' nothin' here.
-        }
+        private void OnAppConnected(Object sender, EventArgs e) => this.IsEnabled = true;// We expect to get SceneCollectionChange so doin' nothin' here.
 
         private void OnAppDisconnected(Object sender, EventArgs e)
         {
+            this.IsEnabled = false;
             this.ResetParameters(false);
             this.ActionImageChanged();
         }
@@ -133,10 +131,8 @@
 
         protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
         {
-            // FIXME: Need proper images etc
-
             var sourceName = SourceNameUnknown;
-            var imageName = IMGOffline;
+            var imageName = IMGSourceInaccessible;
             if (SceneKey.TryParse(actionParameter, out var parsed))
             {
                 sourceName = parsed.Source;
