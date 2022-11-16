@@ -19,7 +19,7 @@
 
         public List<OBSWebsocketDotNet.Types.OBSScene> Scenes { get; private set; }
 
-        public Boolean SceneInCurrentCollection(String scene) => Helpers.TryExecuteFunc(() => this.Scenes.Find(x => x.Name == scene), out var item) && item != null;
+        public Boolean SceneInCurrentCollection(String scene) => !String.IsNullOrEmpty(scene) && this.Scenes?.Find(x => x.Name == scene) != null;
 
         private void OnObsSceneListChanged(Object sender, EventArgs e)
         {
