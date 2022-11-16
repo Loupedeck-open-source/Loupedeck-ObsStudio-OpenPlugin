@@ -22,7 +22,7 @@ namespace Loupedeck.ObsPlugin
         public ObsPlugin()
         {
             this.Proxy = new ObsAppProxy();
-            this._connector = new ObsConnector(this.Proxy, this.GetPluginDataDirectory() + "\\..\\ObsStudio",  /*"C:\\Users\\Andrei Laperie\\AppData\\Local\\Loupedeck\\PluginData\\ObsStudio"/**/
+            this._connector = new ObsConnector(this.Proxy, this.GetPluginDataDirectory() + "\\..\\ObsStudio",
                                 () => this.OnPluginStatusChanged(Loupedeck.PluginStatus.Warning, this.Localization.GetString("Connecting to OBS"), "https://support.loupedeck.com/obs-guide", ""));
         }
 
@@ -76,7 +76,7 @@ namespace Loupedeck.ObsPlugin
         {
             if (!this.IsApplicationInstalled())
             {
-                this.OnPluginStatusChanged(Loupedeck.PluginStatus.Error, "App is not installed", "https://support.ObsPlugin.com", "more details");
+                this.OnPluginStatusChanged(Loupedeck.PluginStatus.Error, "OBS Studio is not installed", "https://support.loupedeck.com/obs-guide", "more details");
             }
             else if (this.Proxy != null && this.Proxy.IsAppConnected)
             {
@@ -84,7 +84,7 @@ namespace Loupedeck.ObsPlugin
             }
             else
             {
-                this.OnPluginStatusChanged(Loupedeck.PluginStatus.Warning, "Not connected to App", "https://support.ObsPlugin.com", "more details");
+                this.OnPluginStatusChanged(Loupedeck.PluginStatus.Warning, "Not connected to OBS", "https://support.loupedeck.com/obs-guide", "more details");
             }
         }
 
