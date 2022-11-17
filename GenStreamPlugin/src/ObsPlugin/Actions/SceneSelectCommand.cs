@@ -114,7 +114,7 @@
                     : stateIndex == 1 ? IMGSceneSelected : IMGSceneUnselected;
             }
 
-            return ObsPlugin.NameOverBitmap(imageSize, imageName, sceneName);
+            return ObsPlugin.NameOverBitmap(imageSize, imageName, sceneName, stateIndex == 1);
         }
     }
 }

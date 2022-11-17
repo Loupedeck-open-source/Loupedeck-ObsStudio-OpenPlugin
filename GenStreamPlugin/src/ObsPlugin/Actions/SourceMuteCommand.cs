@@ -120,7 +120,7 @@
             }
 
             // TODO: We need to learn to cache bitmaps. Here the key can be same 3 items: image name, state # and sourceName text
-            return ObsPlugin.NameOverBitmap(imageSize, imageName, sourceName);
+            return ObsPlugin.NameOverBitmap(imageSize, imageName, sourceName, stateIndex == 1);
         }
 
         internal void AddSource(String sourceName, Boolean isSpecialSource = false)

@@ -132,14 +132,17 @@
         {
             var sourceName = SourceNameUnknown;
             var imageName = IMGSourceInaccessible;
+            var selected = false;
             if (SceneKey.TryParse(actionParameter, out var parsed))
             {
                 sourceName = parsed.Source;
 
+                selected = (parsed.Collection == this.Proxy.CurrentSceneCollection) && this._muteStates[actionParameter];
+
                 imageName = parsed.Collection != this.Proxy.CurrentSceneCollection ? IMGSourceInaccessible : this._muteStates[actionParameter] ? IMGSourceUnselected : IMGSourceSelected;
             }
 
-            return ObsPlugin.NameOverBitmap(imageSize, imageName, sourceName);
+            return ObsPlugin.NameOverBitmap(imageSize, imageName, sourceName, selected);
         }
 
         private void OnSourceCreated(String sourceName)

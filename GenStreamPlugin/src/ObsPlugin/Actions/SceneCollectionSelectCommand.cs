@@ -103,7 +103,7 @@
         {
             var imageName = stateIndex == 1 ? IMGCollectionSelected : IMGCollectionUnselected;
 
-            return ObsPlugin.NameOverBitmap(imageSize, imageName, String.IsNullOrEmpty(actionParameter) ? "Offline" : actionParameter);
+            return ObsPlugin.NameOverBitmap(imageSize, imageName, String.IsNullOrEmpty(actionParameter) ? "Offline" : actionParameter, stateIndex==1 );
         }
     }
 }
