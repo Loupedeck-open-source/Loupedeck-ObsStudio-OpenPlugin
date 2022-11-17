@@ -86,7 +86,7 @@
         {
             var actionParameter = SceneItemKey.Encode(this.Proxy?.CurrentSceneCollection, sceneName, itemName);
             _ = this.SetCurrentState(actionParameter, isVisible ? 1 : 0);
-            this.ActionImageChanged();
+            this.ActionImageChanged(actionParameter);
         }
         protected override BitmapImage GetCommandImage(String actionParameter, Int32 stateIndex, PluginImageSize imageSize) 
         {

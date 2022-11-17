@@ -66,7 +66,9 @@
 
         private void OnSceneListChanged(Object sender, EventArgs e) => this.ResetParameters(true);
 
-        private void OnCurrentSceneChanged(Object sender, EventArgs e) => this.ActionImageChanged();
+        private void OnCurrentSceneChanged(Object sender, EventArgs e) =>
+            //TODO: Do ActionImageChanged (ActionParam) for new  and old scene
+            this.ActionImageChanged();
 
         private void OnSourceCreated(String sourceName)
         {
@@ -97,12 +99,11 @@
         {
             var actionParameter = SceneKey.Encode(this.Proxy.CurrentSceneCollection, sourceName);
 
-
             // FIXME: Check if this 'has parameter' check is needed.
             if (this.TryGetParameter(actionParameter, out _))
             {
                 _ = this.SetCurrentState(actionParameter, isMuted ? 0 : 1);
-                this.ActionImageChanged();
+                this.ActionImageChanged(actionParameter);
             }
         }
         protected override BitmapImage GetCommandImage(String actionParameter, Int32 stateIndex, PluginImageSize imageSize)
