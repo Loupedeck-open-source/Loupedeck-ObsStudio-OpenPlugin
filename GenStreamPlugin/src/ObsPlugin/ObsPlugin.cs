@@ -103,8 +103,15 @@ namespace Loupedeck.ObsPlugin
 
                 if (!String.IsNullOrEmpty(text))
                 {
+                    var x1 = bitmapBuilder.Width * 0.1;
+                    var w  = bitmapBuilder.Width * 0.8;
+                    var y1 = bitmapBuilder.Height * 0.6;
+                    var h  = bitmapBuilder.Height * 0.3;
+
+                    bitmapBuilder.DrawText(text, (Int32) x1, (Int32)y1, (Int32)w, (Int32)h);
+
                     // TODO: Draw darker text in the bottom third of the image
-                    bitmapBuilder.DrawText(text);
+                    //bitmapBuilder.DrawText(text);
                     
                 }
 
