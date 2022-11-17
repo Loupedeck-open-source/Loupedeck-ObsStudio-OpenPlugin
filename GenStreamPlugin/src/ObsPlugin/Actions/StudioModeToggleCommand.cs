@@ -7,7 +7,8 @@
         private ObsAppProxy Proxy => (this.Plugin as ObsPlugin).Proxy;
 
         public StudioModeToggleCommand()
-                  : base(displayName: "Studio Mode Toggle",
+                  : base(name: "StudioMode",
+                    displayName: "Studio Mode Toggle",
                     description:  "Enables or disables Studio Mode",
                     groupName:    "",
                     offStateName: "Enable Studio Mode",

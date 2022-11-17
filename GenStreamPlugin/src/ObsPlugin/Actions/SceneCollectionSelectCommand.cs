@@ -12,8 +12,8 @@
 
         public SceneCollectionSelectCommand()
         {
-            this.Name = "Scene Collections";
-            this.Description = "Activates Scene collection";
+            this.Name = "DynamicSceneCols";
+            this.Description = "Switches to a specific Scene Collection in OBS Studio";
             this.GroupName = "Scene Collections";
             
             this.IsEnabled = false;

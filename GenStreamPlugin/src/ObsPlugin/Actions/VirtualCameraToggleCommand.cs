@@ -7,7 +7,8 @@
         private ObsAppProxy Proxy => (this.Plugin as ObsPlugin).Proxy;
 
         public VirtualCameraToggleCommand()
-                  : base(displayName: "Virtual Camera Toggle",
+                  : base(name: "VirtualCam", 
+                    displayName: "Virtual Camera Toggle",
                     description: "Toggles Virtual Camera on or off",
                     groupName: "",
                     offStateName: "Start Virtual Camera",

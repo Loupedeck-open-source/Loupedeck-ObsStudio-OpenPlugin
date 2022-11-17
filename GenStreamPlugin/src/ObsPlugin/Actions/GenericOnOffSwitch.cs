@@ -7,10 +7,12 @@
     
         private ObsAppProxy Proxy => (this.Plugin as ObsPlugin).Proxy;
 
-        public GenericOnOffSwitch(String displayName, String description, String groupName, 
+        public GenericOnOffSwitch(String name, 
+                                 String displayName, String description, String groupName, 
                                  String offStateName, String onStateName,
                                  String offStateImage, String onStateImage)
         {
+            this.Name = name;
             this.DisplayName = displayName;
             this.Description = description;
             this.GroupName = groupName;

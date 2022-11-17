@@ -16,10 +16,10 @@
         public SourceVolumeAdjustment()
             : base(false)
         {
-            this.Name = "Audio Source Volume Mixer";
+            this.Name = "DynamicSpecialSources";
             this.DisplayName = "Volume Mixer";
-            this.Description = "Controls Audio Source Volume";
-            this.GroupName = "Audio Sources";
+            this.Description = "Controls the volume of the audio sources in OBS Studio";
+            this.GroupName = "Audio";
             this.IsEnabled = false;
         }
 
@@ -100,13 +100,12 @@
         {
             var actionParameter = SceneKey.Encode(this.Proxy.CurrentSceneCollection, sourceName);
 
-
             // FIXME: Check if this 'has parameter' check is needed.
             if (this.TryGetParameter(actionParameter, out _))
             {
                 this._muteStates[actionParameter] = isMuted;
 
-                this.ActionImageChanged();
+                this.ActionImageChanged(actionParameter);
             }
         }
 

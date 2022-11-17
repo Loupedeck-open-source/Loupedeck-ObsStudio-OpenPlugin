@@ -13,8 +13,8 @@
 
         public SceneSelectCommand()
         {
-            this.Name = "Scenes";
-            this.Description = "Activates Scene";
+            this.Name = "DynamicScenes";
+            this.Description = "Switches to a specific scene in OBS Studio";
             this.GroupName = "Scenes";
             this.IsEnabled = false;
             _ = this.AddState("Unselected", "Scene unselected");

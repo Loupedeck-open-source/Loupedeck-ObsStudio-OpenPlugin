@@ -5,7 +5,7 @@
     class ReplayBufferToggleCommand : GenericOnOffSwitch
     {
         private ObsAppProxy Proxy => (this.Plugin as ObsPlugin).Proxy;
-        public ReplayBufferToggleCommand(): base(
+        public ReplayBufferToggleCommand(): base(name: "ReplayBufferToggle",
                        displayName:   "Replay Buffer Toggle", 
                        description:   "Starts/Stops recording into the Replay Buffer", 
                        groupName:     "",

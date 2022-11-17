@@ -7,7 +7,8 @@
         private ObsAppProxy Proxy => (this.Plugin as ObsPlugin).Proxy;
 
         public StreamingToggleCommand()
-                     : base(displayName: "Streaming Toggle",
+                     : base(name: "ToggleStreaming", 
+                    displayName: "Streaming Toggle",
                     description: "Toggles Streaming on or off",
                     groupName: "",
                     offStateName: "Start streaming",

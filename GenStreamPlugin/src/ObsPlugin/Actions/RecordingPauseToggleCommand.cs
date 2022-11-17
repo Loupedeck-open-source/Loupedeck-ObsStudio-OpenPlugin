@@ -7,7 +7,8 @@
         private ObsAppProxy Proxy => (this.Plugin as ObsPlugin).Proxy;
 
         public RecordingPauseToggleCommand()
-                : base(displayName:    "Recording Pause", 
+                : base(name: "PauseRecording", 
+                       displayName:    "Recording Pause", 
                        description:    "Pauses/resumes recording", 
                        groupName:      "",
                        offStateName:   "Pause recording",
