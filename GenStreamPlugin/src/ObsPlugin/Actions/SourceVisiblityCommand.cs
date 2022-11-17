@@ -16,13 +16,14 @@
             this.Name = "Source Visibility";
             this.Description = "Shows/Hides a Source";
             this.GroupName = "Current Sources";
-            this.IsEnabled = false;
             _ = this.AddState("Hidden", "Source hidden");
             _ = this.AddState("Visible", "Source visible");
         }
 
         protected override Boolean OnLoad()
         {
+            this.IsEnabled = false;
+
             this.Proxy.EvtAppConnected += this.OnAppConnected;
             this.Proxy.EvtAppDisconnected += this.OnAppDisconnected;
 

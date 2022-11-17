@@ -16,14 +16,13 @@
             this.Description = "Switches to a specific Scene Collection in OBS Studio";
             this.GroupName = "Scene Collections";
             
-            this.IsEnabled = false;
-
             _ = this.AddState("Unselected", "Scene collection unselected");
             _ = this.AddState("Selected", "Scene collection selected");
         }
 
         protected override Boolean OnLoad()
         {
+            this.IsEnabled = false;
             this.Proxy.EvtAppConnected += this.OnAppConnected;
             this.Proxy.EvtAppDisconnected += this.OnAppDisconnected;
 

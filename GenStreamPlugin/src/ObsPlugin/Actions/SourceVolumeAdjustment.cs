@@ -20,11 +20,11 @@
             this.DisplayName = "Volume Mixer";
             this.Description = "Controls the volume of the audio sources in OBS Studio";
             this.GroupName = "Audio";
-            this.IsEnabled = false;
         }
 
         protected override Boolean OnLoad()
         {
+            this.IsEnabled = false;
             this.Proxy.EvtAppConnected += this.OnAppConnected;
             this.Proxy.EvtAppDisconnected += this.OnAppDisconnected;
 
