@@ -16,13 +16,14 @@
             this.Name = "DynamicScenes";
             this.Description = "Switches to a specific scene in OBS Studio";
             this.GroupName = "Scenes";
-            this.IsEnabled = false;
             _ = this.AddState("Unselected", "Scene unselected");
             _ = this.AddState("Selected", "Scene selected");
         }
 
         protected override Boolean OnLoad()
         {
+            this.IsEnabled = false;
+
             this.Proxy.EvtAppConnected += this.OnAppConnected;
             this.Proxy.EvtAppDisconnected += this.OnAppDisconnected;
 
