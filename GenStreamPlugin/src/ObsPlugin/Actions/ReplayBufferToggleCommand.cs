@@ -1,10 +1,10 @@
-﻿namespace Loupedeck.ObsPlugin.Actions
+﻿namespace Loupedeck.ObsStudioPlugin.Actions
 {
     using System;
 
     class ReplayBufferToggleCommand : GenericOnOffSwitch
     {
-        private ObsAppProxy Proxy => (this.Plugin as ObsPlugin).Proxy;
+        private ObsAppProxy Proxy => (this.Plugin as ObsStudioPlugin).Proxy;
         public ReplayBufferToggleCommand(): base(name: "ReplayBufferToggle",
                        displayName:   "Replay Buffer Toggle", 
                        description:   "Starts/Stops recording into the Replay Buffer", 

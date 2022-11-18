@@ -1,4 +1,4 @@
-﻿namespace Loupedeck.ObsPlugin
+﻿namespace Loupedeck.ObsStudioPlugin
 {
     using System;
     using System.Collections.Generic;
@@ -21,11 +21,11 @@
 
         private void OnObsSceneCollectionListChanged(Object sender, EventArgs e)
         {
-            ObsPlugin.Trace("OBS SceneCollectionList changed");
+            ObsStudioPlugin.Trace("OBS SceneCollectionList changed");
 
             if (Helpers.TryExecuteSafe(() => this.SceneCollections = this.ListSceneCollections()))
             {
-                ObsPlugin.Trace($"Retreived list of {this.SceneCollections.Count} collections");
+                ObsStudioPlugin.Trace($"Retreived list of {this.SceneCollections.Count} collections");
 
                 this.AppEvtSceneCollectionsChanged?.Invoke(sender, e);
             }
@@ -39,7 +39,7 @@
             if (Helpers.TryExecuteSafe(() => { this.CurrentSceneCollection = this.GetCurrentSceneCollection(); }))
 #pragma warning restore IDE0053 // Use expression body for lambda expressions
             {
-                ObsPlugin.Trace($"OBS Current Scene collection changed from {oldSceneCollection} to {this.CurrentSceneCollection}");
+                ObsStudioPlugin.Trace($"OBS Current Scene collection changed from {oldSceneCollection} to {this.CurrentSceneCollection}");
 
                 // Regenerating all internal structures
                 this.OnObsSceneListChanged(sender, e);
@@ -49,7 +49,7 @@
             }
             else
             {
-                ObsPlugin.Trace($"OBS Warning: cannot handle Collection Changed");
+                ObsStudioPlugin.Trace($"OBS Warning: cannot handle Collection Changed");
             }
         }
 
@@ -62,7 +62,7 @@
                 // BEFORE we get SceneCollectionChanged event
                 //  SINCE OUR INTERNAL DATA STRUCTURES ARE REGENERATED FROM THE LATTER, we temporarily set the 'suspend events' flag
 
-                ObsPlugin.Trace($"Switching to Scene Collection {newCollection}");
+                ObsStudioPlugin.Trace($"Switching to Scene Collection {newCollection}");
 
                 this.UnsubscribeFromSceneCollectionEvents();
 

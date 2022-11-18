@@ -1,10 +1,10 @@
-﻿namespace Loupedeck.ObsPlugin.Actions
+﻿namespace Loupedeck.ObsStudioPlugin.Actions
 {
     using System;
 
     public class SceneSelectCommand : PluginMultistateDynamicCommand
     {
-        private ObsAppProxy Proxy => (this.Plugin as ObsPlugin).Proxy;
+        private ObsAppProxy Proxy => (this.Plugin as ObsStudioPlugin).Proxy;
 
         private const String IMGSceneSelected = "SceneOn.png";
         private const String IMGSceneUnselected = "SceneOff.png";
@@ -60,7 +60,7 @@
 
             if (readContent)
             {
-                ObsPlugin.Trace($"Adding {this.Proxy.Scenes?.Count} scene items");
+                ObsStudioPlugin.Trace($"Adding {this.Proxy.Scenes?.Count} scene items");
                 foreach (var scene in this.Proxy.Scenes)
                 {
                     var key = SceneKey.Encode(this.Proxy.CurrentSceneCollection, scene.Name);
@@ -114,7 +114,7 @@
                     : stateIndex == 1 ? IMGSceneSelected : IMGSceneUnselected;
             }
 
-            return (this.Plugin as ObsPlugin).GetPluginCommandImage(imageSize, imageName, sceneName, stateIndex == 1);
+            return (this.Plugin as ObsStudioPlugin).GetPluginCommandImage(imageSize, imageName, sceneName, stateIndex == 1);
         }
     }
 }

@@ -1,11 +1,11 @@
-﻿namespace Loupedeck.ObsPlugin.Actions
+﻿namespace Loupedeck.ObsStudioPlugin.Actions
 {
     using System;
     using System.Collections.Generic;
 
     public class SourceVolumeAdjustment : PluginDynamicAdjustment
     {
-        private ObsAppProxy Proxy => (this.Plugin as ObsPlugin).Proxy;
+        private ObsAppProxy Proxy => (this.Plugin as ObsStudioPlugin).Proxy;
 
         private const String IMGSourceSelected = "SourceOn.png";
         private const String IMGSourceUnselected = "SourceOff.png";
@@ -80,7 +80,7 @@
             }
             else
             {
-                ObsPlugin.Trace($"Warning: Cannot  parse actionParameter {actionParameter}");
+                ObsStudioPlugin.Trace($"Warning: Cannot  parse actionParameter {actionParameter}");
             }
         }
 
@@ -142,7 +142,7 @@
                 imageName = parsed.Collection != this.Proxy.CurrentSceneCollection ? IMGSourceInaccessible : this._muteStates[actionParameter] ? IMGSourceUnselected : IMGSourceSelected;
             }
 
-            return (this.Plugin as ObsPlugin).GetPluginCommandImage(imageSize, imageName, sourceName, selected);
+            return (this.Plugin as ObsStudioPlugin).GetPluginCommandImage(imageSize, imageName, sourceName, selected);
              
         }
 

@@ -1,10 +1,10 @@
-﻿namespace Loupedeck.ObsPlugin.Actions
+﻿namespace Loupedeck.ObsStudioPlugin.Actions
 {
     using System;
 
     public class RecordingToggleCommand : GenericOnOffSwitch
     {
-        private ObsAppProxy Proxy => (this.Plugin as ObsPlugin).Proxy;
+        private ObsAppProxy Proxy => (this.Plugin as ObsStudioPlugin).Proxy;
 
         public RecordingToggleCommand()
                         : base(name: "ToggleRecording", 

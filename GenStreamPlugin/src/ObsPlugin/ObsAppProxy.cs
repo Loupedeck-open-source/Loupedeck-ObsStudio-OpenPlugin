@@ -1,4 +1,4 @@
-﻿namespace Loupedeck.ObsPlugin
+﻿namespace Loupedeck.ObsStudioPlugin
 {
     // TODO:
 
@@ -138,7 +138,7 @@
 
         private void OnAppConnected(Object sender, EventArgs e)
         {
-            ObsPlugin.Trace("Entering AppConnected");
+            ObsStudioPlugin.Trace("Entering AppConnected");
 
             // Subscribing to App events
             // Notifying all subscribers on App Connected
@@ -157,7 +157,7 @@
 
             this.EvtAppConnected?.Invoke(sender, e);
 
-            ObsPlugin.Trace("AppConnected: Initializing data");
+            ObsStudioPlugin.Trace("AppConnected: Initializing data");
             _ = Helpers.TryExecuteSafe(() =>
             {
                 this.InitializeObsData(sender, e);
@@ -170,7 +170,7 @@
 
         private void OnAppDisconnected(Object sender, EventArgs e)
         {
-            ObsPlugin.Trace("Entering AppDisconnected");
+            ObsStudioPlugin.Trace("Entering AppDisconnected");
 
             // Unsubscribing from App events here
             this.RecordingStateChanged -= this.OnObsRecordingStateChange;

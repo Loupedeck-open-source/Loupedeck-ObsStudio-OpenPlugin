@@ -20,7 +20,7 @@
     The optional (non-blocking) OnConnecting callback (passed in constructor) is just before a connection attempt is made.
     All other connection progress can be monitored using OBS built-in OnConnected and OnDisconnected events.
     */
-namespace Loupedeck.ObsPlugin
+namespace Loupedeck.ObsStudioPlugin
 {
     using System;
     using System.IO;
@@ -117,7 +117,7 @@ namespace Loupedeck.ObsPlugin
         {
             // Starting the timer
             this._connect_retry_timer.Enabled = true;
-            ObsPlugin.Trace($"OBS: Re-trying connection in {this._connect_retry_timer.Interval} ms ");
+            ObsStudioPlugin.Trace($"OBS: Re-trying connection in {this._connect_retry_timer.Interval} ms ");
         }
 
         private void Connect()
@@ -158,7 +158,7 @@ namespace Loupedeck.ObsPlugin
                 // Actual connection
                 var obs_ws_conn = $"ws://localhost:{wsPort}";
 
-                ObsPlugin.Trace($"OBS: connecting to '{obs_ws_conn}' ");
+                ObsStudioPlugin.Trace($"OBS: connecting to '{obs_ws_conn}' ");
 
                 this.ConnectingCallback?.Invoke();
 

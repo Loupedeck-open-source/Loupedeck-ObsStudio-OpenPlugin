@@ -1,11 +1,11 @@
-﻿namespace Loupedeck.ObsPlugin.Actions
+﻿namespace Loupedeck.ObsStudioPlugin.Actions
 {
     using System;
 
     public abstract class GenericOnOffSwitch : PluginTwoStateDynamicCommand
     {
     
-        private ObsAppProxy Proxy => (this.Plugin as ObsPlugin).Proxy;
+        private ObsAppProxy Proxy => (this.Plugin as ObsStudioPlugin).Proxy;
 
         public GenericOnOffSwitch(String name, 
                                  String displayName, String description, String groupName, 
@@ -18,8 +18,8 @@
             this.GroupName = groupName;
 
             this.AddToggleCommand(displayName, 
-                    EmbeddedResources.ReadImage(ObsPlugin.imageResPrefix + onStateImage), 
-                    EmbeddedResources.ReadImage(ObsPlugin.imageResPrefix + offStateImage));
+                    EmbeddedResources.ReadImage(ObsStudioPlugin.imageResPrefix + onStateImage), 
+                    EmbeddedResources.ReadImage(ObsStudioPlugin.imageResPrefix + offStateImage));
 
             this.SetOffStateDisplayName(offStateName);
             this.SetOnStateDisplayName(onStateName);
@@ -71,13 +71,13 @@
 
         private void AppEvtTurnedOff(Object sender, EventArgs e)
         {
-            ObsPlugin.Trace($"Action {this.Name}: Setting state to OFF");
+            ObsStudioPlugin.Trace($"Action {this.Name}: Setting state to OFF");
             this.TurnOff();
         }
 
         private void AppEvtTurnedOn(Object sender, EventArgs e)
         {
-            ObsPlugin.Trace($"Action {this.Name}: Setting state to ON");
+            ObsStudioPlugin.Trace($"Action {this.Name}: Setting state to ON");
             this.TurnOn();
         }
 
@@ -94,7 +94,7 @@
                     //Unimplemented
            
                 case TwoStateCommand.TurnOn:
-                    ObsPlugin.Trace($"Action {this.Name}: On and Off direct switches not implemented");
+                    ObsStudioPlugin.Trace($"Action {this.Name}: On and Off direct switches not implemented");
                     break;
 
                 case TwoStateCommand.Toggle:

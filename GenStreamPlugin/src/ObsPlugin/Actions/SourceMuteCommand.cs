@@ -1,10 +1,10 @@
-﻿namespace Loupedeck.ObsPlugin.Actions
+﻿namespace Loupedeck.ObsStudioPlugin.Actions
 {
     using System;
 
     public class SourceMuteCommand : PluginMultistateDynamicCommand
     {
-        private ObsAppProxy Proxy => (this.Plugin as ObsPlugin).Proxy;
+        private ObsAppProxy Proxy => (this.Plugin as ObsStudioPlugin).Proxy;
 
         private const String IMGSourceMuted = "AudioOn.png";
         private const String IMGSourceUnmuted = "AudioOff.png";
@@ -119,7 +119,7 @@
                     : stateIndex == 1 ? IMGSourceMuted : IMGSourceUnmuted;
             }
 
-            return (this.Plugin as ObsPlugin).GetPluginCommandImage(imageSize, imageName, sourceName, stateIndex == 1);
+            return (this.Plugin as ObsStudioPlugin).GetPluginCommandImage(imageSize, imageName, sourceName, stateIndex == 1);
         }
 
         internal void AddSource(String sourceName, Boolean isSpecialSource = false)
@@ -137,7 +137,7 @@
 
             if (readContent)
             {
-                ObsPlugin.Trace($"Adding {this.Proxy.CurrentAudioSources.Count} sources");
+                ObsStudioPlugin.Trace($"Adding {this.Proxy.CurrentAudioSources.Count} sources");
 
                 foreach (var item in this.Proxy.CurrentAudioSources)
                 {

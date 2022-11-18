@@ -1,4 +1,4 @@
-﻿namespace Loupedeck.ObsPlugin
+﻿namespace Loupedeck.ObsStudioPlugin
 {
     using System;
 
@@ -14,13 +14,13 @@
 
         private void OnObsVirtualCameraStarted(Object sender, EventArgs e)
         {
-            ObsPlugin.Trace("Obs Virtual camera started");
+            ObsStudioPlugin.Trace("Obs Virtual camera started");
             this.AppEvtVirtualCamOn?.Invoke(this, new EventArgs());
         }
 
         private void OnObsVirtualCameraStopped(Object sender, EventArgs e)
         {
-            ObsPlugin.Trace("Obs Virtual camera stopped");
+            ObsStudioPlugin.Trace("Obs Virtual camera stopped");
             this.AppEvtVirtualCamOff?.Invoke(this, new EventArgs());
         }
 

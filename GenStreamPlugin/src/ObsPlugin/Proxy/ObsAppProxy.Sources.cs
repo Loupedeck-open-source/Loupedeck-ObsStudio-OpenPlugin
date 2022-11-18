@@ -1,4 +1,4 @@
-﻿namespace Loupedeck.ObsPlugin
+﻿namespace Loupedeck.ObsStudioPlugin
 {
     using System;
 
@@ -23,7 +23,7 @@
             }
             else
             {
-                ObsPlugin.Trace($"WARNING: Cannot update visiblity: item {itemName} scene {sceneName} not in dictionary");
+                ObsStudioPlugin.Trace($"WARNING: Cannot update visiblity: item {itemName} scene {sceneName} not in dictionary");
             }
 
             this.AppEvtSceneItemVisibilityChanged?.Invoke(sender, sceneName, itemName, isVisible);
@@ -31,7 +31,7 @@
 
         private void OnObsSceneItemAdded(OBSWebsocket sender, String sceneName, String itemName)
         {
-            ObsPlugin.Trace($"OBS: Scene Item {itemName} added to scene {sceneName}");
+            ObsStudioPlugin.Trace($"OBS: Scene Item {itemName} added to scene {sceneName}");
 
             //FIXME!!! WHY THIS IS DONE SO?
             // Re-reading current scene
@@ -43,7 +43,7 @@
 
             if (!this.AddSceneItemToDictionary(sceneName, itemName))
             {
-                ObsPlugin.Trace($"Warning: Cannot add item {itemName} to scene {sceneName}");
+                ObsStudioPlugin.Trace($"Warning: Cannot add item {itemName} to scene {sceneName}");
             }
             else
             {
@@ -53,7 +53,7 @@
 
         private void OnObsSceneItemRemoved(OBSWebsocket sender, String sceneName, String itemName)
         {
-            ObsPlugin.Trace($"OBS: Scene Item {itemName} removed from scene {sceneName}");
+            ObsStudioPlugin.Trace($"OBS: Scene Item {itemName} removed from scene {sceneName}");
 
             var key = SceneItemKey.Encode(this.CurrentSceneCollection, sceneName, itemName);
             if (this.AllSceneItems.ContainsKey(key))
@@ -63,7 +63,7 @@
             }
             else
             {
-                ObsPlugin.Trace($"Warning: Cannot find item {itemName} in scene {sceneName}");
+                ObsStudioPlugin.Trace($"Warning: Cannot find item {itemName} in scene {sceneName}");
             }
         }
 
@@ -78,7 +78,7 @@
                 }
                 catch (Exception ex)
                 {
-                    ObsPlugin.Trace($"Warning: Exception {ex.Message} when toggling visibility to {key}");
+                    ObsStudioPlugin.Trace($"Warning: Exception {ex.Message} when toggling visibility to {key}");
                 }
             }
         }

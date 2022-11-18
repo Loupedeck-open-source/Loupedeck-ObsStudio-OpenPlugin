@@ -1,4 +1,4 @@
-﻿namespace Loupedeck.ObsPlugin
+﻿namespace Loupedeck.ObsStudioPlugin
 {
     using System;
     using System.Collections.Generic;
@@ -22,7 +22,7 @@
                 }
             }
 
-            ObsPlugin.Trace($"Cannot get sceneItem for item {sourceName} of scene {sceneName}");
+            ObsStudioPlugin.Trace($"Cannot get sceneItem for item {sourceName} of scene {sceneName}");
 
             return false;
         }
@@ -39,7 +39,7 @@
             }
             else
             {
-                ObsPlugin.Trace($"Cannot get props for item {item.SourceName} of scene {sceneName}");
+                ObsStudioPlugin.Trace($"Cannot get props for item {item.SourceName} of scene {sceneName}");
                 return false;
             }
         }
@@ -49,14 +49,14 @@
         {
             this.AllSceneItems.Clear();
 
-            ObsPlugin.Trace("Adding scene items");
+            ObsStudioPlugin.Trace("Adding scene items");
 
             // sources
             foreach (var scene in this.Scenes)
             {
                 if (!Helpers.TryExecuteFunc(() => this.GetSceneItemList(scene.Name), out var sceneDetailsList))
                 {
-                    ObsPlugin.Trace($"Warning: Cannot get SceneList for scene {scene.Name}");
+                    ObsStudioPlugin.Trace($"Warning: Cannot get SceneList for scene {scene.Name}");
                     continue;
                 }
 
@@ -72,12 +72,12 @@
                         }
                         else
                         {
-                            ObsPlugin.Trace($"Warning: Cannot get CreateSourceDictItem for scene {scene.Name}, item {sceneItem.SourceName}");
+                            ObsStudioPlugin.Trace($"Warning: Cannot get CreateSourceDictItem for scene {scene.Name}, item {sceneItem.SourceName}");
                         }
                     }
                     else
                     {
-                        ObsPlugin.Trace($"Warning: Cannot get SceneItemList for scene {scene.Name}");
+                        ObsStudioPlugin.Trace($"Warning: Cannot get SceneItemList for scene {scene.Name}");
                     }
                 }
             }
@@ -151,7 +151,7 @@
                 }
                 catch (Exception ex)
                 {
-                    ObsPlugin.Trace($"Warning: Exception {ex.Message} in creating source item for item {in_sceneItem.SourceName} of scene {in_sceneName}  ");
+                    ObsStudioPlugin.Trace($"Warning: Exception {ex.Message} in creating source item for item {in_sceneItem.SourceName} of scene {in_sceneName}  ");
                 }
 
                 return null;
@@ -167,7 +167,7 @@
 
                 if (scene != this.SceneNameProp)
                 {
-                    ObsPlugin.Trace($"SourceDictItem ctor: Scene name {scene} Scene Name in details: { this.SceneNameProp}");
+                    ObsStudioPlugin.Trace($"SourceDictItem ctor: Scene name {scene} Scene Name in details: { this.SceneNameProp}");
                 }
             }
         }

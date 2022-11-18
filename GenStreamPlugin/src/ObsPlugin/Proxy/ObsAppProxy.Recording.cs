@@ -1,4 +1,4 @@
-﻿namespace Loupedeck.ObsPlugin
+﻿namespace Loupedeck.ObsStudioPlugin
 {
     using System;
     using System.Collections.Generic;
@@ -32,7 +32,7 @@
         // FIXME: Provide customized images for starting/started... -- For that, create special event handler on Action side.
         private void OnObsRecordingStateChange(OBSWebsocket sender, OBSWebsocketDotNet.Types.OutputState newState)
         {
-            ObsPlugin.Trace($"OBS Recording state change, new state is {newState}");
+            ObsStudioPlugin.Trace($"OBS Recording state change, new state is {newState}");
 
             if ((newState == OBSWebsocketDotNet.Types.OutputState.Started) || (newState == OBSWebsocketDotNet.Types.OutputState.Starting))
             {
@@ -52,7 +52,7 @@
         {
             if (this.IsAppConnected)
             {
-                ObsPlugin.Trace("Toggle recording");
+                ObsStudioPlugin.Trace("Toggle recording");
 
                 _ = Helpers.TryExecuteSafe(() => this.ToggleRecording());
             }
@@ -62,7 +62,7 @@
         {
             if (this.IsAppConnected)
             {
-                ObsPlugin.Trace("Start recording");
+                ObsStudioPlugin.Trace("Start recording");
 
                 _ = Helpers.TryExecuteSafe(() => this.StartRecording());
             }
@@ -72,7 +72,7 @@
         {
             if (this.IsAppConnected)
             {
-                ObsPlugin.Trace("Stop recording");
+                ObsStudioPlugin.Trace("Stop recording");
 
                 _ = Helpers.TryExecuteSafe(() => this.StopRecording());
             }
@@ -82,7 +82,7 @@
         {
             if (this.IsAppConnected)
             {
-                ObsPlugin.Trace("Pause recording");
+                ObsStudioPlugin.Trace("Pause recording");
 
                 _ = Helpers.TryExecuteSafe(() => this.PauseRecording());
             }
@@ -92,7 +92,7 @@
         {
             if (this.IsAppConnected)
             {
-                ObsPlugin.Trace("Resume recording");
+                ObsStudioPlugin.Trace("Resume recording");
 
                 _ = Helpers.TryExecuteSafe(() => this.ResumeRecording());
             }

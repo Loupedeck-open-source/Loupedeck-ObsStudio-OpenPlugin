@@ -1,4 +1,4 @@
-namespace Loupedeck.ObsPlugin
+namespace Loupedeck.ObsStudioPlugin
 {
     using System;
     using System.IO;

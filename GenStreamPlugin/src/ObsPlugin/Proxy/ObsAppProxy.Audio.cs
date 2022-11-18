@@ -1,4 +1,4 @@
-﻿namespace Loupedeck.ObsPlugin
+﻿namespace Loupedeck.ObsStudioPlugin
 {
     using System;
     using System.Collections.Generic;
@@ -39,7 +39,7 @@
                 }
                 catch (Exception ex)
                 {
-                    ObsPlugin.Trace($"Exception {ex.Message} getting volume information for source {name}");
+                    ObsStudioPlugin.Trace($"Exception {ex.Message} getting volume information for source {name}");
                 }
             }
         }
@@ -76,7 +76,7 @@
                                                   && (!testAudio || this.GetAudioActive(sourceName)), out var good) && good)
             {
                 this.CurrentAudioSources.Add(sourceName, new AudioSourceDesc(sourceName, this));
-                ObsPlugin.Trace($"Adding Regular audio source {sourceName}");
+                ObsStudioPlugin.Trace($"Adding Regular audio source {sourceName}");
                 return true;
             }
             return false;
@@ -104,7 +104,7 @@
             }
             else
             {
-                ObsPlugin.Trace($"SourceDestroyed: Source {sourceName} is not found in audioSources");
+                ObsStudioPlugin.Trace($"SourceDestroyed: Source {sourceName} is not found in audioSources");
             }
         }
 
@@ -117,7 +117,7 @@
             }
             else
             {
-                ObsPlugin.Trace($"OBS: Error updating volume: Source {volDesc?.SourceName} not in current sources");
+                ObsStudioPlugin.Trace($"OBS: Error updating volume: Source {volDesc?.SourceName} not in current sources");
             }
         }
 
@@ -130,7 +130,7 @@
             }
             else
             {
-                ObsPlugin.Trace($"OBS: Error updating mute: Source {sourceName} not in current sources");
+                ObsStudioPlugin.Trace($"OBS: Error updating mute: Source {sourceName} not in current sources");
             }
         }
 
@@ -153,12 +153,12 @@
                 }
                 catch (Exception ex)
                 {
-                    ObsPlugin.Trace($"Warning: Exception {ex.InnerException.Message} -- Cannot set mute for source {sourceName}");
+                    ObsStudioPlugin.Trace($"Warning: Exception {ex.InnerException.Message} -- Cannot set mute for source {sourceName}");
                 }
             }
             else
             {
-                ObsPlugin.Trace($"Warning: source {sourceName} not found in current sources, ignoring");
+                ObsStudioPlugin.Trace($"Warning: source {sourceName} not found in current sources, ignoring");
             }
         }
 
@@ -176,12 +176,12 @@
                 }
                 catch (Exception ex)
                 {
-                    ObsPlugin.Trace($"Warning: Exception {ex.InnerException.Message} -- Cannot set volume for source {sourceName}");
+                    ObsStudioPlugin.Trace($"Warning: Exception {ex.InnerException.Message} -- Cannot set volume for source {sourceName}");
                 }
             }
             else
             {
-                ObsPlugin.Trace($"Warning: source {sourceName} not found in current sources, ignoring");
+                ObsStudioPlugin.Trace($"Warning: source {sourceName} not found in current sources, ignoring");
             }
         }
 
@@ -195,7 +195,7 @@
                 if (type.Capabilities.HasAudio)
                 {
                     this._audioSourceTypes.Add(type.TypeID);
-                    ObsPlugin.Trace($"Type {type.TypeID} will be handled as audio type");
+                    ObsStudioPlugin.Trace($"Type {type.TypeID} will be handled as audio type");
                 }
             }
         }
@@ -215,13 +215,13 @@
                     {
                         // Adding audio source and populating initial values
                         this.CurrentAudioSources.Add(source.Name, new AudioSourceDesc(source.Name, this));
-                        ObsPlugin.Trace($"Adding Regular audio source {source.Name}");
+                        ObsStudioPlugin.Trace($"Adding Regular audio source {source.Name}");
                     }
                 }
             }
             catch (Exception ex)
             {
-                ObsPlugin.Trace($"Warning: Exception {ex.Message} when retreiving list of sources from current scene collection!");
+                ObsStudioPlugin.Trace($"Warning: Exception {ex.Message} when retreiving list of sources from current scene collection!");
             }
         }
     }

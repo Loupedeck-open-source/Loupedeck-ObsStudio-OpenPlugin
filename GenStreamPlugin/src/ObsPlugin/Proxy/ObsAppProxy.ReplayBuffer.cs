@@ -1,4 +1,4 @@
-﻿namespace Loupedeck.ObsPlugin
+﻿namespace Loupedeck.ObsStudioPlugin
 {
     using System;
     using System.Collections.Generic;
@@ -17,7 +17,7 @@
 
         private void OnObsReplayBufferStateChange(OBSWebsocket sender, OBSWebsocketDotNet.Types.OutputState newState)
         {
-            ObsPlugin.Trace($"OBS Replay buffer state change, new state {newState}");
+            ObsStudioPlugin.Trace($"OBS Replay buffer state change, new state {newState}");
 
             if ((newState == OBSWebsocketDotNet.Types.OutputState.Started) || (newState == OBSWebsocketDotNet.Types.OutputState.Starting))
             {
@@ -35,7 +35,7 @@
             {
                 if(!Helpers.TryExecuteSafe(() => this.ToggleReplayBuffer()))
                 {
-                    ObsPlugin.Trace("Warning: Cannot toggle replayBuffer");
+                    ObsStudioPlugin.Trace("Warning: Cannot toggle replayBuffer");
                 }
             }
         }
@@ -45,7 +45,7 @@
             {
                 if (!Helpers.TryExecuteSafe(() => this.SaveReplayBuffer()))
                 {
-                    ObsPlugin.Trace("Warning: Cannot save replayBuffer");
+                    ObsStudioPlugin.Trace("Warning: Cannot save replayBuffer");
                 }
             }
 

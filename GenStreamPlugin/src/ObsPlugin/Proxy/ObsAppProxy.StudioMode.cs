@@ -1,4 +1,4 @@
-﻿namespace Loupedeck.ObsPlugin
+﻿namespace Loupedeck.ObsStudioPlugin
 {
     using System;
     using System.Collections.Generic;
@@ -21,7 +21,7 @@
 
         private void OnObsStudioModeStateChange(Object sender, Boolean enabled)
         {
-            ObsPlugin.Trace($"OBS StudioMode State change, enabled={enabled}");
+            ObsStudioPlugin.Trace($"OBS StudioMode State change, enabled={enabled}");
             this._studioMode = enabled;
             if (enabled)
             {
@@ -39,11 +39,11 @@
            {
                 if( Helpers.TryExecuteSafe(() => this.TransitionToProgram()))
                 {
-                    ObsPlugin.Trace("Transition executed successfully");
+                    ObsStudioPlugin.Trace("Transition executed successfully");
                 }
                 else
                 {
-                    ObsPlugin.Trace("Cannot run transition");
+                    ObsStudioPlugin.Trace("Cannot run transition");
                 }
 
             }
@@ -54,7 +54,7 @@
         {
             if (this.IsAppConnected)
             {
-                ObsPlugin.Trace("Toggling studio mode");
+                ObsStudioPlugin.Trace("Toggling studio mode");
                 _ = Helpers.TryExecuteSafe(() => this.ToggleStudioMode());
             }
         }

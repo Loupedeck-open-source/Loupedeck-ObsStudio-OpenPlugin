@@ -1,11 +1,11 @@
-﻿namespace Loupedeck.ObsPlugin.Actions
+﻿namespace Loupedeck.ObsStudioPlugin.Actions
 {
     using System;
     using System.Collections.Generic;
 
     public class SceneCollectionSelectCommand : PluginMultistateDynamicCommand
     {
-        private ObsAppProxy Proxy => (this.Plugin as ObsPlugin).Proxy;
+        private ObsAppProxy Proxy => (this.Plugin as ObsStudioPlugin).Proxy;
 
         private const String IMGCollectionSelected = "SourceOn.png";
         private const String IMGCollectionUnselected = "SourceOff.png";
@@ -103,7 +103,7 @@
         {
             var imageName = stateIndex == 1 ? IMGCollectionSelected : IMGCollectionUnselected;
 
-            return (this.Plugin as ObsPlugin).GetPluginCommandImage(imageSize, imageName, String.IsNullOrEmpty(actionParameter) ? "Offline" : actionParameter, stateIndex == 1);
+            return (this.Plugin as ObsStudioPlugin).GetPluginCommandImage(imageSize, imageName, String.IsNullOrEmpty(actionParameter) ? "Offline" : actionParameter, stateIndex == 1);
         }
     }
 }

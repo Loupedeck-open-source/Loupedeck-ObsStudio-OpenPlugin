@@ -1,4 +1,4 @@
-namespace Loupedeck.ObsPlugin
+namespace Loupedeck.ObsStudioPlugin
 {
     using System;
 
@@ -7,7 +7,7 @@ namespace Loupedeck.ObsPlugin
 
     // This class contains the plugin-level logic of the Loupedeck plugin.
 
-    public class ObsPlugin : Plugin
+    public class ObsStudioPlugin : Plugin
     {
         public readonly ObsAppProxy Proxy;
 
@@ -19,7 +19,7 @@ namespace Loupedeck.ObsPlugin
 
         private readonly ObsConnector _connector;
 
-        public ObsPlugin()
+        public ObsStudioPlugin()
         {
             this.Proxy = new ObsAppProxy();
             this._connector = new ObsConnector(this.Proxy, this.GetPluginDataDirectory() + "\\..\\ObsStudio",

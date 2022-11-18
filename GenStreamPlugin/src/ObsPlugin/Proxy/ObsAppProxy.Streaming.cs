@@ -1,4 +1,4 @@
-﻿namespace Loupedeck.ObsPlugin
+﻿namespace Loupedeck.ObsStudioPlugin
 {
     using System;
     using System.Collections.Generic;
@@ -18,7 +18,7 @@
 
         private void OnObsStreamingStateChange(OBSWebsocket sender, OBSWebsocketDotNet.Types.OutputState newState)
         {
-            ObsPlugin.Trace($"OBS StreamingStateChange, new state {newState}");
+            ObsStudioPlugin.Trace($"OBS StreamingStateChange, new state {newState}");
 
             if ((newState == OBSWebsocketDotNet.Types.OutputState.Started) || (newState == OBSWebsocketDotNet.Types.OutputState.Starting))
             {
@@ -34,7 +34,7 @@
         {
             if (this.IsAppConnected)
             {
-                ObsPlugin.Trace("Toggling streaming");
+                ObsStudioPlugin.Trace("Toggling streaming");
                 _ = Helpers.TryExecuteSafe(() => this.ToggleStreaming());
             }
         }

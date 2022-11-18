@@ -1,4 +1,4 @@
-﻿namespace Loupedeck.ObsPlugin.Actions
+﻿namespace Loupedeck.ObsStudioPlugin.Actions
 {
     using System;
 
@@ -6,7 +6,7 @@
     {
         private const String IMGAction = "STREAM_SaveReplay.png";                                          
 
-        private ObsAppProxy Proxy => (this.Plugin as ObsPlugin).Proxy;
+        private ObsAppProxy Proxy => (this.Plugin as ObsStudioPlugin).Proxy;
 
          public ReplayBufferSaveCommand() : base(displayName: "Save Replay Buffer", description: "Flush and save the contents of the Replay Buffer to disk. ", groupName: "") { }
 
@@ -40,7 +40,7 @@
 
         private void OnAppDisconnected(Object sender, EventArgs e) => this.OnAppReplayBufferOff(sender, e);
 
-        protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize) => (this.Plugin as ObsPlugin).GetPluginCommandImage(imageSize, IMGAction); 
+        protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize) => (this.Plugin as ObsStudioPlugin).GetPluginCommandImage(imageSize, IMGAction); 
 
         protected override void RunCommand(String actionParameter) => this.Proxy.AppSaveReplayBuffer();
 

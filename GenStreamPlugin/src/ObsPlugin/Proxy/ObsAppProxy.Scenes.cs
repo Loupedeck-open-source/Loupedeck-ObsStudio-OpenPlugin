@@ -1,4 +1,4 @@
-﻿namespace Loupedeck.ObsPlugin
+﻿namespace Loupedeck.ObsStudioPlugin
 {
     using System;
     using System.Collections.Generic;
@@ -28,7 +28,7 @@
             {
                 this.Scenes = (listInfo as OBSWebsocketDotNet.Types.GetSceneListInfo).Scenes;
 
-                ObsPlugin.Trace($"OBS Rescanned scene list. Currently {this.Scenes.Count} scenes in collection {this.CurrentSceneCollection} ");
+                ObsStudioPlugin.Trace($"OBS Rescanned scene list. Currently {this.Scenes.Count} scenes in collection {this.CurrentSceneCollection} ");
 
                 // Retreiving properties for all scenes
                 this.OnObsSceneCollectionChange_FetchSceneItems();
@@ -42,7 +42,7 @@
                 }
                 else
                 {
-                    ObsPlugin.Trace("OBS Warning: SceneListChanged: cannot fetch current scene");
+                    ObsStudioPlugin.Trace("OBS Warning: SceneListChanged: cannot fetch current scene");
                 }
 
                 this.OnObsSceneCollectionChanged_RetreiveAudioSources();
@@ -50,7 +50,7 @@
             }
             else
             {
-                ObsPlugin.Trace("OBS Warning: Cannot handle SceneListChanged event");
+                ObsStudioPlugin.Trace("OBS Warning: Cannot handle SceneListChanged event");
             }
         }
 
@@ -61,14 +61,14 @@
                 var item = this.Scenes.Find(x => x.Name == newScene);
                 if (item != null)
                 {
-                    ObsPlugin.Trace($"OBS - Current scene changed from {this.CurrentScene?.Name} to {newScene}");
+                    ObsStudioPlugin.Trace($"OBS - Current scene changed from {this.CurrentScene?.Name} to {newScene}");
 
                     this.CurrentScene = item;
                     this.AppEvtCurrentSceneChanged?.Invoke(sender, null);
                 }
                 else
                 {
-                    ObsPlugin.Trace($"Warning: Cannot find scene {newScene} in current collection {this.CurrentSceneCollection}");
+                    ObsStudioPlugin.Trace($"Warning: Cannot find scene {newScene} in current collection {this.CurrentSceneCollection}");
                 }
 
                 // Updating Mute status for sources
@@ -76,7 +76,7 @@
             }
             catch (Exception ex)
             {
-                ObsPlugin.Trace($"Warning: Exception {ex.Message} while changing scene");
+                ObsStudioPlugin.Trace($"Warning: Exception {ex.Message} while changing scene");
             }
         }
 
@@ -84,7 +84,7 @@
         {
             if (this.IsAppConnected && this.SceneInCurrentCollection(newScene))
             {
-                ObsPlugin.Trace($"Switching to scene {newScene}");
+                ObsStudioPlugin.Trace($"Switching to scene {newScene}");
 
                 _ = Helpers.TryExecuteSafe(() => this.SetCurrentScene(newScene));
             }
