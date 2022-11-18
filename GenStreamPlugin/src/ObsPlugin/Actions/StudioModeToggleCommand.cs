@@ -13,8 +13,8 @@
                     groupName:    "",
                     offStateName: "Enable Studio Mode",
                     onStateName:  "Disable Studio Mode",
-                    offStateImage:"Loupedeck.ObsPlugin.icons.STREAM_EnableStudioMode.png",
-                    onStateImage: "Loupedeck.ObsPlugin.icons.animated-studio.gif")
+                    offStateImage:"STREAM_EnableStudioMode.png",
+                    onStateImage: "animated-studio.gif")
         {
         }
 

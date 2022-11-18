@@ -6,9 +6,9 @@
     {
         private ObsAppProxy Proxy => (this.Plugin as ObsPlugin).Proxy;
 
-        private const String IMGSourceMuted = "Loupedeck.ObsPlugin.icons.AudioOn.png";
-        private const String IMGSourceUnmuted = "Loupedeck.ObsPlugin.icons.AudioOff.png";
-        private const String IMGSourceInaccessible = "Loupedeck.ObsPlugin.icons.AudioOff.png";
+        private const String IMGSourceMuted = "AudioOn.png";
+        private const String IMGSourceUnmuted = "AudioOff.png";
+        private const String IMGSourceInaccessible = "AudioOff.png";
         private const String SourceNameUnknown = "Offline";
 
         public SourceMuteCommand()
@@ -119,8 +119,7 @@
                     : stateIndex == 1 ? IMGSourceMuted : IMGSourceUnmuted;
             }
 
-            // TODO: We need to learn to cache bitmaps. Here the key can be same 3 items: image name, state # and sourceName text
-            return ObsPlugin.NameOverBitmap(imageSize, imageName, sourceName, stateIndex == 1);
+            return (this.Plugin as ObsPlugin).GetPluginCommandImage(imageSize, imageName, sourceName, stateIndex == 1);
         }
 
         internal void AddSource(String sourceName, Boolean isSpecialSource = false)
@@ -130,8 +129,6 @@
             var displayName = sourceName + (isSpecialSource ? "(G)" : "") + " mute";
             this.AddParameter(key, displayName, this.GroupName);
             _ = this.SetCurrentState(key, this.Proxy.AppGetMute(sourceName) ? 0 : 1);
-
-            // this.AddParameter(key, $"{sourceName} mute", isSpecialSource ? SpecialSourceGroupName : this.GroupName);
         }
 
         internal void ResetParameters(Boolean readContent)

@@ -13,8 +13,8 @@
                        groupName:      "",
                        offStateName:   "Start Recording",
                        onStateName:    "Stop Recording",
-                       offStateImage:  "Loupedeck.ObsPlugin.icons.STREAM_ToggleRecord1.png",
-                       onStateImage:   "Loupedeck.ObsPlugin.icons.animated-record.gif")
+                       offStateImage:  "STREAM_ToggleRecord1.png",
+                       onStateImage:   "animated-record.gif")
         {
         }
 

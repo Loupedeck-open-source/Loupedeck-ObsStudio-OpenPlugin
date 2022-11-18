@@ -4,7 +4,7 @@
 
     public class TransitionCommand: PluginDynamicCommand
     {
-        private const String IMGAction = "Loupedeck.ObsPlugin.icons.STREAM_SaveReplay.png";
+        private const String IMGAction = "STREAM_SaveReplay.png";
 
         private ObsAppProxy Proxy => (this.Plugin as ObsPlugin).Proxy;
 
@@ -38,7 +38,7 @@
 
         private void OnAppDisconnected(Object sender, EventArgs e) => this.OnAppStudioModeOff(sender, e);
 
-        protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize) => EmbeddedResources.ReadImage(IMGAction);
+        protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize) => (this.Plugin as ObsPlugin).GetPluginCommandImage(imageSize, IMGAction);
 
         protected override void RunCommand(String actionParameter) => this.Proxy.AppRunTransition();
 

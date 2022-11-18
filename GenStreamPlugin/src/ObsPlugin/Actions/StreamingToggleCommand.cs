@@ -13,8 +13,8 @@
                     groupName: "",
                     offStateName: "Start streaming",
                     onStateName: "Stop streaming",
-                    offStateImage: "Loupedeck.ObsPlugin.icons.STREAM_StartStreamingGreen.png",
-                    onStateImage: "Loupedeck.ObsPlugin.icons.animated-streaming.gif")
+                    offStateImage: "STREAM_StartStreamingGreen.png",
+                    onStateImage: "animated-streaming.gif")
         {
         }
 

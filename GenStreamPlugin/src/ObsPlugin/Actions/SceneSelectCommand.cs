@@ -6,9 +6,9 @@
     {
         private ObsAppProxy Proxy => (this.Plugin as ObsPlugin).Proxy;
 
-        private const String IMGSceneSelected = "Loupedeck.ObsPlugin.icons.SceneOn.png";
-        private const String IMGSceneUnselected = "Loupedeck.ObsPlugin.icons.SceneOff.png";
-        private const String IMGSceneInaccessible = "Loupedeck.ObsPlugin.icons.SceneOff.png";
+        private const String IMGSceneSelected = "SceneOn.png";
+        private const String IMGSceneUnselected = "SceneOff.png";
+        private const String IMGSceneInaccessible = "SceneOff.png";
         private const String SceneNameUnknown = "Offline";
 
         public SceneSelectCommand()
@@ -114,7 +114,7 @@
                     : stateIndex == 1 ? IMGSceneSelected : IMGSceneUnselected;
             }
 
-            return ObsPlugin.NameOverBitmap(imageSize, imageName, sceneName, stateIndex == 1);
+            return (this.Plugin as ObsPlugin).GetPluginCommandImage(imageSize, imageName, sceneName, stateIndex == 1);
         }
     }
 }

@@ -13,8 +13,8 @@
                     groupName: "",
                     offStateName: "Start Virtual Camera",
                     onStateName: "Stop Virtual Camera",
-                    offStateImage: "Loupedeck.ObsPlugin.icons.VirtualWebcam.png",
-                    onStateImage: "Loupedeck.ObsPlugin.icons.animated-camera.gif")
+                    offStateImage: "VirtualWebcam.png",
+                    onStateImage: "animated-camera.gif")
         {
         }
 

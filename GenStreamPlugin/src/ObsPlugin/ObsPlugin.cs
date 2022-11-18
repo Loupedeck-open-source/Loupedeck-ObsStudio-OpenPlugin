@@ -97,7 +97,7 @@ namespace Loupedeck.ObsPlugin
         /// <param name="imageName">Image file name</param>
         /// <param name="text">text to render</param>
         /// <returns>bitmap with text rendered</returns>
-        public static BitmapImage NameOverBitmap(PluginImageSize imageSize, String imageName, String text, Boolean selected=false)
+        internal BitmapImage NameOverBitmap(PluginImageSize imageSize, String imageName, String text, Boolean selected=false)
         {
             
             using (var bitmapBuilder = new BitmapBuilder(imageSize))
@@ -117,6 +117,12 @@ namespace Loupedeck.ObsPlugin
                 return bitmapBuilder.ToImage();
             }
         }
+
+        //Loupedeck.ObsPlugin.icons.
+        public static readonly String imageResPrefix = "Loupedeck.ObsPlugin.icons.";
+
+        //TODO IMPLEMENT CACHE HERE
+        public BitmapImage GetPluginCommandImage(PluginImageSize imageSize, String imageName, String text = null, Boolean textSelected = false) => text != null ? this.NameOverBitmap(imageSize, imageResPrefix + imageName, text, textSelected) : EmbeddedResources.ReadImage(imageResPrefix + imageName);
 
         public static void Trace(String line) => Tracer.Trace("GSP:" + line); /*System.Diagnostics.Debug.WriteLine(*/
     }

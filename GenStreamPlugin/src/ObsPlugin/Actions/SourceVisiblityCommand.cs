@@ -6,9 +6,9 @@
     {
         private ObsAppProxy Proxy => (this.Plugin as ObsPlugin).Proxy;
 
-        private const String IMGSceneSelected = "Loupedeck.ObsPlugin.icons.SourceOn.png";
-        private const String IMGSceneUnselected = "Loupedeck.ObsPlugin.icons.SourceOff.png";
-        private const String IMGSceneInaccessible = "Loupedeck.ObsPlugin.icons.SourceOff.png";
+        private const String IMGSceneSelected = "SourceOn.png";
+        private const String IMGSceneUnselected = "SourceOff.png";
+        private const String IMGSceneInaccessible = "SourceOff.png";
         private const String SourceNameUnknown = "Offline";
 
         public SourceVisibilityCommand()
@@ -96,14 +96,13 @@
             if (SceneItemKey.TryParse(actionParameter, out var parsed))
             {
                 sourceName = parsed.Source;
-
                 imageName = parsed.Collection != this.Proxy.CurrentSceneCollection
                     ? IMGSceneInaccessible
                     : stateIndex== 1 ? IMGSceneSelected : IMGSceneUnselected;
             }
 
-            // FIXME: We need to learn to cache bitmaps. Here the key can be same 3 items: image name, state # and sourceName text
-            return ObsPlugin.NameOverBitmap(imageSize, imageName, sourceName, stateIndex==1 );
+            return (this.Plugin as ObsPlugin).GetPluginCommandImage(imageSize, imageName, sourceName, stateIndex == 1);
+            
 
         }
 

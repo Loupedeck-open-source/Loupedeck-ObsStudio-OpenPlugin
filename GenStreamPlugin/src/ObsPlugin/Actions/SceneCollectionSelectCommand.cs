@@ -7,8 +7,8 @@
     {
         private ObsAppProxy Proxy => (this.Plugin as ObsPlugin).Proxy;
 
-        private const String IMGCollectionSelected = "Loupedeck.ObsPlugin.icons.SourceOn.png";
-        private const String IMGCollectionUnselected = "Loupedeck.ObsPlugin.icons.SourceOff.png";
+        private const String IMGCollectionSelected = "SourceOn.png";
+        private const String IMGCollectionUnselected = "SourceOff.png";
 
         public SceneCollectionSelectCommand()
         {
@@ -103,7 +103,7 @@
         {
             var imageName = stateIndex == 1 ? IMGCollectionSelected : IMGCollectionUnselected;
 
-            return ObsPlugin.NameOverBitmap(imageSize, imageName, String.IsNullOrEmpty(actionParameter) ? "Offline" : actionParameter, stateIndex==1 );
+            return (this.Plugin as ObsPlugin).GetPluginCommandImage(imageSize, imageName, String.IsNullOrEmpty(actionParameter) ? "Offline" : actionParameter, stateIndex == 1);
         }
     }
 }

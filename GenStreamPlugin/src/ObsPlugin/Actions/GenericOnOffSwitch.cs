@@ -18,8 +18,8 @@
             this.GroupName = groupName;
 
             this.AddToggleCommand(displayName, 
-                    EmbeddedResources.ReadImage(onStateImage), 
-                    EmbeddedResources.ReadImage(offStateImage));
+                    EmbeddedResources.ReadImage(ObsPlugin.imageResPrefix + onStateImage), 
+                    EmbeddedResources.ReadImage(ObsPlugin.imageResPrefix + offStateImage));
 
             this.SetOffStateDisplayName(offStateName);
             this.SetOnStateDisplayName(onStateName);

@@ -7,9 +7,9 @@
     {
         private ObsAppProxy Proxy => (this.Plugin as ObsPlugin).Proxy;
 
-        private const String IMGSourceSelected = "Loupedeck.ObsPlugin.icons.SourceOn.png";
-        private const String IMGSourceUnselected = "Loupedeck.ObsPlugin.icons.SourceOff.png";
-        private const String IMGSourceInaccessible = "Loupedeck.ObsPlugin.icons.SourceOff.png";
+        private const String IMGSourceSelected = "SourceOn.png";
+        private const String IMGSourceUnselected = "SourceOff.png";
+        private const String IMGSourceInaccessible = "SourceOff.png";
         private const String SourceNameUnknown = "Offline";
         // private const String SpecialSourceGroupName = "General Audio";
 
@@ -142,7 +142,8 @@
                 imageName = parsed.Collection != this.Proxy.CurrentSceneCollection ? IMGSourceInaccessible : this._muteStates[actionParameter] ? IMGSourceUnselected : IMGSourceSelected;
             }
 
-            return ObsPlugin.NameOverBitmap(imageSize, imageName, sourceName, selected);
+            return (this.Plugin as ObsPlugin).GetPluginCommandImage(imageSize, imageName, sourceName, selected);
+             
         }
 
         private void OnSourceCreated(String sourceName)

@@ -11,8 +11,8 @@
                        groupName:     "",
                        offStateName:  "Start recording into the Replay Buffer",
                        onStateName:   "Stop recording into the Replay Buffer",
-                       offStateImage: "Loupedeck.ObsPlugin.icons.STREAM_StartReplayBuffer.png",
-                       onStateImage:  "Loupedeck.ObsPlugin.icons.STREAM_StopReplayBuffer.png")
+                       offStateImage: "STREAM_StartReplayBuffer.png",
+                       onStateImage:  "STREAM_StopReplayBuffer.png")
         {
         }
 
