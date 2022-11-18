@@ -7,8 +7,8 @@
     <ProjectGuid>{162A9B7F-0A18-47E8-B039-0AA4C924EA5B}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Loupedeck.ObsPlugin</RootNamespace>
-    <AssemblyName>ObsPlugin</AssemblyName>
+    <RootNamespace>Loupedeck.ObsStudioPlugin</RootNamespace>
+    <AssemblyName>ObsStudioPlugin</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -67,7 +67,7 @@
     <Compile Include="Actions\GenericOnOffSwitch.cs" />
     <Compile Include="Actions\SourceVolumeAdjustment.cs" />
     <Compile Include="Actions\SourceMuteCommand.cs" />
-    <Compile Include="Actions\SourceVisiblityCommand.cs" />
+    <Compile Include="Actions\SourceVisibilityCommand.cs" />
     <Compile Include="Actions\SceneSelectCommand.cs" />
     <Compile Include="Actions\SceneCollectionSelectCommand.cs" />
     <Compile Include="Actions\RecordingToggleCommand.cs" />
@@ -76,7 +76,7 @@
     <Compile Include="ObsConnector.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ObsApplication.cs" />
-    <Compile Include="ObsPlugin.cs" />
+    <Compile Include="ObsStudioPlugin.cs" />
     <Compile Include="Actions\StreamingToggleCommand.cs" />
     <Compile Include="Actions\StudioModeToggleCommand.cs" />
     <Compile Include="Actions\VirtualCameraToggleCommand.cs" />
