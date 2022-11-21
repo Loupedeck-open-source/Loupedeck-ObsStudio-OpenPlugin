@@ -8,9 +8,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("OBS Studio plugin for Loupedeck")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("%%Company%%")]
-[assembly: AssemblyProduct("Loupedeck2")]
-[assembly: AssemblyCopyright("Copyright © 2022 Andrei Laperie. All rights reserved.")]
+[assembly: AssemblyCompany("LoupeDeck Ltd.")]
+[assembly: AssemblyProduct("Loupedeck")]
+[assembly: AssemblyCopyright("Copyright")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("162A9B7F-0A18-47E8-B039-0AA4C924EA5B")]
+[assembly: Guid("2901B5AB-3114-490D-B938-83AE31CAC564")]
 
 // Version information for an assembly consists of the following four values:
 //
