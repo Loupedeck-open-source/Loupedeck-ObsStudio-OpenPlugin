@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{162A9B7F-0A18-47E8-B039-0AA4C924EA5B}</ProjectGuid>
+    <ProjectGuid>{2901B5AB-3114-490D-B938-83AE31CAC564}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Loupedeck.ObsStudioPlugin</RootNamespace>
@@ -20,8 +20,8 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath Condition="$(OS) == 'Windows_NT'">$(LocalAppData)\Loupedeck\Plugins\ObsPlugin\win\</OutputPath>
-    <OutputPath Condition="$(OS) != 'Windows_NT'">$(HOME)/.local/share/Loupedeck/Plugins/ObsPlugin/mac/</OutputPath>
+    <OutputPath Condition="$(OS) == 'Windows_NT'">$(LocalAppData)\Loupedeck\Plugins\ObsStudioPlugin\win\</OutputPath>
+    <OutputPath Condition="$(OS) != 'Windows_NT'">$(HOME)/.local/share/Loupedeck/Plugins/ObsStudioPlugin/mac/</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -32,12 +32,11 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath Condition="$(OS) == 'Windows_NT'">$(BaseOutputPath)$(Configuration)\win\</OutputPath>
-    <OutputPath Condition="$(OS) != 'Windows_NT'">$(BaseOutputPath)$(Configuration)/mac/</OutputPath>
+    <Optimize>true</Optimize>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <OutputPath>..\..\bin\win\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="LoupedeckShared">
@@ -74,8 +73,9 @@
     <Compile Include="Actions\ReplayBufferToggleCommand.cs" />
     <Compile Include="ObsAppProxy.cs" />
     <Compile Include="ObsConnector.cs" />
+    <Compile Include="ObsStudioPlugin.Install.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ObsApplication.cs" />
+    <Compile Include="ObsStudioApplication.cs" />
     <Compile Include="ObsStudioPlugin.cs" />
     <Compile Include="Actions\StreamingToggleCommand.cs" />
     <Compile Include="Actions\StudioModeToggleCommand.cs" />
@@ -100,48 +100,48 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="icons\AudioOff.png" />
-    <EmbeddedResource Include="icons\AudioOn.png" />
-    <EmbeddedResource Include="icons\Record.png" />
-    <EmbeddedResource Include="icons\SceneOff.png" />
-    <EmbeddedResource Include="icons\SceneOn.png" />
-    <EmbeddedResource Include="icons\SoftwareNotFound.png" />
-    <EmbeddedResource Include="icons\SourceOff.png" />
-    <EmbeddedResource Include="icons\SourceOn.png" />
-    <EmbeddedResource Include="icons\Stop.png" />
-    <EmbeddedResource Include="icons\STREAM_DisableStudioMode2.png" />
-    <EmbeddedResource Include="icons\STREAM_EnableStudioMode.png" />
-    <EmbeddedResource Include="icons\STREAM_MuteEventSounds1.png" />
-    <EmbeddedResource Include="icons\STREAM_MuteEventSounds2.png" />
-    <EmbeddedResource Include="icons\STREAM_SaveReplay.png" />
-    <EmbeddedResource Include="icons\STREAM_Scene.png" />
-    <EmbeddedResource Include="icons\STREAM_SelectedScene.png" />
-    <EmbeddedResource Include="icons\STREAM_SelectedSource.png" />
-    <EmbeddedResource Include="icons\STREAM_SkipAlert.png" />
-    <EmbeddedResource Include="icons\STREAM_Source.png" />
-    <EmbeddedResource Include="icons\STREAM_Starting-Stopping.png" />
-    <EmbeddedResource Include="icons\STREAM_StartRecording.png" />
-    <EmbeddedResource Include="icons\STREAM_StartReplayBuffer.png" />
-    <EmbeddedResource Include="icons\STREAM_StartStreamingGreen.png" />
-    <EmbeddedResource Include="icons\STREAM_StartStreamingRed.png" />
-    <EmbeddedResource Include="icons\STREAM_StartStreamingWhite.png" />
-    <EmbeddedResource Include="icons\STREAM_StartStreamingYellow.png" />
-    <EmbeddedResource Include="icons\STREAM_StopRecording.png" />
-    <EmbeddedResource Include="icons\STREAM_StopReplayBuffer.png" />
-    <EmbeddedResource Include="icons\STREAM_StopStreamingGreen.png" />
-    <EmbeddedResource Include="icons\STREAM_StopStreamingRed.png" />
-    <EmbeddedResource Include="icons\STREAM_StopStreamingWhite.png" />
-    <EmbeddedResource Include="icons\STREAM_StopStreamingYellow.png" />
-    <EmbeddedResource Include="icons\STREAM_StreamStartingGreen.png" />
-    <EmbeddedResource Include="icons\STREAM_StreamStartingRed.png" />
-    <EmbeddedResource Include="icons\STREAM_StreamStartingWhite.png" />
-    <EmbeddedResource Include="icons\STREAM_StreamStartingYellow.png" />
-    <EmbeddedResource Include="icons\STREAM_ToggleAlertQueue1.png" />
-    <EmbeddedResource Include="icons\STREAM_ToggleAlertQueue2.png" />
-    <EmbeddedResource Include="icons\STREAM_ToggleRecord1.png" />
-    <EmbeddedResource Include="icons\STREAM_ToggleRecord2.png" />
-    <EmbeddedResource Include="icons\VirtualWebcam.png" />
-    <EmbeddedResource Include="icons\VirtualWebcamOff.png" />
+    <EmbeddedResource Include="Icons\AudioOff.png" />
+    <EmbeddedResource Include="Icons\AudioOn.png" />
+    <EmbeddedResource Include="Icons\Record.png" />
+    <EmbeddedResource Include="Icons\SceneOff.png" />
+    <EmbeddedResource Include="Icons\SceneOn.png" />
+    <EmbeddedResource Include="Icons\SoftwareNotFound.png" />
+    <EmbeddedResource Include="Icons\SourceOff.png" />
+    <EmbeddedResource Include="Icons\SourceOn.png" />
+    <EmbeddedResource Include="Icons\Stop.png" />
+    <EmbeddedResource Include="Icons\STREAM_DisableStudioMode2.png" />
+    <EmbeddedResource Include="Icons\STREAM_EnableStudioMode.png" />
+    <EmbeddedResource Include="Icons\STREAM_MuteEventSounds1.png" />
+    <EmbeddedResource Include="Icons\STREAM_MuteEventSounds2.png" />
+    <EmbeddedResource Include="Icons\STREAM_SaveReplay.png" />
+    <EmbeddedResource Include="Icons\STREAM_Scene.png" />
+    <EmbeddedResource Include="Icons\STREAM_SelectedScene.png" />
+    <EmbeddedResource Include="Icons\STREAM_SelectedSource.png" />
+    <EmbeddedResource Include="Icons\STREAM_SkipAlert.png" />
+    <EmbeddedResource Include="Icons\STREAM_Source.png" />
+    <EmbeddedResource Include="Icons\STREAM_Starting-Stopping.png" />
+    <EmbeddedResource Include="Icons\STREAM_StartRecording.png" />
+    <EmbeddedResource Include="Icons\STREAM_StartReplayBuffer.png" />
+    <EmbeddedResource Include="Icons\STREAM_StartStreamingGreen.png" />
+    <EmbeddedResource Include="Icons\STREAM_StartStreamingRed.png" />
+    <EmbeddedResource Include="Icons\STREAM_StartStreamingWhite.png" />
+    <EmbeddedResource Include="Icons\STREAM_StartStreamingYellow.png" />
+    <EmbeddedResource Include="Icons\STREAM_StopRecording.png" />
+    <EmbeddedResource Include="Icons\STREAM_StopReplayBuffer.png" />
+    <EmbeddedResource Include="Icons\STREAM_StopStreamingGreen.png" />
+    <EmbeddedResource Include="Icons\STREAM_StopStreamingRed.png" />
+    <EmbeddedResource Include="Icons\STREAM_StopStreamingWhite.png" />
+    <EmbeddedResource Include="Icons\STREAM_StopStreamingYellow.png" />
+    <EmbeddedResource Include="Icons\STREAM_StreamStartingGreen.png" />
+    <EmbeddedResource Include="Icons\STREAM_StreamStartingRed.png" />
+    <EmbeddedResource Include="Icons\STREAM_StreamStartingWhite.png" />
+    <EmbeddedResource Include="Icons\STREAM_StreamStartingYellow.png" />
+    <EmbeddedResource Include="Icons\STREAM_ToggleAlertQueue1.png" />
+    <EmbeddedResource Include="Icons\STREAM_ToggleAlertQueue2.png" />
+    <EmbeddedResource Include="Icons\STREAM_ToggleRecord1.png" />
+    <EmbeddedResource Include="Icons\STREAM_ToggleRecord2.png" />
+    <EmbeddedResource Include="Icons\VirtualWebcam.png" />
+    <EmbeddedResource Include="Icons\VirtualWebcamOff.png" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\obs-websocket\obs-websocket-dotnet\obs-websocket-dotnet.csproj">
@@ -150,15 +150,15 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="icons\CloseDesktop.png" />
-    <EmbeddedResource Include="icons\Workspaces.png" />
+    <EmbeddedResource Include="Icons\CloseDesktop.png" />
+    <EmbeddedResource Include="Icons\Workspaces.png" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="icons\STREAM_Transition.png" />
+    <EmbeddedResource Include="Icons\STREAM_Transition.png" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="icons\STREAM_RecordPause.png" />
-    <EmbeddedResource Include="icons\STREAM_RecordResume.png" />
+    <EmbeddedResource Include="Icons\STREAM_RecordPause.png" />
+    <EmbeddedResource Include="Icons\STREAM_RecordResume.png" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="metadata\Icon16x16.png" />
@@ -167,11 +167,11 @@
     <EmbeddedResource Include="metadata\Icon48x48.png" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="icons\animated-camera.gif" />
-    <EmbeddedResource Include="icons\animated-pause.gif" />
-    <EmbeddedResource Include="icons\animated-record.gif" />
-    <EmbeddedResource Include="icons\animated-streaming.gif" />
-    <EmbeddedResource Include="icons\animated-studio.gif" />
+    <EmbeddedResource Include="Icons\animated-camera.gif" />
+    <EmbeddedResource Include="Icons\animated-pause.gif" />
+    <EmbeddedResource Include="Icons\animated-record.gif" />
+    <EmbeddedResource Include="Icons\animated-streaming.gif" />
+    <EmbeddedResource Include="Icons\animated-studio.gif" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
