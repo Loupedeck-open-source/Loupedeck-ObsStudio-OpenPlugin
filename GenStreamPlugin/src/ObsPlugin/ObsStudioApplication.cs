@@ -6,13 +6,11 @@
     using System.IO;
     using System.Linq;
 
-    using Loupedeck.ObsStudioPlugin.Constants;
-
     public class ObsStudioApplication : ClientApplication
     {
-        protected override String GetProcessName() => Constant.ObsStudioProcName;
+        protected override String GetProcessName() => "obs64";
 
-        protected override String GetBundleName() => Constant.ObsStudioBundleName;
+        protected override String GetBundleName() => "com.obsproject.obs-studio";
 
         public ObsStudioApplication()
         {
@@ -20,13 +18,13 @@
 
         protected override Boolean IsProcessNameSupported(String procName)
         {
-            if (!procName.EqualsNoCase(Helpers.IsWindows() ? Constant.ObsStudioProcName : Constant.ObsStudioBundleName))
+            if (!procName.EqualsNoCase(Helpers.IsWindows() ? this.GetProcessName() : this.GetBundleName()))
             {
                 return false;
             }
 
             // exclude false call when Streamlabs OBS starts (it contains obs64 process too)
-            return Process.GetProcessesByName(Constant.StreamlabsProcName).Length == 0;
+            return Process.GetProcessesByName("Streamlabs OBS").Length == 0;
         }
 
         /// <summary>

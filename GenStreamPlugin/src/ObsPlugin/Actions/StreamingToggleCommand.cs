@@ -4,20 +4,21 @@
 
     public class StreamingToggleCommand : GenericOnOffSwitch
     {
+        // TODO: As needed, add handling for Starting and Stopping states
         private ObsAppProxy Proxy => (this.Plugin as ObsStudioPlugin).Proxy;
 
         public StreamingToggleCommand()
-                     : base(name: "ToggleStreaming", 
-                    displayName: "Streaming Toggle",
-                    description: "Toggles Streaming on or off",
-                    groupName: "",
-                    offStateName: "Start streaming",
-                    onStateName: "Stop streaming",
-                    offStateImage: "STREAM_StartStreamingGreen.png",
-                    onStateImage: "animated-streaming.gif")
+                     : base(
+                         name: "ToggleStreaming",
+                         displayName: "Streaming Toggle",
+                         description: "Starts/Stops a livestream in OBS Studio",
+                         groupName: "",
+                         offStateName: "Start streaming",
+                         onStateName: "Stop streaming",
+                         offStateImage: "STREAM_StartStreamingGreen.png",
+                         onStateImage:  "STREAM_StartStreamingRed.png")
         {
         }
-
 
         protected override void ConnectAppEvents(EventHandler<EventArgs> eventSwitchedOff, EventHandler<EventArgs> eventSwitchedOn)
         {

@@ -11,12 +11,12 @@
     /// </summary>
     public partial class ObsAppProxy
     {
-        //Note.  Transition is also covered in this module
+        // Note.  Transition is also covered in this module
         public event EventHandler<EventArgs> AppEvtStudioModeOn;
 
         public event EventHandler<EventArgs> AppEvtStudioModeOff;
 
-        //Caching studio mode
+        // Caching studio mode
         private Boolean _studioMode = false;
 
         private void OnObsStudioModeStateChange(Object sender, Boolean enabled)
@@ -35,9 +35,9 @@
 
         public void AppRunTransition()
         {
-           if(this.IsAppConnected && this._studioMode )
-           {
-                if( Helpers.TryExecuteSafe(() => this.TransitionToProgram()))
+            if (this.IsAppConnected && this._studioMode)
+            {
+                if (Helpers.TryExecuteSafe(() => this.TransitionToProgram()))
                 {
                     ObsStudioPlugin.Trace("Transition executed successfully");
                 }
@@ -45,9 +45,7 @@
                 {
                     ObsStudioPlugin.Trace("Cannot run transition");
                 }
-
             }
-           
         }
 
         public void AppToggleStudioMode()

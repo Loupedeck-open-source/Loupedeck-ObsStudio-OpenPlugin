@@ -33,12 +33,13 @@
         {
             if (this.IsAppConnected)
             {
-                if(!Helpers.TryExecuteSafe(() => this.ToggleReplayBuffer()))
+                if (!Helpers.TryExecuteSafe(() => this.ToggleReplayBuffer()))
                 {
                     ObsStudioPlugin.Trace("Warning: Cannot toggle replayBuffer");
                 }
             }
         }
+
         public void AppSaveReplayBuffer()
         {
             if (this.IsAppConnected)
@@ -48,8 +49,6 @@
                     ObsStudioPlugin.Trace("Warning: Cannot save replayBuffer");
                 }
             }
-
         }
-
     }
 }

@@ -11,6 +11,7 @@
         private const String IMGSourceUnselected = "SourceOff.png";
         private const String IMGSourceInaccessible = "SourceOff.png";
         private const String SourceNameUnknown = "Offline";
+
         // private const String SpecialSourceGroupName = "General Audio";
 
         public SourceVolumeAdjustment()
@@ -19,14 +20,14 @@
             this.Name = "DynamicSpecialSources";
             this.DisplayName = "Volume Mixer";
             this.Description = "Controls the volume of the audio sources in OBS Studio";
-            this.GroupName = "Audio";
+            this.GroupName = "3. Audio";
         }
 
         protected override Boolean OnLoad()
         {
             this.IsEnabled = false;
-            this.Proxy.EvtAppConnected += this.OnAppConnected;
-            this.Proxy.EvtAppDisconnected += this.OnAppDisconnected;
+            this.Proxy.AppConnected += this.OnAppConnected;
+            this.Proxy.AppDisconnected += this.OnAppDisconnected;
 
             this.Proxy.AppEvtSceneListChanged += this.OnSceneListChanged;
             this.Proxy.AppEvtCurrentSceneChanged += this.OnCurrentSceneChanged;
@@ -34,8 +35,8 @@
             this.Proxy.AppEvtSourceMuteStateChanged += this.OnSourceMuteStateChanged;
             this.Proxy.AppEvtSourceVolumeChanged += this.OnSourceVolumeChanged;
 
-            this.Proxy.AppEvtSourceCreated += this.OnSourceCreated;
-            this.Proxy.AppEvtSourceDestroyed += this.OnSourceDestroyed;
+            this.Proxy.AppSourceCreated += this.OnSourceCreated;
+            this.Proxy.AppSourceDestroyed += this.OnSourceDestroyed;
 
             this.OnAppDisconnected(this, null);
 
@@ -44,8 +45,8 @@
 
         protected override Boolean OnUnload()
         {
-            this.Proxy.EvtAppConnected -= this.OnAppConnected;
-            this.Proxy.EvtAppDisconnected -= this.OnAppDisconnected;
+            this.Proxy.AppConnected -= this.OnAppConnected;
+            this.Proxy.AppDisconnected -= this.OnAppDisconnected;
 
             this.Proxy.AppEvtSceneListChanged -= this.OnSceneListChanged;
             this.Proxy.AppEvtCurrentSceneChanged -= this.OnCurrentSceneChanged;
@@ -53,8 +54,8 @@
             this.Proxy.AppEvtSourceMuteStateChanged -= this.OnSourceMuteStateChanged;
             this.Proxy.AppEvtSourceVolumeChanged -= this.OnSourceVolumeChanged;
 
-            this.Proxy.AppEvtSourceCreated -= this.OnSourceCreated;
-            this.Proxy.AppEvtSourceDestroyed -= this.OnSourceDestroyed;
+            this.Proxy.AppSourceCreated -= this.OnSourceCreated;
+            this.Proxy.AppSourceDestroyed -= this.OnSourceDestroyed;
 
             return true;
         }
@@ -113,7 +114,7 @@
 
         private void OnCurrentSceneChanged(Object sender, EventArgs e) => this.ActionImageChanged();
 
-        private void OnAppConnected(Object sender, EventArgs e) => this.IsEnabled = true;// We expect to get SceneCollectionChange so doin' nothin' here.
+        private void OnAppConnected(Object sender, EventArgs e) => this.IsEnabled = true; // We expect to get SceneCollectionChange so doin' nothin' here.
 
         private void OnAppDisconnected(Object sender, EventArgs e)
         {
@@ -143,7 +144,6 @@
             }
 
             return (this.Plugin as ObsStudioPlugin).GetPluginCommandImage(imageSize, imageName, sourceName, selected);
-             
         }
 
         private void OnSourceCreated(String sourceName)
@@ -170,10 +170,10 @@
         internal void AddSource(String sourceName, Boolean isSpecialSource = false)
         {
             var key = SceneKey.Encode(this.Proxy.CurrentSceneCollection, sourceName);
-            var displayName = sourceName +  (isSpecialSource ? "(G)" : "");
+            var displayName = sourceName + (isSpecialSource ? "(G)" : "");
             this.AddParameter(key, displayName, this.GroupName);
 
-            //Moving to same group this.AddParameter(key, $"{sourceName}", isSpecialSource ? SpecialSourceGroupName : this.GroupName);
+            // Moving to same group this.AddParameter(key, $"{sourceName}", isSpecialSource ? SpecialSourceGroupName : this.GroupName);
             this._muteStates[key] = this.Proxy.AppGetMute(sourceName);
         }
 

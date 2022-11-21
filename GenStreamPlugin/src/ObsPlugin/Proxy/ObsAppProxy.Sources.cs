@@ -17,7 +17,7 @@
         private void OnObsSceneItemVisibilityChanged(OBSWebsocket sender, String sceneName, String itemName, Boolean isVisible)
         {
             var key = SceneItemKey.Encode(this.CurrentSceneCollection, sceneName, itemName);
-            if(this.AllSceneItems.ContainsKey(key))
+            if (this.AllSceneItems.ContainsKey(key))
             {
                 this.AllSceneItems[key].Visible = isVisible;
             }
@@ -33,7 +33,7 @@
         {
             ObsStudioPlugin.Trace($"OBS: Scene Item {itemName} added to scene {sceneName}");
 
-            //FIXME!!! WHY THIS IS DONE SO?
+            // FIXME!!! WHY THIS IS DONE SO?
             // Re-reading current scene
             if (Helpers.TryExecuteFunc(() => this.GetCurrentScene(), out var currscene))
             {

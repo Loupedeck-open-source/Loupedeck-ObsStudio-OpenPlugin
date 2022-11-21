@@ -2,7 +2,7 @@
 {
     using System;
 
-    public  class SourceVisibilityCommand : PluginMultistateDynamicCommand
+    public class SourceVisibilityCommand : PluginMultistateDynamicCommand
     {
         private ObsAppProxy Proxy => (this.Plugin as ObsStudioPlugin).Proxy;
 
@@ -15,7 +15,7 @@
         {
             this.Name = "Source Visibility";
             this.Description = "Shows/Hides a Source";
-            this.GroupName = "Current Sources";
+            this.GroupName = "2. Sources";
             _ = this.AddState("Hidden", "Source hidden");
             _ = this.AddState("Visible", "Source visible");
         }
@@ -24,8 +24,8 @@
         {
             this.IsEnabled = false;
 
-            this.Proxy.EvtAppConnected += this.OnAppConnected;
-            this.Proxy.EvtAppDisconnected += this.OnAppDisconnected;
+            this.Proxy.AppConnected += this.OnAppConnected;
+            this.Proxy.AppDisconnected += this.OnAppDisconnected;
 
             this.Proxy.AppEvtSceneListChanged += this.OnSceneListChanged;
             this.Proxy.AppEvtCurrentSceneChanged += this.OnCurrentSceneChanged;
@@ -42,8 +42,8 @@
 
         protected override Boolean OnUnload()
         {
-            this.Proxy.EvtAppConnected -= this.OnAppConnected;
-            this.Proxy.EvtAppDisconnected -= this.OnAppDisconnected;
+            this.Proxy.AppConnected -= this.OnAppConnected;
+            this.Proxy.AppDisconnected -= this.OnAppDisconnected;
 
             this.Proxy.AppEvtSceneListChanged -= this.OnSceneListChanged;
             this.Proxy.AppEvtCurrentSceneChanged -= this.OnCurrentSceneChanged;
@@ -89,7 +89,8 @@
             _ = this.SetCurrentState(actionParameter, isVisible ? 1 : 0);
             this.ActionImageChanged(actionParameter);
         }
-        protected override BitmapImage GetCommandImage(String actionParameter, Int32 stateIndex, PluginImageSize imageSize) 
+
+        protected override BitmapImage GetCommandImage(String actionParameter, Int32 stateIndex, PluginImageSize imageSize)
         {
             var sourceName = SourceNameUnknown;
             var imageName = IMGSceneInaccessible;
@@ -98,12 +99,10 @@
                 sourceName = parsed.Source;
                 imageName = parsed.Collection != this.Proxy.CurrentSceneCollection
                     ? IMGSceneInaccessible
-                    : stateIndex== 1 ? IMGSceneSelected : IMGSceneUnselected;
+                    : stateIndex == 1 ? IMGSceneSelected : IMGSceneUnselected;
             }
 
             return (this.Plugin as ObsStudioPlugin).GetPluginCommandImage(imageSize, imageName, sourceName, stateIndex == 1);
-            
-
         }
 
         internal void AddSceneItemParameter(String sceneName, String itemName)

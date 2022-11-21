@@ -4,33 +4,33 @@
 
     public abstract class GenericOnOffSwitch : PluginTwoStateDynamicCommand
     {
-    
         private ObsAppProxy Proxy => (this.Plugin as ObsStudioPlugin).Proxy;
 
-        public GenericOnOffSwitch(String name, 
-                                 String displayName, String description, String groupName, 
-                                 String offStateName, String onStateName,
-                                 String offStateImage, String onStateImage)
+        public GenericOnOffSwitch(
+            String name,
+            String displayName, String description, String groupName,
+            String offStateName, String onStateName,
+            String offStateImage, String onStateImage)
         {
             this.Name = name;
             this.DisplayName = displayName;
             this.Description = description;
             this.GroupName = groupName;
 
-            this.AddToggleCommand(displayName, 
-                    EmbeddedResources.ReadImage(ObsStudioPlugin.imageResPrefix + onStateImage), 
-                    EmbeddedResources.ReadImage(ObsStudioPlugin.imageResPrefix + offStateImage));
+            this.AddToggleCommand(
+                displayName,
+                EmbeddedResources.ReadImage(ObsStudioPlugin.ImageResPrefix + onStateImage),
+                EmbeddedResources.ReadImage(ObsStudioPlugin.ImageResPrefix + offStateImage));
 
             this.SetOffStateDisplayName(offStateName);
             this.SetOnStateDisplayName(onStateName);
-
         }
 
         protected override Boolean OnLoad()
         {
-            this.Proxy.EvtAppConnected += this.OnAppConnected;
-            this.Proxy.EvtAppDisconnected += this.OnAppDisconnected;
-            
+            this.Proxy.AppConnected += this.OnAppConnected;
+            this.Proxy.AppDisconnected += this.OnAppDisconnected;
+
             this.IsEnabled = false;
             this.ConnectAppEvents(this.AppEvtTurnedOn, this.AppEvtTurnedOff);
 
@@ -39,8 +39,8 @@
 
         protected override Boolean OnUnload()
         {
-            this.Proxy.EvtAppConnected -= this.OnAppConnected;
-            this.Proxy.EvtAppDisconnected -= this.OnAppDisconnected;
+            this.Proxy.AppConnected -= this.OnAppConnected;
+            this.Proxy.AppDisconnected -= this.OnAppDisconnected;
 
             this.DisconnectAppEvents(this.AppEvtTurnedOn, this.AppEvtTurnedOff);
 
@@ -82,17 +82,18 @@
         }
 
         /// <summary>
-        /// executes toggle at the application side. 
+        /// executes toggle at the application side.
         /// </summary>
         /// <param name="currentState">Index of current state of the control: 0 - off, 1 - on </param>
         protected abstract void RunToggle();
+
         protected override void RunCommand(TwoStateCommand command)
         {
             switch (command)
             {
                 case TwoStateCommand.TurnOff:
-                    //Unimplemented
-           
+                // Unimplemented
+
                 case TwoStateCommand.TurnOn:
                     ObsStudioPlugin.Trace($"Action {this.Name}: On and Off direct switches not implemented");
                     break;
@@ -102,6 +103,5 @@
                     break;
             }
         }
-
     }
 }

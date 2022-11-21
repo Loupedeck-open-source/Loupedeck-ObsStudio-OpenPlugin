@@ -48,19 +48,20 @@
 
         public delegate void AppSourceCreatedCb(String sourceName);
 
-        public AppSourceCreatedCb AppEvtSourceCreated;
-        public AppSourceCreatedCb AppEvtSourceDestroyed;
+        public AppSourceCreatedCb AppSourceCreated;
+
+        public AppSourceCreatedCb AppSourceDestroyed;
 
         private void OnObsSourceAudioActivated(OBSWebsocket sender, String sourceName)
         {
             // NOTE: We do not testSettings (type of the source) -> It's audio for sure!
             if (this.AddCurrentAudioSource(sourceName, false, false))
             {
-                this.AppEvtSourceCreated?.Invoke(sourceName);
+                this.AppSourceCreated?.InvokeMethod(sourceName);
             }
         }
 
-        //NOTE: See if we need to do anything regarding 
+        // NOTE: See if we need to do anything regarding
         private void OnObsSourceAudioDeactivated(OBSWebsocket sender, String sourceName) => this.OnObsSourceDestroyed(sender, sourceName, "", "");
 
         /// <summary>
@@ -69,11 +70,12 @@
         /// <param name="sourceName">Name of the source</param>
         /// <param name="testAudio">Test if source has audio active</param>
         /// <returns>True if source is added</returns>
-        internal Boolean AddCurrentAudioSource(String sourceName, Boolean testSettings=true, Boolean testAudio=true)
+        internal Boolean AddCurrentAudioSource(String sourceName, Boolean testSettings = true, Boolean testAudio = true)
         {
-            if(!this.CurrentAudioSources.ContainsKey(sourceName) &&
-                    Helpers.TryExecuteFunc( () => (!testSettings || this.IsAudioSourceType(this.GetSourceSettings(sourceName)))
-                                                  && (!testAudio || this.GetAudioActive(sourceName)), out var good) && good)
+            if (!this.CurrentAudioSources.ContainsKey(sourceName) &&
+                    Helpers.TryExecuteFunc(
+                        () => (!testSettings || this.IsAudioSourceType(this.GetSourceSettings(sourceName)))
+                                                 && (!testAudio || this.GetAudioActive(sourceName)), out var good) && good)
             {
                 this.CurrentAudioSources.Add(sourceName, new AudioSourceDesc(sourceName, this));
                 ObsStudioPlugin.Trace($"Adding Regular audio source {sourceName}");
@@ -85,13 +87,12 @@
         private void OnObsSourceCreated(OBSWebsocket sender, OBSWebsocketDotNet.Types.SourceSettings settings)
         {
             // Check if we should care
-            if (this.IsAudioSourceType(settings) )
+            if (this.IsAudioSourceType(settings))
             {
-                if( this.AddCurrentAudioSource(settings.SourceName, false, true) )
+                if (this.AddCurrentAudioSource(settings.SourceName, false, true))
                 {
-                    this.AppEvtSourceCreated?.Invoke(settings.SourceName);
+                    this.AppSourceCreated?.Invoke(settings.SourceName);
                 }
-                
             }
         }
 
@@ -100,7 +101,7 @@
             if (this.CurrentAudioSources.ContainsKey(sourceName))
             {
                 _ = this.CurrentAudioSources.Remove(sourceName);
-                this.AppEvtSourceDestroyed?.Invoke(sourceName);
+                this.AppSourceDestroyed?.Invoke(sourceName);
             }
             else
             {
@@ -110,7 +111,7 @@
 
         private void OnObsSourceVolumeChanged(OBSWebsocket sender, OBSWebsocketDotNet.Types.SourceVolume volDesc)
         {
-            if(this.CurrentAudioSources.ContainsKey(volDesc.SourceName))
+            if (this.CurrentAudioSources.ContainsKey(volDesc.SourceName))
             {
                 this.CurrentAudioSources[volDesc.SourceName].Volume = volDesc.Volume;
                 this.AppEvtSourceVolumeChanged?.Invoke(sender, volDesc);
@@ -168,7 +169,7 @@
             {
                 try
                 {
-                    var current = this.AppGetVolume(sourceName) + (Single)diff_ticks / 100.0F;
+                    var current = this.AppGetVolume(sourceName) + (diff_ticks / 100.0F);
 
                     current = (Single)(current < 0.0 ? 0.0 : (current > 1.0 ? 1.0 : current));
 
@@ -209,7 +210,7 @@
                 foreach (var source in this.GetSourcesList())
                 {
                     // NOTE: Special sources are seen as in GetSourcesList too! (they're present as 'value' specSource.Value)
-                    if (    /*!this._specialSources.ContainsValue(source.Name) 
+                    if ( /*!this._specialSources.ContainsValue(source.Name)
                             &&*/ this.IsAudioSourceType(this.GetSourceSettings(source.Name))
                             && this.GetAudioActive(source.Name))
                     {

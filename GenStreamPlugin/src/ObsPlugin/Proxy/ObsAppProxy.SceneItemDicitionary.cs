@@ -33,8 +33,9 @@
 
             if (sourceDictItem != null)
             {
-                this.AllSceneItems.Add(SceneItemKey.Encode(this.CurrentSceneCollection, sceneName, item.SourceName),
-                                    sourceDictItem);
+                this.AllSceneItems.Add(
+                    SceneItemKey.Encode(this.CurrentSceneCollection, sceneName, item.SourceName),
+                    sourceDictItem);
                 return true;
             }
             else
@@ -96,18 +97,19 @@
         public class SceneItemDescriptor
         {
             public String CollectionName;
+
             public String SceneName;
 
-            public String SceneNameProp => this.SceneItemProps.ItemName;
+            public String SceneNameProp => this._sceneItemProps.ItemName;
 
-            public String SourceName => this.SceneItemDetails.SourceName;
+            public String SourceName => this._sceneItemDetails.SourceName;
 
-            public Boolean Visible { get => this.SceneItemProps.Visible; set => this.SceneItemProps.Visible = value; }
+            public Boolean Visible { get => this._sceneItemProps.Visible; set => this._sceneItemProps.Visible = value; }
 
             // private readonly volumeinfo;
             // private readonly OBSWebsocketDotNet.Types.SceneItem _sceneItem;
-            private readonly OBSWebsocketDotNet.Types.SceneItemDetails SceneItemDetails;
-            private readonly OBSWebsocketDotNet.Types.SceneItemProperties SceneItemProps;
+            private readonly OBSWebsocketDotNet.Types.SceneItemDetails _sceneItemDetails;
+            private readonly OBSWebsocketDotNet.Types.SceneItemProperties _sceneItemProps;
 
             /// <summary>
             /// Creates a single Source Dictionary item, optionally feching SceneItemProperties  and SceneItemDetails
@@ -160,14 +162,15 @@
             protected SceneItemDescriptor(String coll, String scene, OBSWebsocketDotNet.Types.SceneItem item, OBSWebsocketDotNet.Types.SceneItemDetails details, OBSWebsocketDotNet.Types.SceneItemProperties props)
             {
                 this.CollectionName = coll;
-                //this._sceneItem = item;
+
+                // this._sceneItem = item;
                 this.SceneName = scene;
-                this.SceneItemDetails = details;
-                this.SceneItemProps = props;
+                this._sceneItemDetails = details;
+                this._sceneItemProps = props;
 
                 if (scene != this.SceneNameProp)
                 {
-                    ObsStudioPlugin.Trace($"SourceDictItem ctor: Scene name {scene} Scene Name in details: { this.SceneNameProp}");
+                    ObsStudioPlugin.Trace($"SourceDictItem ctor: Scene name {scene} Scene Name in details: {this.SceneNameProp}");
                 }
             }
         }

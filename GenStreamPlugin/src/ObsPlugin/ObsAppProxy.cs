@@ -6,15 +6,15 @@
 
     // CONVERTER/Check compatibility with existing OBS plugin
 
-    // OnObsSourceRename 
+    // OnObsSourceRename
     // HOW TO STOP SHOWING SOURCES THAT ARE NOT VISIBLE IN MIXER
 
     // Simple actions
-    //*  Transition
-    //*  Save replay buffer
+    // *  Transition
+    // *  Save replay buffer
 
     // Toggle
-    //*  Recording pause/resume
+    // *  Recording pause/resume
     // Special
     //  Universal toggle (Tree)
     // CPU
@@ -36,9 +36,9 @@
     public partial class ObsAppProxy : OBSWebsocketDotNet.OBSWebsocket
     {
         // Our 'own' events
-        public event EventHandler<EventArgs> EvtAppConnected;
+        public event EventHandler<EventArgs> AppConnected;
 
-        public event EventHandler<EventArgs> EvtAppDisconnected;
+        public event EventHandler<EventArgs> AppDisconnected;
 
         // Properties
         public Boolean IsAppConnected => this.IsConnected;
@@ -106,12 +106,12 @@
 
         internal void InitializeObsData(Object sender, EventArgs e)
         {
-            //NOTE: This can throw! Exception handling is done OUTSIDE of this method
+            // NOTE: This can throw! Exception handling is done OUTSIDE of this method
             var streamingStatus = this.GetStreamingStatus();
             var vcamstatus = this.GetVirtualCamStatus();
             var studioModeStatus = this.StudioModeEnabled();
 
-            //Retreiving Audio types. 
+            // Retreiving Audio types.
             this.OnAppConnected_RetreiveSourceTypes();
 
             if (streamingStatus != null)
@@ -133,7 +133,6 @@
 
             this.OnObsSceneCollectionListChanged(sender, e);
             this.OnObsSceneCollectionChanged(sender, e);
-
         }
 
         private void OnAppConnected(Object sender, EventArgs e)
@@ -155,7 +154,7 @@
             this.SceneCollectionListChanged += this.OnObsSceneCollectionListChanged;
             this.SceneCollectionChanged += this.OnObsSceneCollectionChanged;
 
-            this.EvtAppConnected?.Invoke(sender, e);
+            this.AppConnected?.Invoke(sender, e);
 
             ObsStudioPlugin.Trace("AppConnected: Initializing data");
             _ = Helpers.TryExecuteSafe(() =>
@@ -163,7 +162,7 @@
                 this.InitializeObsData(sender, e);
             });
 
-            //Subscribing to all the events that are depenendent on Scene Collection change
+            // Subscribing to all the events that are depenendent on Scene Collection change
             this._scene_collection_events_subscribed = true;
             this.SubscribeToSceneCollectionEvents();
         }
@@ -185,11 +184,11 @@
             this.SceneCollectionListChanged -= this.OnObsSceneCollectionListChanged;
             this.SceneCollectionChanged -= this.OnObsSceneCollectionChanged;
 
-            //Unsubscribing from all the events that are depenendent on Scene Collection change
+            // Unsubscribing from all the events that are depenendent on Scene Collection change
             this._scene_collection_events_subscribed = false;
             this.UnsubscribeFromSceneCollectionEvents();
 
-            this.EvtAppDisconnected?.Invoke(sender, e);
+            this.AppDisconnected?.Invoke(sender, e);
         }
     }
 }

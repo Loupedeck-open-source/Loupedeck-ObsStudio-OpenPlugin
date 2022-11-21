@@ -7,14 +7,15 @@
         private ObsAppProxy Proxy => (this.Plugin as ObsStudioPlugin).Proxy;
 
         public RecordingToggleCommand()
-                        : base(name: "ToggleRecording", 
-                       displayName: "Recording Toggle", 
-                       description: "Toggles Recording on or off", 
-                       groupName:      "",
-                       offStateName:   "Start Recording",
-                       onStateName:    "Stop Recording",
-                       offStateImage:  "STREAM_ToggleRecord1.png",
-                       onStateImage:   "animated-record.gif")
+                        : base(
+                            name: "ToggleRecording",
+                            displayName: "Recording Toggle",
+                            description: "Toggles Recording on or off",
+                            groupName: "",
+                            offStateName: "Start Recording",
+                            onStateName: "Stop Recording",
+                            offStateImage: "STREAM_ToggleRecord1.png",
+                            onStateImage: "STREAM_ToggleRecord2.png")
         {
         }
 

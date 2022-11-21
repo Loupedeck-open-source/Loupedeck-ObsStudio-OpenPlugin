@@ -7,14 +7,15 @@
         private ObsAppProxy Proxy => (this.Plugin as ObsStudioPlugin).Proxy;
 
         public VirtualCameraToggleCommand()
-                  : base(name: "VirtualCam", 
-                    displayName: "Virtual Camera Toggle",
-                    description: "Toggles Virtual Camera on or off",
-                    groupName: "",
-                    offStateName: "Start Virtual Camera",
-                    onStateName: "Stop Virtual Camera",
-                    offStateImage: "VirtualWebcam.png",
-                    onStateImage: "animated-camera.gif")
+                  : base(
+                      name: "VirtualCam",
+                      displayName: "Virtual Camera Toggle",
+                      description: "Switches the OBS Virtual Camera on/off",
+                      groupName: "",
+                      offStateName: "Start Virtual Camera",
+                      onStateName: "Stop Virtual Camera",
+                      offStateImage: "VirtualWebcamOff.png",
+                      onStateImage: "VirtualWebcam.png")
         {
         }
 
@@ -31,6 +32,5 @@
         }
 
         protected override void RunToggle() => this.Proxy.AppToggleVirtualCam();
-
     }
 }

@@ -44,7 +44,8 @@
                 // Regenerating all internal structures
                 this.OnObsSceneListChanged(sender, e);
                 this.AppEvtCurrentSceneCollectionChanged?.Invoke(sender, e);
-                //SEE THE AppSwitchToSceneCollection
+
+                // SEE THE AppSwitchToSceneCollection
                 this.SubscribeToSceneCollectionEvents();
             }
             else
@@ -52,7 +53,6 @@
                 ObsStudioPlugin.Trace($"OBS Warning: cannot handle Collection Changed");
             }
         }
-
 
         public void AppSwitchToSceneCollection(String newCollection)
         {
@@ -67,7 +67,6 @@
                 this.UnsubscribeFromSceneCollectionEvents();
 
                 _ = Helpers.TryExecuteSafe(() => this.SetCurrentSceneCollection(newCollection));
-                
             }
         }
     }

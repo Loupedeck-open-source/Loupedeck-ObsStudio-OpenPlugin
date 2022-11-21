@@ -14,10 +14,8 @@
         public SourceMuteCommand()
         {
             this.Name = "Audio Source Mute";
-            this.Description = "Mutes/Unmutes Audio Source ";
-            this.GroupName = "Audio Sources";
-            
-            this.IsEnabled = false;
+            this.Description = "Mutes/Unmutes Audio Source";
+            this.GroupName = "3. Audio";
 
             _ = this.AddState("Muted", "Audio source muted");
             _ = this.AddState("Unmuted", "Audio source unmuted");
@@ -25,16 +23,18 @@
 
         protected override Boolean OnLoad()
         {
-            this.Proxy.EvtAppConnected += this.OnAppConnected;
-            this.Proxy.EvtAppDisconnected += this.OnAppDisconnected;
+            this.IsEnabled = false;
+
+            this.Proxy.AppConnected += this.OnAppConnected;
+            this.Proxy.AppDisconnected += this.OnAppDisconnected;
 
             this.Proxy.AppEvtSceneListChanged += this.OnSceneListChanged;
             this.Proxy.AppEvtCurrentSceneChanged += this.OnCurrentSceneChanged;
 
             this.Proxy.AppEvtSourceMuteStateChanged += this.OnSourceMuteStateChanged;
 
-            this.Proxy.AppEvtSourceCreated += this.OnSourceCreated;
-            this.Proxy.AppEvtSourceDestroyed += this.OnSourceDestroyed;
+            this.Proxy.AppSourceCreated += this.OnSourceCreated;
+            this.Proxy.AppSourceDestroyed += this.OnSourceDestroyed;
 
             this.OnAppDisconnected(this, null);
 
@@ -43,15 +43,15 @@
 
         protected override Boolean OnUnload()
         {
-            this.Proxy.EvtAppConnected -= this.OnAppConnected;
-            this.Proxy.EvtAppDisconnected -= this.OnAppDisconnected;
+            this.Proxy.AppConnected -= this.OnAppConnected;
+            this.Proxy.AppDisconnected -= this.OnAppDisconnected;
 
             this.Proxy.AppEvtSceneListChanged -= this.OnSceneListChanged;
             this.Proxy.AppEvtCurrentSceneChanged -= this.OnCurrentSceneChanged;
             this.Proxy.AppEvtSourceMuteStateChanged -= this.OnSourceMuteStateChanged;
 
-            this.Proxy.AppEvtSourceCreated -= this.OnSourceCreated;
-            this.Proxy.AppEvtSourceDestroyed -= this.OnSourceDestroyed;
+            this.Proxy.AppSourceCreated -= this.OnSourceCreated;
+            this.Proxy.AppSourceDestroyed -= this.OnSourceDestroyed;
 
             return true;
         }
@@ -67,7 +67,8 @@
         private void OnSceneListChanged(Object sender, EventArgs e) => this.ResetParameters(true);
 
         private void OnCurrentSceneChanged(Object sender, EventArgs e) =>
-            //TODO: Do ActionImageChanged (ActionParam) for new  and old scene
+
+            // TODO: Do ActionImageChanged (ActionParam) for new  and old scene
             this.ActionImageChanged();
 
         private void OnSourceCreated(String sourceName)
@@ -106,6 +107,7 @@
                 this.ActionImageChanged(actionParameter);
             }
         }
+
         protected override BitmapImage GetCommandImage(String actionParameter, Int32 stateIndex, PluginImageSize imageSize)
         {
             var sourceName = SourceNameUnknown;

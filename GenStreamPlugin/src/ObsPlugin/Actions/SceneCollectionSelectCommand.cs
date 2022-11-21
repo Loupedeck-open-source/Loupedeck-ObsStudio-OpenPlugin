@@ -7,15 +7,15 @@
     {
         private ObsAppProxy Proxy => (this.Plugin as ObsStudioPlugin).Proxy;
 
-        private const String IMGCollectionSelected = "SourceOn.png";
-        private const String IMGCollectionUnselected = "SourceOff.png";
+        private const String IMGCollectionSelected = "SceneOn.png";
+        private const String IMGCollectionUnselected = "SceneOff.png";
 
         public SceneCollectionSelectCommand()
         {
             this.Name = "DynamicSceneCols";
             this.Description = "Switches to a specific Scene Collection in OBS Studio";
-            this.GroupName = "Scene Collections";
-            
+            this.GroupName = "4. Scene Collections";
+
             _ = this.AddState("Unselected", "Scene collection unselected");
             _ = this.AddState("Selected", "Scene collection selected");
         }
@@ -23,8 +23,8 @@
         protected override Boolean OnLoad()
         {
             this.IsEnabled = false;
-            this.Proxy.EvtAppConnected += this.OnAppConnected;
-            this.Proxy.EvtAppDisconnected += this.OnAppDisconnected;
+            this.Proxy.AppConnected += this.OnAppConnected;
+            this.Proxy.AppDisconnected += this.OnAppDisconnected;
 
             this.Proxy.AppEvtSceneCollectionsChanged += this.OnSceneCollectionsChanged;
             this.Proxy.AppEvtCurrentSceneCollectionChanged += this.OnCurrentSceneCollectionChanged;
@@ -36,8 +36,8 @@
 
         protected override Boolean OnUnload()
         {
-            this.Proxy.EvtAppConnected -= this.OnAppConnected;
-            this.Proxy.EvtAppDisconnected -= this.OnAppDisconnected;
+            this.Proxy.AppConnected -= this.OnAppConnected;
+            this.Proxy.AppDisconnected -= this.OnAppDisconnected;
 
             this.Proxy.AppEvtSceneCollectionsChanged -= this.OnSceneCollectionsChanged;
             this.Proxy.AppEvtCurrentSceneCollectionChanged -= this.OnCurrentSceneCollectionChanged;
@@ -99,7 +99,7 @@
             this.ActionImageChanged();
         }
 
-        protected override BitmapImage GetCommandImage(String actionParameter, Int32 stateIndex, PluginImageSize imageSize) 
+        protected override BitmapImage GetCommandImage(String actionParameter, Int32 stateIndex, PluginImageSize imageSize)
         {
             var imageName = stateIndex == 1 ? IMGCollectionSelected : IMGCollectionUnselected;
 

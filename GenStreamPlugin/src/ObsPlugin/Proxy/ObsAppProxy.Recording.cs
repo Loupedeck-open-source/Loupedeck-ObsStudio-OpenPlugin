@@ -12,12 +12,17 @@
     public partial class ObsAppProxy
     {
         public event EventHandler<EventArgs> AppEvtRecordingOn;
+
         public event EventHandler<EventArgs> AppEvtRecordingOff;
+
         public event EventHandler<EventArgs> AppEvtRecordingResumed;
+
         public event EventHandler<EventArgs> AppEvtRecordingPaused;
+
         public event EventHandler<IntParamArgs> AppEvtRecordingStateChange;
 
         public Boolean InRecording { get; private set; } = false;
+
         public class IntParamArgs : EventArgs
         {
             public IntParamArgs(Int32 v) => this.State = v;
@@ -25,9 +30,9 @@
             public Int32 State { get; set; }
         }
 
-        private void OnObsRecordPaused(Object sender, EventArgs e) => AppEvtRecordingPaused?.Invoke(sender, e);
+        private void OnObsRecordPaused(Object sender, EventArgs e) => this.AppEvtRecordingPaused?.Invoke(sender, e);
 
-        private void OnObsRecordResumed(Object sender, EventArgs e) => AppEvtRecordingResumed?.Invoke(sender, e);
+        private void OnObsRecordResumed(Object sender, EventArgs e) => this.AppEvtRecordingResumed?.Invoke(sender, e);
 
         // FIXME: Provide customized images for starting/started... -- For that, create special event handler on Action side.
         private void OnObsRecordingStateChange(OBSWebsocket sender, OBSWebsocketDotNet.Types.OutputState newState)

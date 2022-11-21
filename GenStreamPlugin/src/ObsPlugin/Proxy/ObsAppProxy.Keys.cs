@@ -68,7 +68,7 @@
             return key != null;
         }
 
-        public new static SceneItemKey FromString(String inp)
+        public static new SceneItemKey FromString(String inp)
         {
             if (Helpers.TryExecuteFunc(
                 () =>

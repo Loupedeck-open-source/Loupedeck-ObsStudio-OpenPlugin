@@ -1,19 +1,19 @@
 ﻿/**
      OBS Connection logic overview
-     
+
      All connection logic is centered around the 'port file' - a file in OBS PluginData directory that
      contains a websocket port number to connect to.  The OBS-side plugin creates this file just when the websocket
      server starts listening.  When websocket server is closed gracefully (or just before creating a new file)
      the port file is delteted.
-     
+
     This class sets up a File System Watcher to monitor file creation of 'websocket.port' file in the given Plugin Data drirectory and
     once file creation event fires, tries to establish a connection to OBS studio using the given port
-    
+
     The Connector is started using 'Start' method and stopped using 'Stop'
-    
+
     To address the case where OBS studio is started _before_ Loupedeck,  unconditional connection attempt is made
     on the start of the connector.
-    
+
     To prevent several parallel connection attempts (for example, if OBS is quicly restarted after crash),
     if there is a concurrent connection attempt detected, it is cancelled and special 5 seconds timer is started to re-try an attempt later.
     The same logic would apply to all the other attempts so there should not be two concurrent OBS 'Connect' calls
@@ -26,6 +26,7 @@ namespace Loupedeck.ObsStudioPlugin
     using System.IO;
     using System.Threading;
     using System.Threading.Tasks;
+
     using OBSWebsocketDotNet;
 
     /// <summary>
@@ -53,7 +54,10 @@ namespace Loupedeck.ObsStudioPlugin
 
             set
             {
-                lock (this._connecting_lock) { this._connecting = value; }
+                lock (this._connecting_lock)
+                {
+                    this._connecting = value;
+                }
             }
         }
 
@@ -135,10 +139,10 @@ namespace Loupedeck.ObsStudioPlugin
 
             if (!Int32.TryParse(IoHelpers.ReadTextFile(this._port_file_path), out var wsPort))
             {
-                    Tracer.Error($"OBS: Error connecting, cannot read port from file \"{this._port_file_path}\", re-trying");
+                Tracer.Error($"OBS: Error connecting, cannot read port from file \"{this._port_file_path}\", re-trying");
 
-                    // Assuming this is an interminnent error, we re-try
-                    this.EnableReconnection();
+                // Assuming this is an interminnent error, we re-try
+                this.EnableReconnection();
             }
             else
             {
