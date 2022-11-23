@@ -6,14 +6,14 @@
     {
         private ObsAppProxy Proxy => (this.Plugin as ObsStudioPlugin).Proxy;
 
-        private const String IMGSceneSelected = "SourceOn.png";
-        private const String IMGSceneUnselected = "SourceOff.png";
-        private const String IMGSceneInaccessible = "SourceOff.png";
-        private const String SourceNameUnknown = "Offline";
+        public const String IMGSceneSelected = "SourceOn.png";
+        public const String IMGSceneUnselected = "SourceOff.png";
+        public const String IMGSceneInaccessible = "SourceOff.png";
+        public const String SourceNameUnknown = "Offline";
 
         public SourceVisibilityCommand()
         {
-            this.Name = "Source Visibility";
+            this.Name = "SourceVisibility";
             this.Description = "Shows/Hides a Source";
             this.GroupName = "2. Sources";
             _ = this.AddState("Hidden", "Source hidden");
