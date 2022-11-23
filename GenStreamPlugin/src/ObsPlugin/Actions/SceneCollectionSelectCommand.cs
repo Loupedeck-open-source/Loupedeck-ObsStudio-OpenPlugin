@@ -7,12 +7,11 @@
     {
         private ObsAppProxy Proxy => (this.Plugin as ObsStudioPlugin).Proxy;
 
-        private const String IMGCollectionSelected = "SceneOn.png";
-        private const String IMGCollectionUnselected = "SceneOff.png";
+        public const String IMGCollectionSelected = "SceneOn.png";
+        public const String IMGCollectionUnselected = "SceneOff.png";
 
         public SceneCollectionSelectCommand()
         {
-            this.Name = "DynamicSceneCols";
             this.Description = "Switches to a specific Scene Collection in OBS Studio";
             this.GroupName = "4. Scene Collections";
 
@@ -77,17 +76,20 @@
 
         private void OnCurrentSceneCollectionChanged(Object sender, EventArgs e)
         {
-            foreach (var par in this.GetParameters())
+            var arg = e as ObsAppProxy.OldNewStringChangeEventArgs;
+            //unselecting old and selecting new
+            if (!String.IsNullOrEmpty(arg.Old))
             {
-                _ = this.SetCurrentState(par.Name, 0);
+                this.SetCurrentState(arg.Old, 0);
+                this.ActionImageChanged(arg.Old);
+            }
+            if (!String.IsNullOrEmpty(arg.New))
+            {
+                this.SetCurrentState(arg.New, 1);
+                this.ActionImageChanged(arg.New);
             }
 
-            if (!String.IsNullOrEmpty(this.Proxy.CurrentSceneCollection))
-            {
-                _ = this.SetCurrentState(this.Proxy.CurrentSceneCollection, 1);
-            }
-
-            this.ActionImageChanged();
+             this.ParametersChanged();
         }
 
         private void OnAppConnected(Object sender, EventArgs e) => this.IsEnabled = true;

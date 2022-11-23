@@ -33,17 +33,18 @@
 
         private void OnObsSceneCollectionChanged(Object sender, EventArgs e)
         {
-            var oldSceneCollection = this.CurrentSceneCollection;
+            var args = new OldNewStringChangeEventArgs();
+            args.Old = this.CurrentSceneCollection;
 
-#pragma warning disable IDE0053 // Use expression body for lambda expressions
-            if (Helpers.TryExecuteSafe(() => { this.CurrentSceneCollection = this.GetCurrentSceneCollection(); }))
-#pragma warning restore IDE0053 // Use expression body for lambda expressions
+            if (Helpers.TryExecuteFunc(()=> this.GetCurrentSceneCollection(),out var newSceneCollection) && newSceneCollection != args.Old)
             {
-                ObsStudioPlugin.Trace($"OBS Current Scene collection changed from {oldSceneCollection} to {this.CurrentSceneCollection}");
+                args.New = newSceneCollection;
+                ObsStudioPlugin.Trace($"OBS Current Scene collection changing from {args.Old} to {newSceneCollection}");
+                this.CurrentSceneCollection = newSceneCollection;
 
                 // Regenerating all internal structures
                 this.OnObsSceneListChanged(sender, e);
-                this.AppEvtCurrentSceneCollectionChanged?.Invoke(sender, e);
+                this.AppEvtCurrentSceneCollectionChanged?.Invoke(sender, args);
 
                 // SEE THE AppSwitchToSceneCollection
                 this.SubscribeToSceneCollectionEvents();
