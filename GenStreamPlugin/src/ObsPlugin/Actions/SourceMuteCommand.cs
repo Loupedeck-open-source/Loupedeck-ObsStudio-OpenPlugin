@@ -6,19 +6,23 @@
     {
         private ObsAppProxy Proxy => (this.Plugin as ObsStudioPlugin).Proxy;
 
-        private const String IMGSourceMuted = "AudioOn.png";
-        private const String IMGSourceUnmuted = "AudioOff.png";
-        private const String IMGSourceInaccessible = "AudioOff.png";
-        private const String SourceNameUnknown = "Offline";
+        public const String IMGSourceMuted = "AudioOff.png";
+        public const String IMGSourceUnmuted = "AudioOn.png";
+        public const String IMGSourceInaccessible = "AudioOff.png";
+        public const String SourceNameUnknown = "Offline";
+
+        private const Int32 State_Muted = 1;
+        private const Int32 State_Unmuted = 0;
 
         public SourceMuteCommand()
         {
-            this.Name = "Audio Source Mute";
+            this.Name = "AudioSourceMute";
             this.Description = "Mutes/Unmutes Audio Source";
             this.GroupName = "3. Audio";
 
-            _ = this.AddState("Muted", "Audio source muted");
             _ = this.AddState("Unmuted", "Audio source unmuted");
+            _ = this.AddState("Muted", "Audio source muted");
+
         }
 
         protected override Boolean OnLoad()
@@ -103,7 +107,7 @@
             // FIXME: Check if this 'has parameter' check is needed.
             if (this.TryGetParameter(actionParameter, out _))
             {
-                _ = this.SetCurrentState(actionParameter, isMuted ? 0 : 1);
+                _ = this.SetCurrentState(actionParameter, isMuted ? State_Muted : State_Unmuted);
                 this.ActionImageChanged(actionParameter);
             }
         }
@@ -118,10 +122,10 @@
 
                 imageName = parsed.Collection != this.Proxy.CurrentSceneCollection
                     ? IMGSourceInaccessible
-                    : stateIndex == 1 ? IMGSourceMuted : IMGSourceUnmuted;
+                    : stateIndex == State_Muted ? IMGSourceMuted : IMGSourceUnmuted;
             }
 
-            return (this.Plugin as ObsStudioPlugin).GetPluginCommandImage(imageSize, imageName, sourceName, stateIndex == 1);
+            return (this.Plugin as ObsStudioPlugin).GetPluginCommandImage(imageSize, imageName, sourceName, imageName == IMGSourceUnmuted);
         }
 
         internal void AddSource(String sourceName, Boolean isSpecialSource = false)
@@ -130,7 +134,7 @@
 
             var displayName = sourceName + (isSpecialSource ? "(G)" : "") + " mute";
             this.AddParameter(key, displayName, this.GroupName);
-            _ = this.SetCurrentState(key, this.Proxy.AppGetMute(sourceName) ? 0 : 1);
+            _ = this.SetCurrentState(key, this.Proxy.AppGetMute(sourceName) ? State_Muted : State_Unmuted);
         }
 
         internal void ResetParameters(Boolean readContent)
