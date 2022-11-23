@@ -4,6 +4,7 @@
     using System.Collections.Generic;
 
     using OBSWebsocketDotNet;
+    using OBSWebsocketDotNet.Types;
 
     /// <summary>
     /// Proxy to OBS websocket server, for API reference see
@@ -18,8 +19,6 @@
         public OBSWebsocketDotNet.Types.OBSScene CurrentScene { get; private set; }
 
         public List<OBSWebsocketDotNet.Types.OBSScene> Scenes { get; private set; }
-
-        public Boolean SceneInCurrentCollection(String scene) => !String.IsNullOrEmpty(scene) && this.Scenes?.Find(x => x.Name == scene) != null;
 
         private void OnObsSceneListChanged(Object sender, EventArgs e)
         {
@@ -54,35 +53,42 @@
             }
         }
 
+        /// <summary>
+        /// Attemts to get the Scene object for scene in current collection
+        /// </summary>
+        /// <param name="sceneName">Name of scene</param>
+        /// <param name="scene">scene object</param>
+        /// <returns>true if scene retreived</returns>
+        public Boolean TryGetSceneByName(String sceneName, out OBSScene scene)
+        {
+            scene = null;
+            if(!String.IsNullOrEmpty(sceneName))
+            {
+                scene = this.Scenes.Find(x => x.Name == sceneName);
+            }
+            return scene != null;
+        }
+
         private void OnObsSceneChanged(Object sender, String newScene)
         {
-            try
+            if( this.TryGetSceneByName(newScene, out var scene)  && this.CurrentScene != scene)
             {
-                var item = this.Scenes.Find(x => x.Name == newScene);
-                if (item != null)
-                {
-                    ObsStudioPlugin.Trace($"OBS - Current scene changed from {this.CurrentScene?.Name} to {newScene}");
-
-                    this.CurrentScene = item;
-                    this.AppEvtCurrentSceneChanged?.Invoke(sender, null);
-                }
-                else
-                {
-                    ObsStudioPlugin.Trace($"Warning: Cannot find scene {newScene} in current collection {this.CurrentSceneCollection}");
-                }
-
-                // Updating Mute status for sources
-                // this.SyncAudioStateWithOBS();
+                ObsStudioPlugin.Trace($"OBS - Current scene changed from {this.CurrentScene?.Name} to {newScene}");
+                var args = new OldNewStringChangeEventArgs();
+                args.Old = this.CurrentScene?.Name;
+                args.New = scene.Name;
+                this.CurrentScene = scene;
+                this.AppEvtCurrentSceneChanged?.Invoke(sender, args);
             }
-            catch (Exception ex)
+            else
             {
-                ObsStudioPlugin.Trace($"Warning: Exception {ex.Message} while changing scene");
+                ObsStudioPlugin.Trace($"Warning: Cannot find scene {newScene} in current collection {this.CurrentSceneCollection}");
             }
         }
 
         public void AppSwitchToScene(String newScene)
         {
-            if (this.IsAppConnected && this.SceneInCurrentCollection(newScene))
+            if (this.IsAppConnected && this.TryGetSceneByName(newScene, out var _ ))
             {
                 ObsStudioPlugin.Trace($"Switching to scene {newScene}");
 

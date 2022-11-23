@@ -6,14 +6,14 @@
     {
         private ObsAppProxy Proxy => (this.Plugin as ObsStudioPlugin).Proxy;
 
-        private const String IMGSceneSelected = "SceneOn.png";
-        private const String IMGSceneUnselected = "SceneOff.png";
-        private const String IMGSceneInaccessible = "SceneOff.png";
-        private const String SceneNameUnknown = "Offline";
+        public const String IMGSceneSelected = "SceneOn.png";
+        public const String IMGSceneUnselected = "SceneOff.png";
+        public const String IMGSceneInaccessible = "SceneOff.png";
+        public const String SceneNameUnknown = "Offline";
 
         public SceneSelectCommand()
         {
-            this.Name = "DynamicScenes";
+            this.Name = "SceneSelect";
             this.Description = "Switches to a specific scene in OBS Studio";
             this.GroupName = "1. Scenes";
             _ = this.AddState("Unselected", "Scene unselected");
@@ -77,18 +77,18 @@
 
         private void OnCurrentSceneChanged(Object sender, EventArgs e)
         {
-            // resetting selection
-            foreach (var par in this.GetParameters())
-            {
-                _ = this.SetCurrentState(par.Name, 0);
-            }
+            var arg = e as ObsAppProxy.OldNewStringChangeEventArgs;
+            var oldPar = SceneKey.Encode(this.Proxy.CurrentSceneCollection, arg.Old);
+            var newPar = SceneKey.Encode(this.Proxy.CurrentSceneCollection, arg.New);
 
-            if (!String.IsNullOrEmpty(this.Proxy.CurrentScene?.Name))
-            {
-                _ = this.SetCurrentState(SceneKey.Encode(this.Proxy.CurrentSceneCollection, this.Proxy.CurrentScene?.Name), 1);
-            }
+            //unselecting old and selecting new
+            this.SetCurrentState(oldPar, 0);
+            this.SetCurrentState(newPar, 1);
 
-            this.ActionImageChanged();
+            this.ActionImageChanged(oldPar);
+            this.ActionImageChanged(newPar);
+
+            this.ParametersChanged();
         }
 
         private void OnAppConnected(Object sender, EventArgs e) => this.IsEnabled = true;
@@ -102,19 +102,19 @@
 
         protected override BitmapImage GetCommandImage(String actionParameter, Int32 stateIndex, PluginImageSize imageSize)
         {
-            var imageName = IMGSceneUnselected;
+            var imageName = IMGSceneInaccessible;
             var sceneName = SceneNameUnknown;
 
             if (SceneKey.TryParse(actionParameter, out var parsed))
             {
                 sceneName = parsed.Scene;
 
-                imageName = parsed.Collection != this.Proxy.CurrentSceneCollection
-                    ? IMGSceneInaccessible
-                    : stateIndex == 1 ? IMGSceneSelected : IMGSceneUnselected;
-            }
-
-            return (this.Plugin as ObsStudioPlugin).GetPluginCommandImage(imageSize, imageName, sceneName, stateIndex == 1);
+                if( this.Proxy.TryGetSceneByName(parsed.Scene, out var _) )
+                {
+                    imageName = sceneName.Equals(this.Proxy.CurrentScene?.Name) ? IMGSceneSelected : IMGSceneUnselected;
+                }
+            }            
+            return (this.Plugin as ObsStudioPlugin).GetPluginCommandImage(imageSize, imageName, sceneName, imageName == IMGSceneSelected);
         }
     }
 }
