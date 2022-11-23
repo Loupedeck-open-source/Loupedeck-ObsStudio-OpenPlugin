@@ -31,24 +31,51 @@
 
         private void OnObsSceneItemAdded(OBSWebsocket sender, String sceneName, String itemName)
         {
-            ObsStudioPlugin.Trace($"OBS: Scene Item {itemName} added to scene {sceneName}");
+            ObsStudioPlugin.Trace($"OBS: OnObsSceneItemAdded: Item '{itemName}' scene '{sceneName}'");
 
-            // FIXME!!! WHY THIS IS DONE SO?
-            // Re-reading current scene
-            if (Helpers.TryExecuteFunc(() => this.GetCurrentScene(), out var currscene))
+            if ( sceneName!= this.CurrentScene.Name ) 
             {
-                // Re=reading current scene to make sure all items are there
-                this.CurrentScene = currscene;
+                ObsStudioPlugin.Trace($"Warning: OnObsSceneItemAdded received non-current scene '{sceneName}'. Current is '{this.CurrentScene.Name}'. Ignoring");
+                return;
             }
 
-            if (!this.AddSceneItemToDictionary(sceneName, itemName))
+            // Re-reading current scene, since this.CurrentScene does not contain the item
+            if(!Helpers.TryExecuteFunc(() => this.GetCurrentScene(), out var obsCurrentScene))
             {
-                ObsStudioPlugin.Trace($"Warning: Cannot add item {itemName} to scene {sceneName}");
+                ObsStudioPlugin.Trace($"Warning:Cannot get current scene from OBS");
+                return;
             }
-            else
+
+            if( obsCurrentScene.Name != this.CurrentScene.Name )
             {
-                this.AppEvtSceneItemAdded?.Invoke(this, sceneName, itemName);
+                ObsStudioPlugin.Trace($"Warning: Current scene changed to '{obsCurrentScene}' mid-way.");
+                return;
             }
+
+            this.CurrentScene = obsCurrentScene;
+
+            var itemIndex = this.CurrentScene.Items.FindIndex(x => x.SourceName == itemName);
+            
+            if (itemIndex == -1)
+            {
+                ObsStudioPlugin.Trace($"Warning: Cannot find item '{itemName}' among current scene items.");
+                return;
+            }
+
+            var item = this.CurrentScene.Items[itemIndex];
+
+            //Creating item and fetching all missing data for it from OBS
+            var sourceDictItem = SceneItemDescriptor.CreateSourceDictItem(this.CurrentSceneCollection, sceneName, item, this,null);
+
+            if (sourceDictItem == null)
+            {
+                ObsStudioPlugin.Trace($"Warning: Cannot get properties for item '{itemName}'.");
+                return;
+            }
+
+            this.AllSceneItems.Add( SceneItemKey.Encode(this.CurrentSceneCollection, sceneName, item.SourceName), sourceDictItem);
+
+            this.AppEvtSceneItemAdded?.Invoke(this, sceneName, itemName);
         }
 
         private void OnObsSceneItemRemoved(OBSWebsocket sender, String sceneName, String itemName)
@@ -69,7 +96,7 @@
 
         public void AppToggleSceneItemVisibility(String key)
         {
-            if (this.IsAppConnected)
+            if (this.IsAppConnected && this.AllSceneItems.ContainsKey(key))
             {
                 try
                 {
