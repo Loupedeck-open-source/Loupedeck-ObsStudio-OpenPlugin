@@ -17,7 +17,7 @@
         public SourceVolumeAdjustment()
             : base(false)
         {
-            this.Name = "DynamicSpecialSources";
+            this.Name = "SourceVolumeAdjustment";
             this.DisplayName = "Volume Mixer";
             this.Description = "Controls the volume of the audio sources in OBS Studio";
             this.GroupName = "3. Audio";
@@ -102,7 +102,7 @@
             var actionParameter = SceneKey.Encode(this.Proxy.CurrentSceneCollection, sourceName);
 
             // FIXME: Check if this 'has parameter' check is needed.
-            if (this.TryGetParameter(actionParameter, out _))
+            if (this.TryGetParameter(actionParameter, out _) && this._muteStates.ContainsKey(actionParameter))
             {
                 this._muteStates[actionParameter] = isMuted;
 
@@ -134,12 +134,10 @@
             var sourceName = SourceNameUnknown;
             var imageName = IMGSourceInaccessible;
             var selected = false;
-            if (SceneKey.TryParse(actionParameter, out var parsed))
+            if (SceneKey.TryParse(actionParameter, out var parsed) && this._muteStates.ContainsKey(actionParameter))
             {
                 sourceName = parsed.Source;
-
                 selected = (parsed.Collection == this.Proxy.CurrentSceneCollection) && this._muteStates[actionParameter];
-
                 imageName = parsed.Collection != this.Proxy.CurrentSceneCollection ? IMGSourceInaccessible : this._muteStates[actionParameter] ? IMGSourceUnselected : IMGSourceSelected;
             }
 
