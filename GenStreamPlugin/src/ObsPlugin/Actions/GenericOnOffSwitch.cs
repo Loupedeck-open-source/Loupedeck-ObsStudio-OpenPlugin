@@ -10,12 +10,9 @@
             String name,
             String displayName, String description, String groupName,
             String offStateName, String onStateName,
-            String offStateImage, String onStateImage)
+            String offStateImage, String onStateImage):base(displayName,description,groupName)
         {
             this.Name = name;
-            this.DisplayName = displayName;
-            this.Description = description;
-            this.GroupName = groupName;
 
             this.AddToggleCommand(
                 displayName,
