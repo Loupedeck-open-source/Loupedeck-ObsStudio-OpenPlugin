@@ -2,25 +2,20 @@
 {
     // TODO:
 
-    // TEST: Scene item added / removed
+    // Legacy actions and adustments
+    // Test Mute: On and off are misplaced? 
+    // Source rename
+    // FIXME: Reconnect on OBS crash? 
 
-    // CONVERTER/Check compatibility with existing OBS plugin
-
-    // OnObsSourceRename
+    // Universal toggle action
+    // CPU action
+    // 6. Profiles actions 
+    // Use scene icon -- TakeSourceScreenshot
+    
     // HOW TO STOP SHOWING SOURCES THAT ARE NOT VISIBLE IN MIXER
 
-    // Simple actions
-    // *  Transition
-    // *  Save replay buffer
-
-    // Toggle
-    // *  Recording pause/resume
-    // Special
-    //  Universal toggle (Tree)
-    // CPU
     // Useful command -- RefreshBrowserSource
     //  Add Multistate-Parameter Profile
-    // NB for sources -- TakeSourceScreenshot
     // ? source action?
 
     // For all actions,
@@ -28,6 +23,7 @@
     // --> For later, upgrade to new OBS websocket and see if port/password can be parsed from the Ini file in C:\Users\[User]\AppData\Roaming\obs-studio
 
     using System;
+    using System.Collections.Generic;
 
     /// <summary>
     /// Proxy to OBS websocket server, for API reference see
@@ -39,6 +35,13 @@
         public event EventHandler<EventArgs> AppConnected;
 
         public event EventHandler<EventArgs> AppDisconnected;
+        
+        //Commonly used old-new arg class for 'onchange' events 
+        public class OldNewStringChangeEventArgs : EventArgs
+        {
+            public String Old;
+            public String New;
+        }
 
         // Properties
         public Boolean IsAppConnected => this.IsConnected;
@@ -48,9 +51,14 @@
             // OBS Websocket events
             this.Connected += this.OnAppConnected;
             this.Disconnected += this.OnAppDisconnected;
-        }
 
-        ~ObsAppProxy()
+            this.SceneCollections = new List<String>();
+            this.CurrentSceneCollection = "";
+            this.CurrentScene = new OBSWebsocketDotNet.Types.OBSScene();
+            this.Scenes = new List<OBSWebsocketDotNet.Types.OBSScene>();
+    }
+
+    ~ObsAppProxy()
         {
             this.Connected -= this.OnAppConnected;
             this.Disconnected -= this.OnAppDisconnected;
@@ -190,5 +198,21 @@
 
             this.AppDisconnected?.Invoke(sender, e);
         }
+
+        internal Boolean TryConvertLegacyActionParamToKey(String actionParameter, out SceneItemKey key)
+        {
+            //Sample action parameter: 9|Background|BRB
+            //TODO: Find right variable for the separator
+            var FieldSeparator = "|";
+            key = Helpers.TryExecuteFunc(
+                () =>
+                {
+                    var parts = actionParameter.Split(FieldSeparator, StringSplitOptions.RemoveEmptyEntries);
+                    return (parts as String[])?.Length > 2 ? new SceneItemKey(this.CurrentSceneCollection, parts[2], parts[1]) : null;
+                }, out var x) ? x : null;
+
+            return key != null;
+        }
+
     }
 }
