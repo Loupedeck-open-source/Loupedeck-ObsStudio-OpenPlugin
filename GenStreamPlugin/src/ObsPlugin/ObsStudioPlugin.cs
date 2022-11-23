@@ -130,7 +130,7 @@ namespace Loupedeck.ObsStudioPlugin
         private readonly Dictionary<String, Byte[]> _localImageCache = new Dictionary<String, Byte[]>();
 #endif
         // Loupedeck.ObsPlugin.icons.
-        public static readonly String ImageResPrefix = "Loupedeck.ObsStudioPlugin.Icons.";
+        public const String ImageResPrefix = "Loupedeck.ObsStudioPlugin.Icons.";
 
         /// <summary>
         ///  Draws text over the bitmap. Bad location but in absence of the better components, put it here.
@@ -157,5 +157,28 @@ namespace Loupedeck.ObsStudioPlugin
         }
 
         public static void Trace(String line) => Tracer.Trace("GSP:" + line); /*System.Diagnostics.Debug.WriteLine(*/
+
+#if FALSE
+        public override void RunCommand(String commandName, String actionParameter)
+        {
+            Trace($"Plugin.RunCommand: act {commandName} para {actionParameter}");
+
+        }
+
+        protected override Boolean TryGetActionImage(String actionName, String actionParameter, PluginImageSize imageSize, out BitmapImage image)
+        {
+            Trace($"Plugin.TryGetActionImage: act {actionName} para {actionParameter}");
+            image = null;
+            return false;
+        }
+#endif
+
+        /// <summary>
+        /// Parses Legacy action parameter string (id|source|scene) into a SceneItemKey (with current Scene collection)
+        /// </summary>
+        /// <param name="actionParameter">actionParameter from legacy actions</param>
+        /// <param name="key">key or null if failure parsing</param>
+        /// <returns>true if parsed successfully</returns>
+
     }
 }
