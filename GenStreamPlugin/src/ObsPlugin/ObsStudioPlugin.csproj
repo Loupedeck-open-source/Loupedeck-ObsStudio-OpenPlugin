@@ -43,6 +43,9 @@
       <HintPath>..\..\..\..\..\Program Files (x86)\Loupedeck\Loupedeck2\LoupedeckShared.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.13.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="PluginApi, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath Condition="$(OS) == 'Windows_NT'">C:\Program Files (x86)\Loupedeck\Loupedeck2\PluginApi.dll</HintPath>
@@ -71,6 +74,12 @@
     <Compile Include="Actions\SceneCollectionSelectCommand.cs" />
     <Compile Include="Actions\RecordingToggleCommand.cs" />
     <Compile Include="Actions\ReplayBufferToggleCommand.cs" />
+    <Compile Include="Legacy\AudioProfileActionsTreeAdj.cs" />
+    <Compile Include="Legacy\DynamicSceneCols.cs" />
+    <Compile Include="Legacy\DynamicScenes.cs" />
+    <Compile Include="Legacy\MuteAudioProfileActions.cs" />
+    <Compile Include="Legacy\DynamicSpecialSources.cs" />
+    <Compile Include="Legacy\SourcesProfileActionsTreeCommands.cs" />
     <Compile Include="ObsAppProxy.cs" />
     <Compile Include="ObsConnector.cs" />
     <Compile Include="ObsStudioPlugin.Install.cs" />
@@ -95,6 +104,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="metadata\LoupedeckPackage.yaml" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
