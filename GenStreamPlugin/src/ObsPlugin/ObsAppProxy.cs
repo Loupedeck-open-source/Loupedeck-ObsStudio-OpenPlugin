@@ -3,7 +3,6 @@
     // TODO:
 
     // Legacy actions and adustments
-    // Test Mute: On and off are misplaced? 
     // Source rename
     // FIXME: Reconnect on OBS crash? 
 
@@ -33,7 +32,6 @@
     {
         // Our 'own' events
         public event EventHandler<EventArgs> AppConnected;
-
         public event EventHandler<EventArgs> AppDisconnected;
       
 
@@ -42,23 +40,22 @@
 
         public ObsAppProxy()
         {
-            // OBS Websocket events
-            this.Connected += this.OnAppConnected;
-            this.Disconnected += this.OnAppDisconnected;
-          
             this.CurrentScene = new OBSWebsocketDotNet.Types.OBSScene();
             this.Scenes = new List<OBSWebsocketDotNet.Types.OBSScene>();
         }
-
-        ~ObsAppProxy()
+        public void RegisterAppEvents()
         {
-            //FIXME: Move that to special 'stop' method
+            //Mapping OBS Websocket events to ours
+            this.Connected += this.OnAppConnected;
+            this.Disconnected += this.OnAppDisconnected;
+        }
+
+        public void UnregisterAppEvents()
+        {
+            //Unmapping OBS Websocket events 
             this.Connected -= this.OnAppConnected;
             this.Disconnected -= this.OnAppDisconnected;
         }
-
-        
-
 
         private Boolean _scene_collection_events_subscribed = false;
 

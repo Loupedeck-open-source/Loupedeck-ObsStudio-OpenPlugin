@@ -47,6 +47,8 @@ namespace Loupedeck.ObsStudioPlugin
             this.Proxy.AppConnected += this.OnAppConnStatusChange;
             this.Proxy.AppDisconnected += this.OnAppConnStatusChange;
 
+            this.Proxy.RegisterAppEvents(); 
+
             this._connector.Start();
 
             this.Update_PluginStatus();
@@ -56,6 +58,7 @@ namespace Loupedeck.ObsStudioPlugin
         public override void Unload()
         {
             this._connector.Stop();
+            this.Proxy.UnregisterAppEvents();
 
             this.OnApplicationStopped(this, null);
 
@@ -67,6 +70,7 @@ namespace Loupedeck.ObsStudioPlugin
 
             this.Proxy.AppConnected -= this.OnAppConnStatusChange;
             this.Proxy.AppDisconnected -= this.OnAppConnStatusChange;
+
 
             // this.Proxy = null;
         }
