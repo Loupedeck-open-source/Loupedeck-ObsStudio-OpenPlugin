@@ -187,6 +187,11 @@
     <EmbeddedResource Include="Icons\animated-streaming.gif" />
     <EmbeddedResource Include="Icons\animated-studio.gif" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Icons\AudioInaccessible.png" />
+    <EmbeddedResource Include="Icons\SceneInaccessible.png" />
+    <EmbeddedResource Include="Icons\SourceInaccessible.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent Condition="$(OS) == 'Windows_NT'">call "$(ProjectDir)BuildEvents\postbuild.cmd" "$(ProjectDir)" "$(TargetDir)"</PostBuildEvent>
