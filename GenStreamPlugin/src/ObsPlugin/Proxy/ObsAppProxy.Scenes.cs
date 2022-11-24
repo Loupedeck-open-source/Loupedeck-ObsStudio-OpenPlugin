@@ -14,18 +14,18 @@
     {
         public event EventHandler<EventArgs> AppEvtSceneListChanged;
 
-        public event EventHandler<EventArgs> AppEvtCurrentSceneChanged;
+        public event EventHandler<OldNewStringChangeEventArgs> AppEvtCurrentSceneChanged;
 
-        public OBSWebsocketDotNet.Types.OBSScene CurrentScene { get; private set; }
+        public OBSScene CurrentScene { get; private set; } = new OBSScene();
 
-        public List<OBSWebsocketDotNet.Types.OBSScene> Scenes { get; private set; }
+        public List<OBSScene> Scenes { get; private set; } = new List<OBSScene>();
 
         private void OnObsSceneListChanged(Object sender, EventArgs e)
         {
             // Rescan the scene list
             if (this.IsAppConnected && Helpers.TryExecuteFunc(() => this.GetSceneList(), out var listInfo))
             {
-                this.Scenes = (listInfo as OBSWebsocketDotNet.Types.GetSceneListInfo).Scenes;
+                this.Scenes = (listInfo as GetSceneListInfo).Scenes;
 
                 ObsStudioPlugin.Trace($"OBS Rescanned scene list. Currently {this.Scenes.Count} scenes in collection {this.CurrentSceneCollection} ");
 
@@ -74,11 +74,9 @@
             if( this.TryGetSceneByName(newScene, out var scene)  && this.CurrentScene != scene)
             {
                 ObsStudioPlugin.Trace($"OBS - Current scene changed from {this.CurrentScene?.Name} to {newScene}");
-                var args = new OldNewStringChangeEventArgs();
-                args.Old = this.CurrentScene?.Name;
-                args.New = scene.Name;
+                var args = new OldNewStringChangeEventArgs(this.CurrentScene?.Name, scene.Name);
                 this.CurrentScene = scene;
-                this.AppEvtCurrentSceneChanged?.Invoke(sender, args);
+                this.AppEvtCurrentSceneChanged?.Invoke(sender,args);
             }
             else
             {

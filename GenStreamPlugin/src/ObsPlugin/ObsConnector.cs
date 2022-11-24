@@ -61,7 +61,7 @@ namespace Loupedeck.ObsStudioPlugin
             }
         }
 
-        public ObsConnector(OBSWebsocket obs, String plugin_data_directory, OnConnectingCallback connectingCallback)
+        public ObsConnector(OBSWebsocket obs, String plugin_data_directory, EventHandler<EventArgs> connectingCallback)
         {
             this._obs = obs;
             this.ConnectingCallback = connectingCallback;
@@ -90,12 +90,10 @@ namespace Loupedeck.ObsStudioPlugin
             this._connect_retry_timer.Enabled = false;
         }
 
-        public delegate void OnConnectingCallback();
-
         /// <summary>
         /// Triggered when connection attempt is being made
         /// </summary>
-        public event OnConnectingCallback ConnectingCallback;
+        public event EventHandler<EventArgs> ConnectingCallback;
 
         public void Start()
         {
@@ -164,7 +162,7 @@ namespace Loupedeck.ObsStudioPlugin
 
                 ObsStudioPlugin.Trace($"OBS: connecting to '{obs_ws_conn}' ");
 
-                this.ConnectingCallback?.Invoke();
+                this.ConnectingCallback?.Invoke(this, new EventArgs());
 
                 var password = Loupedeck.AesString.Decrypt("EAAAAOVpn/mqFwbWixg6hzsxeBiUjf+BBZTmfrYzLFgUWMV0", "FourtyTwo");
 

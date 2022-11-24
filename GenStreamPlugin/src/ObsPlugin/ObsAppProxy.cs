@@ -35,13 +35,7 @@
         public event EventHandler<EventArgs> AppConnected;
 
         public event EventHandler<EventArgs> AppDisconnected;
-        
-        //Commonly used old-new arg class for 'onchange' events 
-        public class OldNewStringChangeEventArgs : EventArgs
-        {
-            public String Old;
-            public String New;
-        }
+      
 
         // Properties
         public Boolean IsAppConnected => this.IsConnected;
@@ -51,18 +45,20 @@
             // OBS Websocket events
             this.Connected += this.OnAppConnected;
             this.Disconnected += this.OnAppDisconnected;
-
-            this.SceneCollections = new List<String>();
-            this.CurrentSceneCollection = "";
+          
             this.CurrentScene = new OBSWebsocketDotNet.Types.OBSScene();
             this.Scenes = new List<OBSWebsocketDotNet.Types.OBSScene>();
-    }
+        }
 
-    ~ObsAppProxy()
+        ~ObsAppProxy()
         {
+            //FIXME: Move that to special 'stop' method
             this.Connected -= this.OnAppConnected;
             this.Disconnected -= this.OnAppDisconnected;
         }
+
+        
+
 
         private Boolean _scene_collection_events_subscribed = false;
 
@@ -139,7 +135,7 @@
 
             this.OnObsStudioModeStateChange(sender, studioModeStatus);
 
-            this.OnObsSceneCollectionListChanged(sender, e);
+            this.OnObsSceneCollectionListChanged(sender, new OldNewStringChangeEventArgs("",""));
             this.OnObsSceneCollectionChanged(sender, e);
         }
 

@@ -11,46 +11,19 @@
     /// </summary>
     public partial class ObsAppProxy
     {
-        public SourceMuteStateChangedCallback AppEvtSourceMuteStateChanged;
-        public SourceVolumeChangedCallback AppEvtSourceVolumeChanged;
+        public event EventHandler<MuteEventArgs> AppEvtSourceMuteStateChanged;
+        public event EventHandler<VolumeEventArgs> AppEvtSourceVolumeChanged;
+
+        public event EventHandler<SourceNameEventArgs> AppSourceCreated;
+        public event EventHandler<SourceNameEventArgs> AppSourceDestroyed;
 
         private readonly Dictionary<String, String> _specialSources = new Dictionary<String, String>();
         private readonly List<String> _audioSourceTypes = new List<String>();
 
-        public Dictionary<String, AudioSourceDesc> CurrentAudioSources = new Dictionary<String, AudioSourceDesc>();
+        public Dictionary<String, AudioSourceDescriptor> CurrentAudioSources { get; private set; }  = new Dictionary<String, AudioSourceDescriptor>();
 
-        public class AudioSourceDesc
-        {
-            public Boolean SpecialSource;
-            public Boolean Muted;
-            public Single Volume;
-
-            public AudioSourceDesc(String name, OBSWebsocket that, Boolean isSpecSource = false)
-            {
-                this.Muted = false;
-                this.Volume = 0;
-                this.SpecialSource = isSpecSource;
-
-                try
-                {
-                    var v = that.GetVolume(name);
-                    this.Muted = v.Muted;
-                    this.Volume = v.Volume;
-                }
-                catch (Exception ex)
-                {
-                    ObsStudioPlugin.Trace($"Exception {ex.Message} getting volume information for source {name}");
-                }
-            }
-        }
-
+       
         private Boolean IsAudioSourceType(OBSWebsocketDotNet.Types.SourceSettings settings) => this._audioSourceTypes.Contains(settings.SourceKind ?? settings.SourceType);
-
-        public delegate void AppSourceCreatedCb(String sourceName);
-
-        public AppSourceCreatedCb AppSourceCreated;
-
-        public AppSourceCreatedCb AppSourceDestroyed;
 
         private void OnObsSourceAudioActivated(OBSWebsocket sender, String sourceName)
         {
@@ -77,7 +50,7 @@
                         () => (!testSettings || this.IsAudioSourceType(this.GetSourceSettings(sourceName)))
                                                  && (!testAudio || this.GetAudioActive(sourceName)), out var good) && good)
             {
-                this.CurrentAudioSources.Add(sourceName, new AudioSourceDesc(sourceName, this));
+                this.CurrentAudioSources.Add(sourceName, new AudioSourceDescriptor(sourceName, this));
                 ObsStudioPlugin.Trace($"Adding Regular audio source {sourceName}");
                 return true;
             }
@@ -91,7 +64,8 @@
             {
                 if (this.AddCurrentAudioSource(settings.SourceName, false, true))
                 {
-                    this.AppSourceCreated?.Invoke(settings.SourceName);
+                    
+                    this.AppSourceCreated?.Invoke(this, new SourceNameEventArgs(settings.SourceName));
                 }
             }
         }
@@ -100,8 +74,8 @@
         {
             if (this.CurrentAudioSources.ContainsKey(sourceName))
             {
-                _ = this.CurrentAudioSources.Remove(sourceName);
-                this.AppSourceDestroyed?.Invoke(sourceName);
+                this.CurrentAudioSources.Remove(sourceName);
+                this.AppSourceDestroyed?.Invoke(this, new SourceNameEventArgs(sourceName));
             }
             else
             {
@@ -114,7 +88,7 @@
             if (this.CurrentAudioSources.ContainsKey(volDesc.SourceName))
             {
                 this.CurrentAudioSources[volDesc.SourceName].Volume = volDesc.Volume;
-                this.AppEvtSourceVolumeChanged?.Invoke(sender, volDesc);
+                this.AppEvtSourceVolumeChanged?.Invoke(sender, new VolumeEventArgs(volDesc.SourceName, volDesc.Volume, volDesc.VolumeDb));
             }
             else
             {
@@ -127,7 +101,7 @@
             if (this.CurrentAudioSources.ContainsKey(sourceName))
             {
                 this.CurrentAudioSources[sourceName].Muted = isMuted;
-                this.AppEvtSourceMuteStateChanged?.Invoke(sender, sourceName, isMuted);
+                this.AppEvtSourceMuteStateChanged?.Invoke(sender, new MuteEventArgs(sourceName, isMuted));
                 ObsStudioPlugin.Trace($"OBS: OnObsSourceMuteStateChanged Source '{sourceName}' is muted '{isMuted}'");
             }
             else
@@ -217,7 +191,7 @@
                             && this.GetAudioActive(source.Name))
                     {
                         // Adding audio source and populating initial values
-                        this.CurrentAudioSources.Add(source.Name, new AudioSourceDesc(source.Name, this));
+                        this.CurrentAudioSources.Add(source.Name, new AudioSourceDescriptor(source.Name, this));
                         ObsStudioPlugin.Trace($"Adding audio source {source.Name}");
                     }
                 }

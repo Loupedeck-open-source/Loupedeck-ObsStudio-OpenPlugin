@@ -75,15 +75,16 @@
             // TODO: Do ActionImageChanged (ActionParam) for new  and old scene
             this.ActionImageChanged();
 
-        private void OnSourceCreated(String sourceName)
+        private void OnSourceCreated(Object sender, SourceNameEventArgs args)
         {
-            this.AddSource(sourceName);
+            this.AddSource(args.SourceName);
             this.ParametersChanged();
         }
 
-        private void OnSourceDestroyed(String sourceName)
+        private void OnSourceDestroyed(Object sender, SourceNameEventArgs args)
         {
-            var key = SceneKey.Encode(this.Proxy.CurrentSceneCollection, sourceName);
+            var key = SceneKey.Encode(this.Proxy.CurrentSceneCollection, args.SourceName);
+
             if (this.TryGetParameter(key, out _))
             {
                 this.RemoveParameter(key);
@@ -100,14 +101,14 @@
             this.ActionImageChanged();
         }
 
-        protected void OnSourceMuteStateChanged(OBSWebsocketDotNet.OBSWebsocket sender, String sourceName, Boolean isMuted)
+        protected void OnSourceMuteStateChanged(Object sender, MuteEventArgs args)
         {
-            var actionParameter = SceneKey.Encode(this.Proxy.CurrentSceneCollection, sourceName);
+            var actionParameter = SceneKey.Encode(this.Proxy.CurrentSceneCollection, args.SourceName);
 
             // FIXME: Check if this 'has parameter' check is needed.
             if (this.TryGetParameter(actionParameter, out _))
             {
-                _ = this.SetCurrentState(actionParameter, isMuted ? State_Muted : State_Unmuted);
+                _ = this.SetCurrentState(actionParameter, args.isMuted ? State_Muted : State_Unmuted);
                 this.ActionImageChanged(actionParameter);
             }
         }

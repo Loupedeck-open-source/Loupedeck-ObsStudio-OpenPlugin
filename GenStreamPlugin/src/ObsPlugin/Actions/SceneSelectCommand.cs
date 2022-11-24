@@ -75,9 +75,8 @@
         private void OnSceneListChanged(Object sender, EventArgs e) =>
             this.ResetParameters(true);
 
-        private void OnCurrentSceneChanged(Object sender, EventArgs e)
+        private void OnCurrentSceneChanged(Object sender, OldNewStringChangeEventArgs arg)
         {
-            var arg = e as ObsAppProxy.OldNewStringChangeEventArgs;
             var oldPar = SceneKey.Encode(this.Proxy.CurrentSceneCollection, arg.Old);
             var newPar = SceneKey.Encode(this.Proxy.CurrentSceneCollection, arg.New);
 

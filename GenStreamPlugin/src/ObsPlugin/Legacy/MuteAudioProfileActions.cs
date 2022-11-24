@@ -37,8 +37,9 @@
             this.Proxy.AppEvtSourceMuteStateChanged -= this.OnSourceMuteStateChanged;
             return true;
         }
-        protected void OnSourceMuteStateChanged(OBSWebsocketDotNet.OBSWebsocket sender, String sourceName, Boolean isMuted)
+        protected void OnSourceMuteStateChanged(Object sender, MuteEventArgs args)
         {
+            ObsStudioPlugin.Trace($"OnSourceMuteStateChanged: Mute signal for '{args.SourceName}' is '{args.isMuted}'");
             this.ActionImageChanged();
         }
 

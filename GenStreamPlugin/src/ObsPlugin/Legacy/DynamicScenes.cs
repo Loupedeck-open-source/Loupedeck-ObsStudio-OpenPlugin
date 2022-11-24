@@ -38,7 +38,7 @@
 
         private void OnCurrentSceneChanged(Object sender, EventArgs e)
         { 
-            var arg = e as ObsAppProxy.OldNewStringChangeEventArgs;
+            var arg = e as OldNewStringChangeEventArgs;
             //unselecting old and selecting new
             if (!String.IsNullOrEmpty(arg.Old))
             {

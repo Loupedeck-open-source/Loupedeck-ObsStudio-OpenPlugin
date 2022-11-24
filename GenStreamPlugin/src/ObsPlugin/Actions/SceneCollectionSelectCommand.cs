@@ -74,9 +74,9 @@
         private void OnSceneCollectionsChanged(Object sender, EventArgs e) =>
             this.ResetParameters(true);
 
-        private void OnCurrentSceneCollectionChanged(Object sender, EventArgs e)
+        private void OnCurrentSceneCollectionChanged(Object sender, OldNewStringChangeEventArgs arg)
         {
-            var arg = e as ObsAppProxy.OldNewStringChangeEventArgs;
+            
             //unselecting old and selecting new
             if (!String.IsNullOrEmpty(arg.Old))
             {

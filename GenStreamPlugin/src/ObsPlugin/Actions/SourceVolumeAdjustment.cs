@@ -96,15 +96,14 @@
 
             return volume;
         }
-
-        protected void OnSourceMuteStateChanged(OBSWebsocketDotNet.OBSWebsocket sender, String sourceName, Boolean isMuted)
+        protected void OnSourceMuteStateChanged(Object sender, MuteEventArgs args)
         {
-            var actionParameter = SceneKey.Encode(this.Proxy.CurrentSceneCollection, sourceName);
+            var actionParameter = SceneKey.Encode(this.Proxy.CurrentSceneCollection, args.SourceName);
 
             // FIXME: Check if this 'has parameter' check is needed.
             if (this.TryGetParameter(actionParameter, out _) && this._muteStates.ContainsKey(actionParameter))
             {
-                this._muteStates[actionParameter] = isMuted;
+                this._muteStates[actionParameter] = args.isMuted;
 
                 this.ActionImageChanged(actionParameter);
             }
@@ -123,9 +122,9 @@
             this.ActionImageChanged();
         }
 
-        protected void OnSourceVolumeChanged(OBSWebsocketDotNet.OBSWebsocket sender, OBSWebsocketDotNet.Types.SourceVolume volume)
+        protected void OnSourceVolumeChanged(Object sender, VolumeEventArgs args)
         {
-            var actionParameter = SceneKey.Encode(this.Proxy?.CurrentSceneCollection, volume.SourceName);
+            var actionParameter = SceneKey.Encode(this.Proxy?.CurrentSceneCollection, args.SourceName);
             this.AdjustmentValueChanged(actionParameter);
         }
 
@@ -144,15 +143,15 @@
             return (this.Plugin as ObsStudioPlugin).GetPluginCommandImage(imageSize, imageName, sourceName, selected);
         }
 
-        private void OnSourceCreated(String sourceName)
+        private void OnSourceCreated(Object sender, SourceNameEventArgs args)
         {
-            this.AddSource(sourceName);
+            this.AddSource(args.SourceName);
             this.ParametersChanged();
         }
 
-        private void OnSourceDestroyed(String sourceName)
+        private void OnSourceDestroyed(Object sender, SourceNameEventArgs args)
         {
-            var key = SceneKey.Encode(this.Proxy.CurrentSceneCollection, sourceName);
+            var key = SceneKey.Encode(this.Proxy.CurrentSceneCollection, args.SourceName);
 
             if (this.TryGetParameter(key, out _))
             {

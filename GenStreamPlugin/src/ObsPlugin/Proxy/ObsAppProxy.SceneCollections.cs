@@ -13,13 +13,13 @@
     {
         public event EventHandler<EventArgs> AppEvtSceneCollectionsChanged;
 
-        public event EventHandler<EventArgs> AppEvtCurrentSceneCollectionChanged;
+        public event EventHandler<OldNewStringChangeEventArgs> AppEvtCurrentSceneCollectionChanged;
 
-        public List<String> SceneCollections { get; private set; }
+        public List<String> SceneCollections { get; private set; } = new List<String>();
 
-        public String CurrentSceneCollection { get; private set; }
+        public String CurrentSceneCollection { get; private set; } = "";
 
-        private void OnObsSceneCollectionListChanged(Object sender, EventArgs e)
+        private void OnObsSceneCollectionListChanged(Object sender, EventArgs args)
         {
             ObsStudioPlugin.Trace("OBS SceneCollectionList changed");
 
@@ -27,19 +27,16 @@
             {
                 ObsStudioPlugin.Trace($"Retreived list of {this.SceneCollections.Count} collections");
 
-                this.AppEvtSceneCollectionsChanged?.Invoke(sender, e);
+                this.AppEvtSceneCollectionsChanged?.Invoke(sender, args);
             }
         }
 
         private void OnObsSceneCollectionChanged(Object sender, EventArgs e)
         {
-            var args = new OldNewStringChangeEventArgs();
-            args.Old = this.CurrentSceneCollection;
-
-            if (Helpers.TryExecuteFunc(()=> this.GetCurrentSceneCollection(),out var newSceneCollection) && newSceneCollection != args.Old)
+            if (Helpers.TryExecuteFunc(()=> this.GetCurrentSceneCollection(),out var newSceneCollection) && newSceneCollection != this.CurrentSceneCollection)
             {
-                args.New = newSceneCollection;
-                ObsStudioPlugin.Trace($"OBS Current Scene collection changing from {args.Old} to {newSceneCollection}");
+                var args = new OldNewStringChangeEventArgs(this.CurrentSceneCollection, newSceneCollection);
+                ObsStudioPlugin.Trace($"OBS Current Scene collection changing from {args.Old} to {args.New}");
                 this.CurrentSceneCollection = newSceneCollection;
 
                 // Regenerating all internal structures
@@ -68,6 +65,46 @@
                 this.UnsubscribeFromSceneCollectionEvents();
 
                 _ = Helpers.TryExecuteSafe(() => this.SetCurrentSceneCollection(newCollection));
+            }
+        }
+
+        // Retreives all scene items for all scenes in current collection
+        private void OnObsSceneCollectionChange_FetchSceneItems()
+        {
+            this.AllSceneItems.Clear();
+
+            ObsStudioPlugin.Trace("Adding scene items");
+
+            // sources
+            foreach (var scene in this.Scenes)
+            {
+                if (!Helpers.TryExecuteFunc(() => this.GetSceneItemList(scene.Name), out var sceneDetailsList))
+                {
+                    ObsStudioPlugin.Trace($"Warning: Cannot get SceneList for scene {scene.Name}");
+                    continue;
+                }
+
+                foreach (var item in sceneDetailsList)
+                {
+                    var sceneItem = scene.Items.Find(x => x.SourceName == item.SourceName);
+                    if (sceneItem != null)
+                    {
+                        var sourceDictItem = SceneItemDescriptor.CreateSourceDictItem(this.CurrentSceneCollection, scene.Name, sceneItem, this, item);
+                        if (sourceDictItem != null)
+                        {
+                            var key = SceneItemKey.Encode(this.CurrentSceneCollection, scene.Name, item.SourceName);
+                            this.AllSceneItems.Add(key, sourceDictItem);
+                        }
+                        else
+                        {
+                            ObsStudioPlugin.Trace($"Warning: Cannot get CreateSourceDictItem for scene {scene.Name}, item {sceneItem.SourceName}");
+                        }
+                    }
+                    else
+                    {
+                        ObsStudioPlugin.Trace($"Warning: Cannot get SceneItemList for scene {scene.Name}");
+                    }
+                }
             }
         }
     }

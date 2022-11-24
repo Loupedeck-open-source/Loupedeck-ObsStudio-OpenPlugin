@@ -77,10 +77,9 @@
 
         private void OnAppDisconnected(Object sender, EventArgs e) => this.IsEnabled = false;
 
-        private void OnCurrentSceneCollectionChanged(Object sender, EventArgs e)
+        private void OnCurrentSceneCollectionChanged(Object sender, OldNewStringChangeEventArgs arg)
         {
             
-            var arg = e as ObsAppProxy.OldNewStringChangeEventArgs;
             //unselecting old and selecting new
             if (!String.IsNullOrEmpty(arg.Old))
             {

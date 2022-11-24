@@ -1,6 +1,7 @@
 ﻿namespace Loupedeck.ObsStudioPlugin
 {
     using System;
+    using System.Collections.Generic;
 
     using OBSWebsocketDotNet;
 
@@ -13,6 +14,16 @@
         public SceneItemUpdateCallback AppEvtSceneItemAdded;
         public SceneItemUpdateCallback AppEvtSceneItemRemoved;
         public SceneItemVisibilityChangedCallback AppEvtSceneItemVisibilityChanged;
+
+        /// <summary>
+        /// Our own dictionary of scene items of all scenes in current collection, with all properties
+        /// Note: Scene item is an instance of the source in particular scene.  Most of the source
+        /// properties are shared among scenes with just a few (like visibility) being scene-specif
+        ///
+        /// </summary>
+        // 'Main' dictionary, with Scene-Item ID being a key
+        // Dictionary
+        public Dictionary<String, SceneItemDescriptor> AllSceneItems = new Dictionary<String, SceneItemDescriptor>();
 
         private void OnObsSceneItemVisibilityChanged(OBSWebsocket sender, String sceneName, String itemName, Boolean isVisible)
         {
