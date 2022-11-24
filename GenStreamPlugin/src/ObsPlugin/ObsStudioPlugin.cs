@@ -10,7 +10,7 @@ namespace Loupedeck.ObsStudioPlugin
 
     public partial class ObsStudioPlugin : Plugin
     {
-        public readonly ObsAppProxy Proxy;
+        public static ObsAppProxy Proxy { get; private set; } 
 
         // Gets a value indicating whether this is an Universal plugin or an Application plugin.
         public override Boolean UsesApplicationApiOnly => true;
@@ -22,11 +22,8 @@ namespace Loupedeck.ObsStudioPlugin
 
         public ObsStudioPlugin()
         {
-            //FIXME FIXME: REMOVE THAT ONCE BUG WITH SERVICE IS FIXED
-            this.SupportedDevices = DeviceType.LoupedeckCtFamily;
-
-            this.Proxy = new ObsAppProxy();
-            this._connector = new ObsConnector(this.Proxy, this.GetPluginDataDirectory(),
+            ObsStudioPlugin.Proxy = new ObsAppProxy();
+            this._connector = new ObsConnector(ObsStudioPlugin.Proxy, this.GetPluginDataDirectory(),
                                 (Object sender, EventArgs e) => this.OnPluginStatusChanged(Loupedeck.PluginStatus.Warning, this.Localization.GetString("Connecting to OBS"), "https://support.loupedeck.com/obs-guide", ""));
         }
 
@@ -44,10 +41,10 @@ namespace Loupedeck.ObsStudioPlugin
             this.ClientApplication.ApplicationInstanceStarted += this.OnApplicationStarted;
             this.ClientApplication.ApplicationInstanceStopped += this.OnApplicationStopped;
 
-            this.Proxy.AppConnected += this.OnAppConnStatusChange;
-            this.Proxy.AppDisconnected += this.OnAppConnStatusChange;
+            ObsStudioPlugin.Proxy.AppConnected += this.OnAppConnStatusChange;
+            ObsStudioPlugin.Proxy.AppDisconnected += this.OnAppConnStatusChange;
 
-            this.Proxy.RegisterAppEvents(); 
+            ObsStudioPlugin.Proxy.RegisterAppEvents(); 
 
             this._connector.Start();
 
@@ -58,7 +55,7 @@ namespace Loupedeck.ObsStudioPlugin
         public override void Unload()
         {
             this._connector.Stop();
-            this.Proxy.UnregisterAppEvents();
+            ObsStudioPlugin.Proxy.UnregisterAppEvents();
 
             this.OnApplicationStopped(this, null);
 
@@ -68,8 +65,8 @@ namespace Loupedeck.ObsStudioPlugin
             this.ClientApplication.ApplicationInstanceStarted -= this.OnApplicationStarted;
             this.ClientApplication.ApplicationInstanceStopped -= this.OnApplicationStopped;
 
-            this.Proxy.AppConnected -= this.OnAppConnStatusChange;
-            this.Proxy.AppDisconnected -= this.OnAppConnStatusChange;
+            ObsStudioPlugin.Proxy.AppConnected -= this.OnAppConnStatusChange;
+            ObsStudioPlugin.Proxy.AppDisconnected -= this.OnAppConnStatusChange;
 
 
             // this.Proxy = null;
@@ -91,7 +88,7 @@ namespace Loupedeck.ObsStudioPlugin
             {
                 this.OnPluginStatusChanged(Loupedeck.PluginStatus.Error, "OBS Studio is not installed", "https://support.loupedeck.com/obs-guide", "more details");
             }
-            else if (this.Proxy != null && this.Proxy.IsAppConnected)
+            else if (ObsStudioPlugin.Proxy.IsAppConnected)
             {
                 this.OnPluginStatusChanged(Loupedeck.PluginStatus.Normal, "");
             }
@@ -120,10 +117,13 @@ namespace Loupedeck.ObsStudioPlugin
             {
                 var x1 = bitmapBuilder.Width * 0.1;
                 var w = bitmapBuilder.Width * 0.8;
-                var y1 = bitmapBuilder.Height * 0.65;
+                var y1 = bitmapBuilder.Height * 0.60;
                 var h = bitmapBuilder.Height * 0.3;
 
-                bitmapBuilder.DrawText(text, (Int32)x1, (Int32)y1, (Int32)w, (Int32)h, selected ? BitmapColor.Black : BitmapColorPink, 13, 12, 1);
+                bitmapBuilder.DrawText(text, (Int32)x1, (Int32)y1, (Int32)w, (Int32)h, 
+                                            selected ? BitmapColor.Black : BitmapColorPink, 
+                                            imageSize == PluginImageSize.Width90 ? 13 : 9, 
+                                            imageSize == PluginImageSize.Width90 ? 12 : 8, 1);
             }
 
             return bitmapBuilder;
@@ -147,17 +147,16 @@ namespace Loupedeck.ObsStudioPlugin
         public BitmapImage GetPluginCommandImage(PluginImageSize imageSize, String imagePath, String text = null, Boolean textSelected = false)
         {
             var imageName = ImageResPrefix + imagePath;
-#if true
             var key = this.MakeCacheKey(imageSize, imageName, text, textSelected);
             if (!this._localImageCache.ContainsKey(key))
             {
                 var builder = this.BuildImage(imageSize, imageName, text, textSelected);
-                this._localImageCache.Add(key, builder.ToArray()); // return bitmapBuilder.ToImage();
+
+                // FIXME: Control cache size and prune it as needed
+                this._localImageCache.Add(key, builder.ToArray()); 
             }
+
             return this._localImageCache[key].ToImage();
-#else
-            return this.BuildImage(imageSize, imageName, text, textSelected).ToImage();
-#endif
         }
 
         public static void Trace(String line) => Tracer.Trace("GSP:" + line); /*System.Diagnostics.Debug.WriteLine(*/
