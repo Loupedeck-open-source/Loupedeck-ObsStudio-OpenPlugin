@@ -4,11 +4,10 @@
 
     public class RecordingPauseToggleCommand : GenericOnOffSwitch
     {
-        private ObsAppProxy Proxy => (this.Plugin as ObsStudioPlugin).Proxy;
-
+        
         public RecordingPauseToggleCommand()
                 : base(
-                    name: "PauseRecording",
+                    name: "RecordingPause",
                     displayName: "Recording Pause",
                     description: "Pauses/resumes recording",
                     groupName: "",
@@ -39,7 +38,7 @@
         protected void OnAppRecordingResumed(Object sender, EventArgs e)
         {
             // Note this can be called from OnLoad as well (eventSwitchedOn) in which case we check if we are InRecording
-            this.IsEnabled = this.Proxy.InRecording;
+            this.IsEnabled = ObsStudioPlugin.Proxy.InRecording;
             this._isPaused = false;
             this.TurnOff();
         }
@@ -52,34 +51,34 @@
 
         protected override void ConnectAppEvents(EventHandler<EventArgs> eventSwitchedOff, EventHandler<EventArgs> eventSwitchedOn)
         {
-            this.Proxy.AppEvtRecordingResumed += eventSwitchedOff;
-            this.Proxy.AppEvtRecordingPaused += eventSwitchedOn;
+            ObsStudioPlugin.Proxy.AppEvtRecordingResumed += eventSwitchedOff;
+            ObsStudioPlugin.Proxy.AppEvtRecordingPaused += eventSwitchedOn;
 
-            this.Proxy.AppEvtRecordingOff += this.OnAppRecordingStopped;
-            this.Proxy.AppEvtRecordingOn += this.OnAppRecordingStarted;
-            this.Proxy.AppEvtRecordingPaused += this.OnAppRecordingPaused;
-            this.Proxy.AppEvtRecordingResumed += this.OnAppRecordingResumed;
+            ObsStudioPlugin.Proxy.AppEvtRecordingOff += this.OnAppRecordingStopped;
+            ObsStudioPlugin.Proxy.AppEvtRecordingOn += this.OnAppRecordingStarted;
+            ObsStudioPlugin.Proxy.AppEvtRecordingPaused += this.OnAppRecordingPaused;
+            ObsStudioPlugin.Proxy.AppEvtRecordingResumed += this.OnAppRecordingResumed;
         }
 
         protected override void DisconnectAppEvents(EventHandler<EventArgs> eventSwitchedOff, EventHandler<EventArgs> eventSwitchedOn)
         {
-            this.Proxy.AppEvtRecordingResumed -= eventSwitchedOff;
-            this.Proxy.AppEvtRecordingPaused -= eventSwitchedOn;
-            this.Proxy.AppEvtRecordingOff -= this.OnAppRecordingStopped;
-            this.Proxy.AppEvtRecordingOn -= this.OnAppRecordingStarted;
-            this.Proxy.AppEvtRecordingPaused -= this.OnAppRecordingPaused;
-            this.Proxy.AppEvtRecordingResumed -= this.OnAppRecordingResumed;
+            ObsStudioPlugin.Proxy.AppEvtRecordingResumed -= eventSwitchedOff;
+            ObsStudioPlugin.Proxy.AppEvtRecordingPaused -= eventSwitchedOn;
+            ObsStudioPlugin.Proxy.AppEvtRecordingOff -= this.OnAppRecordingStopped;
+            ObsStudioPlugin.Proxy.AppEvtRecordingOn -= this.OnAppRecordingStarted;
+            ObsStudioPlugin.Proxy.AppEvtRecordingPaused -= this.OnAppRecordingPaused;
+            ObsStudioPlugin.Proxy.AppEvtRecordingResumed -= this.OnAppRecordingResumed;
         }
 
         protected override void RunToggle()
         {
             if (this._isPaused)
             {
-                this.Proxy.AppResumeRecording();
+                ObsStudioPlugin.Proxy.AppResumeRecording();
             }
             else
             {
-                this.Proxy.AppPauseRecording();
+                ObsStudioPlugin.Proxy.AppPauseRecording();
             }
         }
     }

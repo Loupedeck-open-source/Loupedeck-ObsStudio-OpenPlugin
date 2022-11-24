@@ -8,16 +8,16 @@
 
     using Newtonsoft.Json.Linq;
 
-    public class DynamicSceneCols : PluginDynamicCommand
+    internal class DynamicSceneCols : PluginDynamicCommand
     {
-        private ObsAppProxy Proxy => (this.Plugin as ObsStudioPlugin).Proxy;
-
         //Note DeviceTypeNone -- so that actions is not visible in the UI' action tree.
         public DynamicSceneCols()
             : base(displayName: "LegacyCollectionsAction",
                    description: "",
                    groupName: "",
-                   DeviceType.None) => this.Name = "DynamicSceneCols";
+                   DeviceType.None) 
+        { 
+        }
 
         private readonly StringDictionaryNoCase _collection_guid_name_map = new StringDictionaryNoCase();
 
@@ -56,9 +56,9 @@
 
         protected override Boolean OnLoad()
         {
-            this.Proxy.AppEvtCurrentSceneCollectionChanged += this.OnCurrentSceneCollectionChanged;
-            this.Proxy.AppConnected += this.OnAppConnected;
-            this.Proxy.AppDisconnected += this.OnAppDisconnected;
+            ObsStudioPlugin.Proxy.AppEvtCurrentSceneCollectionChanged += this.OnCurrentSceneCollectionChanged;
+            ObsStudioPlugin.Proxy.AppConnected += this.OnAppConnected;
+            ObsStudioPlugin.Proxy.AppDisconnected += this.OnAppDisconnected;
             this.IsEnabled = false;
 
             this.ReadLegacyMapping();
@@ -67,9 +67,9 @@
 
         protected override Boolean OnUnload()
         {
-            this.Proxy.AppEvtCurrentSceneCollectionChanged -= this.OnCurrentSceneCollectionChanged;
-            this.Proxy.AppConnected -= this.OnAppConnected;
-            this.Proxy.AppDisconnected -= this.OnAppDisconnected;
+            ObsStudioPlugin.Proxy.AppEvtCurrentSceneCollectionChanged -= this.OnCurrentSceneCollectionChanged;
+            ObsStudioPlugin.Proxy.AppConnected -= this.OnAppConnected;
+            ObsStudioPlugin.Proxy.AppDisconnected -= this.OnAppDisconnected;
             return true;
         }
 
@@ -105,9 +105,9 @@
             var imageName = SceneCollectionSelectCommand.IMGCollectionUnselected;
             var collection = this.GetSceneCollectionName(actionParameter);
 
-            if (this.Proxy.SceneCollections.Contains(collection))
+            if (ObsStudioPlugin.Proxy.SceneCollections.Contains(collection))
             {
-                imageName = collection.Equals(this.Proxy.CurrentSceneCollection) ? SceneCollectionSelectCommand.IMGCollectionSelected : SceneCollectionSelectCommand.IMGCollectionUnselected;
+                imageName = collection.Equals(ObsStudioPlugin.Proxy.CurrentSceneCollection) ? SceneCollectionSelectCommand.IMGCollectionSelected : SceneCollectionSelectCommand.IMGCollectionUnselected;
             }
 
             ObsStudioPlugin.Trace($"DynamicSceneCols:Collection {collection}, Selected? { imageName == SceneCollectionSelectCommand.IMGCollectionSelected }");
@@ -115,7 +115,7 @@
             return (this.Plugin as ObsStudioPlugin).GetPluginCommandImage(imageSize, imageName, collection, imageName == SceneCollectionSelectCommand.IMGCollectionSelected);
         }
 
-        protected override void RunCommand(String actionParameter) =>  this.Proxy.AppSwitchToSceneCollection(this.GetSceneCollectionName(actionParameter));
+        protected override void RunCommand(String actionParameter) =>  ObsStudioPlugin.Proxy.AppSwitchToSceneCollection(this.GetSceneCollectionName(actionParameter));
 
     }
 }

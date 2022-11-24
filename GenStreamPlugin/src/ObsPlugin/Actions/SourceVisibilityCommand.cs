@@ -2,18 +2,15 @@
 {
     using System;
 
-    public class SourceVisibilityCommand : PluginMultistateDynamicCommand
+    internal class SourceVisibilityCommand : PluginMultistateDynamicCommand
     {
-        private ObsAppProxy Proxy => (this.Plugin as ObsStudioPlugin).Proxy;
-
         public const String IMGSceneSelected = "SourceOn.png";
         public const String IMGSceneUnselected = "SourceOff.png";
-        public const String IMGSceneInaccessible = "SourceOff.png";
+        public const String IMGSceneInaccessible = "SourceInaccessible.png";
         public const String SourceNameUnknown = "Offline";
 
         public SourceVisibilityCommand()
         {
-            this.Name = "SourceVisibility";
             this.Description = "Shows/Hides a Source";
             this.GroupName = "2. Sources";
             _ = this.AddState("Hidden", "Source hidden");
@@ -24,16 +21,16 @@
         {
             this.IsEnabled = false;
 
-            this.Proxy.AppConnected += this.OnAppConnected;
-            this.Proxy.AppDisconnected += this.OnAppDisconnected;
+            ObsStudioPlugin.Proxy.AppConnected += this.OnAppConnected;
+            ObsStudioPlugin.Proxy.AppDisconnected += this.OnAppDisconnected;
 
-            this.Proxy.AppEvtSceneListChanged += this.OnSceneListChanged;
-            this.Proxy.AppEvtCurrentSceneChanged += this.OnCurrentSceneChanged;
+            ObsStudioPlugin.Proxy.AppEvtSceneListChanged += this.OnSceneListChanged;
+            ObsStudioPlugin.Proxy.AppEvtCurrentSceneChanged += this.OnCurrentSceneChanged;
 
-            this.Proxy.AppEvtSceneItemVisibilityChanged += this.OnSceneItemVisibilityChanged;
+            ObsStudioPlugin.Proxy.AppEvtSceneItemVisibilityChanged += this.OnSceneItemVisibilityChanged;
 
-            this.Proxy.AppEvtSceneItemAdded += this.OnSceneItemAdded;
-            this.Proxy.AppEvtSceneItemRemoved += this.OnSceneItemRemoved;
+            ObsStudioPlugin.Proxy.AppEvtSceneItemAdded += this.OnSceneItemAdded;
+            ObsStudioPlugin.Proxy.AppEvtSceneItemRemoved += this.OnSceneItemRemoved;
 
             this.OnAppDisconnected(this, null);
 
@@ -42,20 +39,20 @@
 
         protected override Boolean OnUnload()
         {
-            this.Proxy.AppConnected -= this.OnAppConnected;
-            this.Proxy.AppDisconnected -= this.OnAppDisconnected;
+            ObsStudioPlugin.Proxy.AppConnected -= this.OnAppConnected;
+            ObsStudioPlugin.Proxy.AppDisconnected -= this.OnAppDisconnected;
 
-            this.Proxy.AppEvtSceneListChanged -= this.OnSceneListChanged;
-            this.Proxy.AppEvtCurrentSceneChanged -= this.OnCurrentSceneChanged;
-            this.Proxy.AppEvtSceneItemVisibilityChanged -= this.OnSceneItemVisibilityChanged;
+            ObsStudioPlugin.Proxy.AppEvtSceneListChanged -= this.OnSceneListChanged;
+            ObsStudioPlugin.Proxy.AppEvtCurrentSceneChanged -= this.OnCurrentSceneChanged;
+            ObsStudioPlugin.Proxy.AppEvtSceneItemVisibilityChanged -= this.OnSceneItemVisibilityChanged;
 
-            this.Proxy.AppEvtSceneItemAdded -= this.OnSceneItemAdded;
-            this.Proxy.AppEvtSceneItemRemoved -= this.OnSceneItemRemoved;
+            ObsStudioPlugin.Proxy.AppEvtSceneItemAdded -= this.OnSceneItemAdded;
+            ObsStudioPlugin.Proxy.AppEvtSceneItemRemoved -= this.OnSceneItemRemoved;
 
             return true;
         }
 
-        protected override void RunCommand(String actionParameter) => this.Proxy.AppToggleSceneItemVisibility(actionParameter);
+        protected override void RunCommand(String actionParameter) => ObsStudioPlugin.Proxy.AppToggleSceneItemVisibility(actionParameter);
 
         private void OnSceneListChanged(Object sender, EventArgs e) => this.ResetParameters(true);
 
@@ -69,7 +66,7 @@
 
         private void OnSceneItemRemoved(OBSWebsocketDotNet.OBSWebsocket sender, String sceneName, String itemName)
         {
-            this.RemoveParameter(SceneItemKey.Encode(this.Proxy?.CurrentSceneCollection, sceneName, itemName));
+            this.RemoveParameter(SceneItemKey.Encode(ObsStudioPlugin.Proxy.CurrentSceneCollection, sceneName, itemName));
             this.ParametersChanged();
         }
 
@@ -85,7 +82,7 @@
 
         protected void OnSceneItemVisibilityChanged(OBSWebsocketDotNet.OBSWebsocket sender, String sceneName, String itemName, Boolean isVisible)
         {
-            var actionParameter = SceneItemKey.Encode(this.Proxy?.CurrentSceneCollection, sceneName, itemName);
+            var actionParameter = SceneItemKey.Encode(ObsStudioPlugin.Proxy.CurrentSceneCollection, sceneName, itemName);
             _ = this.SetCurrentState(actionParameter, isVisible ? 1 : 0);
             this.ActionImageChanged(actionParameter);
         }
@@ -97,19 +94,19 @@
             if (SceneItemKey.TryParse(actionParameter, out var parsed))
             {
                 sourceName = parsed.Source;
-                imageName = parsed.Collection != this.Proxy.CurrentSceneCollection
+                imageName = parsed.Collection != ObsStudioPlugin.Proxy.CurrentSceneCollection
                     ? IMGSceneInaccessible
                     : stateIndex == 1 ? IMGSceneSelected : IMGSceneUnselected;
             }
 
-            return (this.Plugin as ObsStudioPlugin).GetPluginCommandImage(imageSize, imageName, sourceName, stateIndex == 1);
+            return (this.Plugin as ObsStudioPlugin).GetPluginCommandImage(imageSize, imageName, sourceName, imageName == IMGSceneSelected);
         }
 
         internal void AddSceneItemParameter(String sceneName, String itemName)
         {
-            var key = SceneItemKey.Encode(this.Proxy.CurrentSceneCollection, sceneName, itemName);
+            var key = SceneItemKey.Encode(ObsStudioPlugin.Proxy.CurrentSceneCollection, sceneName, itemName);
             this.AddParameter(key, $"{itemName}", $"{this.GroupName}{CommonStrings.SubgroupSeparator}{sceneName}");
-            _ = this.SetCurrentState(key, this.Proxy.AllSceneItems[key].Visible ? 1 : 0);
+            _ = this.SetCurrentState(key, ObsStudioPlugin.Proxy.AllSceneItems[key].Visible ? 1 : 0);
         }
 
         internal void ResetParameters(Boolean readContent)
@@ -118,9 +115,9 @@
 
             if (readContent)
             {
-                ObsStudioPlugin.Trace($"Adding {this.Proxy.AllSceneItems?.Count} sources");
+                ObsStudioPlugin.Trace($"Adding {ObsStudioPlugin.Proxy.AllSceneItems?.Count} sources");
 
-                foreach (var item in this.Proxy.AllSceneItems)
+                foreach (var item in ObsStudioPlugin.Proxy.AllSceneItems)
                 {
                     this.AddSceneItemParameter(item.Value.SceneName, item.Value.SourceName);
                 }

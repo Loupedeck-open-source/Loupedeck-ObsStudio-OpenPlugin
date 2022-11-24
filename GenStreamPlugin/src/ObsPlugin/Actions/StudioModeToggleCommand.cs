@@ -2,10 +2,8 @@
 {
     using System;
 
-    public class StudioModeToggleCommand : GenericOnOffSwitch
+    internal class StudioModeToggleCommand : GenericOnOffSwitch
     {
-        private ObsAppProxy Proxy => (this.Plugin as ObsStudioPlugin).Proxy;
-
         public StudioModeToggleCommand()
                   : base(
                       name: "StudioMode",
@@ -21,16 +19,16 @@
 
         protected override void ConnectAppEvents(EventHandler<EventArgs> eventSwitchedOff, EventHandler<EventArgs> eventSwitchedOn)
         {
-            this.Proxy.AppEvtStudioModeOff += eventSwitchedOn;
-            this.Proxy.AppEvtStudioModeOn += eventSwitchedOff;
+            ObsStudioPlugin.Proxy.AppEvtStudioModeOff += eventSwitchedOn;
+            ObsStudioPlugin.Proxy.AppEvtStudioModeOn += eventSwitchedOff;
         }
 
         protected override void DisconnectAppEvents(EventHandler<EventArgs> eventSwitchedOff, EventHandler<EventArgs> eventSwitchedOn)
         {
-            this.Proxy.AppEvtStudioModeOff -= eventSwitchedOn;
-            this.Proxy.AppEvtStudioModeOn -= eventSwitchedOff;
+            ObsStudioPlugin.Proxy.AppEvtStudioModeOff -= eventSwitchedOn;
+            ObsStudioPlugin.Proxy.AppEvtStudioModeOn -= eventSwitchedOff;
         }
 
-        protected override void RunToggle() => this.Proxy.AppToggleStudioMode();
+        protected override void RunToggle() => ObsStudioPlugin.Proxy.AppToggleStudioMode();
     }
 }

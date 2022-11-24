@@ -4,10 +4,8 @@
 
     using Loupedeck.ObsStudioPlugin.Actions;
 
-    public class SourcesProfileActionsTreeCommands : PluginDynamicCommand
+    internal class SourcesProfileActionsTreeCommands : PluginDynamicCommand
     {
-        private ObsAppProxy Proxy => (this.Plugin as ObsStudioPlugin).Proxy;
-
         //Note DeviceTypeNone -- so that actions is not visible in the UI' action tree.
         public SourcesProfileActionsTreeCommands()
             : base(displayName: "LegacySourcesAction",
@@ -20,16 +18,16 @@
 
         protected override Boolean OnLoad()
         {
-            this.Proxy.AppConnected += this.OnAppConnected;
-            this.Proxy.AppDisconnected += this.OnAppDisconnected;
+            ObsStudioPlugin.Proxy.AppConnected += this.OnAppConnected;
+            ObsStudioPlugin.Proxy.AppDisconnected += this.OnAppDisconnected;
             this.IsEnabled = false;
             return true;
         }
 
         protected override Boolean OnUnload()
         {
-            this.Proxy.AppConnected -= this.OnAppConnected;
-            this.Proxy.AppDisconnected -= this.OnAppDisconnected;
+            ObsStudioPlugin.Proxy.AppConnected -= this.OnAppConnected;
+            ObsStudioPlugin.Proxy.AppDisconnected -= this.OnAppDisconnected;
             return true;
         }
 
@@ -41,14 +39,14 @@
             var imageName = SourceVisibilityCommand.IMGSceneInaccessible;
             var sourceName = "Unknown";
             
-            if (this.Proxy.TryConvertLegacyActionParamToKey(actionParameter, out var key_struct))
+            if (ObsStudioPlugin.Proxy.TryConvertLegacyActionParamToKey(actionParameter, out var key_struct))
             {
                 sourceName = key_struct.Source;
                 var key = key_struct.Stringize();
 
-                if (this.Proxy.AllSceneItems.ContainsKey(key))
+                if (ObsStudioPlugin.Proxy.AllSceneItems.ContainsKey(key))
                 {
-                    imageName = this.Proxy.AllSceneItems[key].Visible 
+                    imageName = ObsStudioPlugin.Proxy.AllSceneItems[key].Visible 
                                      ? SourceVisibilityCommand.IMGSceneSelected
                                      : SourceVisibilityCommand.IMGSceneUnselected;
                 }
@@ -59,9 +57,9 @@
 
         protected override void RunCommand(String actionParameter)
         {
-            if (this.Proxy.TryConvertLegacyActionParamToKey(actionParameter, out var key_struct))
+            if (ObsStudioPlugin.Proxy.TryConvertLegacyActionParamToKey(actionParameter, out var key_struct))
             {
-                this.Proxy.AppToggleSceneItemVisibility(key_struct.Stringize());
+                ObsStudioPlugin.Proxy.AppToggleSceneItemVisibility(key_struct.Stringize());
             }
         }
     }

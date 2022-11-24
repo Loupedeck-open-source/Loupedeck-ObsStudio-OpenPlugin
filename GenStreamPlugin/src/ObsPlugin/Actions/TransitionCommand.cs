@@ -2,11 +2,9 @@
 {
     using System;
 
-    public class TransitionCommand : PluginDynamicCommand
+    internal class TransitionCommand : PluginDynamicCommand
     {
         private const String IMGAction = "STREAM_Transition.png";
-
-        private ObsAppProxy Proxy => (this.Plugin as ObsStudioPlugin).Proxy;
 
         public TransitionCommand()
             : base(displayName: "Studio Mode Transition", 
@@ -17,21 +15,21 @@
 
         protected override Boolean OnLoad()
         {
-            this.Proxy.AppConnected += this.OnAppConnected;
-            this.Proxy.AppDisconnected += this.OnAppDisconnected;
+            ObsStudioPlugin.Proxy.AppConnected += this.OnAppConnected;
+            ObsStudioPlugin.Proxy.AppDisconnected += this.OnAppDisconnected;
 
-            this.Proxy.AppEvtStudioModeOn += this.OnAppStudioModeOn;
-            this.Proxy.AppEvtStudioModeOff += this.OnAppStudioModeOff;
+            ObsStudioPlugin.Proxy.AppEvtStudioModeOn += this.OnAppStudioModeOn;
+            ObsStudioPlugin.Proxy.AppEvtStudioModeOff += this.OnAppStudioModeOff;
             this.IsEnabled = false;
             return true;
         }
 
         protected override Boolean OnUnload()
         {
-            this.Proxy.AppConnected -= this.OnAppConnected;
-            this.Proxy.AppDisconnected -= this.OnAppDisconnected;
-            this.Proxy.AppEvtStudioModeOn -= this.OnAppStudioModeOn;
-            this.Proxy.AppEvtStudioModeOff -= this.OnAppStudioModeOff;
+            ObsStudioPlugin.Proxy.AppConnected -= this.OnAppConnected;
+            ObsStudioPlugin.Proxy.AppDisconnected -= this.OnAppDisconnected;
+            ObsStudioPlugin.Proxy.AppEvtStudioModeOn -= this.OnAppStudioModeOn;
+            ObsStudioPlugin.Proxy.AppEvtStudioModeOff -= this.OnAppStudioModeOff;
             return true;
         }
 
@@ -45,6 +43,6 @@
 
         protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize) => (this.Plugin as ObsStudioPlugin).GetPluginCommandImage(imageSize, IMGAction);
 
-        protected override void RunCommand(String actionParameter) => this.Proxy.AppRunTransition();
+        protected override void RunCommand(String actionParameter) => ObsStudioPlugin.Proxy.AppRunTransition();
     }
 }

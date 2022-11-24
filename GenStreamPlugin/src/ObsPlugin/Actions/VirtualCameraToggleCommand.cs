@@ -2,9 +2,8 @@
 {
     using System;
 
-    public class VirtualCameraToggleCommand : GenericOnOffSwitch
+    internal class VirtualCameraToggleCommand : GenericOnOffSwitch
     {
-        private ObsAppProxy Proxy => (this.Plugin as ObsStudioPlugin).Proxy;
 
         public VirtualCameraToggleCommand()
                   : base(
@@ -21,16 +20,16 @@
 
         protected override void ConnectAppEvents(EventHandler<EventArgs> eventSwitchedOff, EventHandler<EventArgs> eventSwitchedOn)
         {
-            this.Proxy.AppEvtVirtualCamOff += eventSwitchedOn;
-            this.Proxy.AppEvtVirtualCamOn += eventSwitchedOff;
+            ObsStudioPlugin.Proxy.AppEvtVirtualCamOff += eventSwitchedOn;
+            ObsStudioPlugin.Proxy.AppEvtVirtualCamOn += eventSwitchedOff;
         }
 
         protected override void DisconnectAppEvents(EventHandler<EventArgs> eventSwitchedOff, EventHandler<EventArgs> eventSwitchedOn)
         {
-            this.Proxy.AppEvtVirtualCamOff -= eventSwitchedOn;
-            this.Proxy.AppEvtVirtualCamOn -= eventSwitchedOff;
+            ObsStudioPlugin.Proxy.AppEvtVirtualCamOff -= eventSwitchedOn;
+            ObsStudioPlugin.Proxy.AppEvtVirtualCamOn -= eventSwitchedOff;
         }
 
-        protected override void RunToggle() => this.Proxy.AppToggleVirtualCam();
+        protected override void RunToggle() => ObsStudioPlugin.Proxy.AppToggleVirtualCam();
     }
 }

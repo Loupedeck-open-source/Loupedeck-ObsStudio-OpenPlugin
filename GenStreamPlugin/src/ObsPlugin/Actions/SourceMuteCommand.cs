@@ -2,13 +2,11 @@
 {
     using System;
 
-    public class SourceMuteCommand : PluginMultistateDynamicCommand
+    internal class SourceMuteCommand : PluginMultistateDynamicCommand
     {
-        private ObsAppProxy Proxy => (this.Plugin as ObsStudioPlugin).Proxy;
-
         public const String IMGSourceMuted = "AudioOff.png";
         public const String IMGSourceUnmuted = "AudioOn.png";
-        public const String IMGSourceInaccessible = "AudioOff.png";
+        public const String IMGSourceInaccessible = "AudioInaccessible.png";
         public const String SourceNameUnknown = "Offline";
 
         private const Int32 State_Muted = 1;
@@ -16,7 +14,7 @@
 
         public SourceMuteCommand()
         {
-            this.Name = "AudioSourceMute";
+            
             this.Description = "Mutes/Unmutes Audio Source";
             this.GroupName = "3. Audio";
 
@@ -29,16 +27,16 @@
         {
             this.IsEnabled = false;
 
-            this.Proxy.AppConnected += this.OnAppConnected;
-            this.Proxy.AppDisconnected += this.OnAppDisconnected;
+            ObsStudioPlugin.Proxy.AppConnected += this.OnAppConnected;
+            ObsStudioPlugin.Proxy.AppDisconnected += this.OnAppDisconnected;
 
-            this.Proxy.AppEvtSceneListChanged += this.OnSceneListChanged;
-            this.Proxy.AppEvtCurrentSceneChanged += this.OnCurrentSceneChanged;
+            ObsStudioPlugin.Proxy.AppEvtSceneListChanged += this.OnSceneListChanged;
+            ObsStudioPlugin.Proxy.AppEvtCurrentSceneChanged += this.OnCurrentSceneChanged;
 
-            this.Proxy.AppEvtSourceMuteStateChanged += this.OnSourceMuteStateChanged;
+            ObsStudioPlugin.Proxy.AppEvtSourceMuteStateChanged += this.OnSourceMuteStateChanged;
 
-            this.Proxy.AppSourceCreated += this.OnSourceCreated;
-            this.Proxy.AppSourceDestroyed += this.OnSourceDestroyed;
+            ObsStudioPlugin.Proxy.AppSourceCreated += this.OnSourceCreated;
+            ObsStudioPlugin.Proxy.AppSourceDestroyed += this.OnSourceDestroyed;
 
             this.OnAppDisconnected(this, null);
 
@@ -47,24 +45,24 @@
 
         protected override Boolean OnUnload()
         {
-            this.Proxy.AppConnected -= this.OnAppConnected;
-            this.Proxy.AppDisconnected -= this.OnAppDisconnected;
+            ObsStudioPlugin.Proxy.AppConnected -= this.OnAppConnected;
+            ObsStudioPlugin.Proxy.AppDisconnected -= this.OnAppDisconnected;
 
-            this.Proxy.AppEvtSceneListChanged -= this.OnSceneListChanged;
-            this.Proxy.AppEvtCurrentSceneChanged -= this.OnCurrentSceneChanged;
-            this.Proxy.AppEvtSourceMuteStateChanged -= this.OnSourceMuteStateChanged;
+            ObsStudioPlugin.Proxy.AppEvtSceneListChanged -= this.OnSceneListChanged;
+            ObsStudioPlugin.Proxy.AppEvtCurrentSceneChanged -= this.OnCurrentSceneChanged;
+            ObsStudioPlugin.Proxy.AppEvtSourceMuteStateChanged -= this.OnSourceMuteStateChanged;
 
-            this.Proxy.AppSourceCreated -= this.OnSourceCreated;
-            this.Proxy.AppSourceDestroyed -= this.OnSourceDestroyed;
+            ObsStudioPlugin.Proxy.AppSourceCreated -= this.OnSourceCreated;
+            ObsStudioPlugin.Proxy.AppSourceDestroyed -= this.OnSourceDestroyed;
 
             return true;
         }
 
         protected override void RunCommand(String actionParameter)
         {
-            if (SceneKey.TryParse(actionParameter, out var key) && key.Collection.Equals(this.Proxy.CurrentSceneCollection))
+            if (SceneKey.TryParse(actionParameter, out var key) && key.Collection.Equals(ObsStudioPlugin.Proxy.CurrentSceneCollection))
             {
-                this.Proxy.AppToggleMute(key.Source);
+                ObsStudioPlugin.Proxy.AppToggleMute(key.Source);
             }
         }
 
@@ -83,7 +81,7 @@
 
         private void OnSourceDestroyed(Object sender, SourceNameEventArgs args)
         {
-            var key = SceneKey.Encode(this.Proxy.CurrentSceneCollection, args.SourceName);
+            var key = SceneKey.Encode(ObsStudioPlugin.Proxy.CurrentSceneCollection, args.SourceName);
 
             if (this.TryGetParameter(key, out _))
             {
@@ -103,7 +101,7 @@
 
         protected void OnSourceMuteStateChanged(Object sender, MuteEventArgs args)
         {
-            var actionParameter = SceneKey.Encode(this.Proxy.CurrentSceneCollection, args.SourceName);
+            var actionParameter = SceneKey.Encode(ObsStudioPlugin.Proxy.CurrentSceneCollection, args.SourceName);
 
             // FIXME: Check if this 'has parameter' check is needed.
             if (this.TryGetParameter(actionParameter, out _))
@@ -121,7 +119,7 @@
             {
                 sourceName = parsed.Source;
 
-                imageName = parsed.Collection != this.Proxy.CurrentSceneCollection
+                imageName = parsed.Collection != ObsStudioPlugin.Proxy.CurrentSceneCollection
                     ? IMGSourceInaccessible
                     : stateIndex == State_Muted ? IMGSourceMuted : IMGSourceUnmuted;
             }
@@ -131,11 +129,11 @@
 
         internal void AddSource(String sourceName, Boolean isSpecialSource = false)
         {
-            var key = SceneKey.Encode(this.Proxy.CurrentSceneCollection, sourceName);
+            var key = SceneKey.Encode(ObsStudioPlugin.Proxy.CurrentSceneCollection, sourceName);
 
             var displayName = sourceName + (isSpecialSource ? "(G)" : "") + " mute";
             this.AddParameter(key, displayName, this.GroupName);
-            _ = this.SetCurrentState(key, this.Proxy.AppGetMute(sourceName) ? State_Muted : State_Unmuted);
+            _ = this.SetCurrentState(key, ObsStudioPlugin.Proxy.AppGetMute(sourceName) ? State_Muted : State_Unmuted);
         }
 
         internal void ResetParameters(Boolean readContent)
@@ -144,9 +142,9 @@
 
             if (readContent)
             {
-                ObsStudioPlugin.Trace($"Adding {this.Proxy.CurrentAudioSources.Count} sources");
+                ObsStudioPlugin.Trace($"Adding {ObsStudioPlugin.Proxy.CurrentAudioSources.Count} sources");
 
-                foreach (var item in this.Proxy.CurrentAudioSources)
+                foreach (var item in ObsStudioPlugin.Proxy.CurrentAudioSources)
                 {
                     this.AddSource(item.Key, item.Value.SpecialSource);
                 }

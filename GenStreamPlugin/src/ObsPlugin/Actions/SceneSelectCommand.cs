@@ -2,18 +2,15 @@
 {
     using System;
 
-    public class SceneSelectCommand : PluginMultistateDynamicCommand
+    internal class SceneSelectCommand : PluginMultistateDynamicCommand
     {
-        private ObsAppProxy Proxy => (this.Plugin as ObsStudioPlugin).Proxy;
-
         public const String IMGSceneSelected = "SceneOn.png";
         public const String IMGSceneUnselected = "SceneOff.png";
-        public const String IMGSceneInaccessible = "SceneOff.png";
+        public const String IMGSceneInaccessible = "SceneInaccessible.png";
         public const String SceneNameUnknown = "Offline";
 
         public SceneSelectCommand()
         {
-            this.Name = "SceneSelect";
             this.Description = "Switches to a specific scene in OBS Studio";
             this.GroupName = "1. Scenes";
             _ = this.AddState("Unselected", "Scene unselected");
@@ -24,11 +21,11 @@
         {
             this.IsEnabled = false;
 
-            this.Proxy.AppConnected += this.OnAppConnected;
-            this.Proxy.AppDisconnected += this.OnAppDisconnected;
+            ObsStudioPlugin.Proxy.AppConnected += this.OnAppConnected;
+            ObsStudioPlugin.Proxy.AppDisconnected += this.OnAppDisconnected;
 
-            this.Proxy.AppEvtSceneListChanged += this.OnSceneListChanged;
-            this.Proxy.AppEvtCurrentSceneChanged += this.OnCurrentSceneChanged;
+            ObsStudioPlugin.Proxy.AppEvtSceneListChanged += this.OnSceneListChanged;
+            ObsStudioPlugin.Proxy.AppEvtCurrentSceneChanged += this.OnCurrentSceneChanged;
 
             this.OnAppDisconnected(this, null);
 
@@ -37,11 +34,11 @@
 
         protected override Boolean OnUnload()
         {
-            this.Proxy.AppConnected -= this.OnAppConnected;
-            this.Proxy.AppDisconnected -= this.OnAppDisconnected;
+            ObsStudioPlugin.Proxy.AppConnected -= this.OnAppConnected;
+            ObsStudioPlugin.Proxy.AppDisconnected -= this.OnAppDisconnected;
 
-            this.Proxy.AppEvtSceneListChanged -= this.OnSceneListChanged;
-            this.Proxy.AppEvtCurrentSceneChanged -= this.OnCurrentSceneChanged;
+            ObsStudioPlugin.Proxy.AppEvtSceneListChanged -= this.OnSceneListChanged;
+            ObsStudioPlugin.Proxy.AppEvtCurrentSceneChanged -= this.OnCurrentSceneChanged;
 
             return true;
         }
@@ -50,7 +47,7 @@
         {
             if (SceneKey.TryParse(actionParameter, out var key))
             {
-                this.Proxy.AppSwitchToScene(key.Scene);
+                ObsStudioPlugin.Proxy.AppSwitchToScene(key.Scene);
             }
         }
 
@@ -60,12 +57,12 @@
 
             if (readContent)
             {
-                ObsStudioPlugin.Trace($"Adding {this.Proxy.Scenes?.Count} scene items");
-                foreach (var scene in this.Proxy.Scenes)
+                ObsStudioPlugin.Trace($"Adding {ObsStudioPlugin.Proxy.Scenes?.Count} scene items");
+                foreach (var scene in ObsStudioPlugin.Proxy.Scenes)
                 {
-                    var key = SceneKey.Encode(this.Proxy.CurrentSceneCollection, scene.Name);
+                    var key = SceneKey.Encode(ObsStudioPlugin.Proxy.CurrentSceneCollection, scene.Name);
                     this.AddParameter(key, scene.Name, this.GroupName);
-                    _ = this.SetCurrentState(key, scene.Name.Equals(this.Proxy.CurrentScene?.Name) ? 1 : 0);
+                    _ = this.SetCurrentState(key, scene.Name.Equals(ObsStudioPlugin.Proxy.CurrentScene?.Name) ? 1 : 0);
                 }
             }
 
@@ -77,8 +74,8 @@
 
         private void OnCurrentSceneChanged(Object sender, OldNewStringChangeEventArgs arg)
         {
-            var oldPar = SceneKey.Encode(this.Proxy.CurrentSceneCollection, arg.Old);
-            var newPar = SceneKey.Encode(this.Proxy.CurrentSceneCollection, arg.New);
+            var oldPar = SceneKey.Encode(ObsStudioPlugin.Proxy.CurrentSceneCollection, arg.Old);
+            var newPar = SceneKey.Encode(ObsStudioPlugin.Proxy.CurrentSceneCollection, arg.New);
 
             //unselecting old and selecting new
             this.SetCurrentState(oldPar, 0);
@@ -108,9 +105,9 @@
             {
                 sceneName = parsed.Scene;
 
-                if( this.Proxy.TryGetSceneByName(parsed.Scene, out var _) )
+                if( ObsStudioPlugin.Proxy.TryGetSceneByName(parsed.Scene, out var _) )
                 {
-                    imageName = sceneName.Equals(this.Proxy.CurrentScene?.Name) ? IMGSceneSelected : IMGSceneUnselected;
+                    imageName = sceneName.Equals(ObsStudioPlugin.Proxy.CurrentScene?.Name) ? IMGSceneSelected : IMGSceneUnselected;
                 }
             }            
             return (this.Plugin as ObsStudioPlugin).GetPluginCommandImage(imageSize, imageName, sceneName, imageName == IMGSceneSelected);

@@ -1,15 +1,13 @@
 ﻿namespace Loupedeck.ObsStudioPlugin.DynamicActions
 {
     using System;
-    using System.Collections.Generic;
 
-    public class AudioProfileActionsTreeAdj : PluginDynamicAdjustment
+    internal class AudioProfileActionsTreeAdj : PluginDynamicAdjustment
     {
-        private ObsAppProxy Proxy => (this.Plugin as ObsStudioPlugin).Proxy;
+        
         public AudioProfileActionsTreeAdj()
             : base(true, DeviceType.None)
         {
-            this.Name = "LegacySpecialSources";
             this.DisplayName = "";
             this.Description = "";
             this.GroupName = "";
@@ -20,9 +18,9 @@
         {
             var val = "0";
 
-            if(this.Proxy.TryConvertLegacyActionParamToKey(actionParameter, out var key) && this.Proxy.CurrentAudioSources.ContainsKey(key.Source))
+            if(ObsStudioPlugin.Proxy.TryConvertLegacyActionParamToKey(actionParameter, out var key) && ObsStudioPlugin.Proxy.CurrentAudioSources.ContainsKey(key.Source))
             {
-                var volume = (Int32)(this.Proxy.CurrentAudioSources[key.Source].Volume * 100);
+                var volume = (Int32)(ObsStudioPlugin.Proxy.CurrentAudioSources[key.Source].Volume * 100);
                 val = $"{volume}%";
             }
             // $ObsStudio___Loupedeck.ObsStudioPlugin.DynamicActions.AudioProfileActionsTreeAdj___0|Browser|Studio
@@ -36,18 +34,18 @@
 
         protected override void ApplyAdjustment(String actionParameter, Int32 diff)
         {
-            if (this.Proxy.TryConvertLegacyActionParamToKey(actionParameter, out var key) && this.Proxy.CurrentAudioSources.ContainsKey(key.Source))
+            if (ObsStudioPlugin.Proxy.TryConvertLegacyActionParamToKey(actionParameter, out var key) && ObsStudioPlugin.Proxy.CurrentAudioSources.ContainsKey(key.Source))
             {
-                this.Proxy.AppSetVolume(key.Source, diff);
+                ObsStudioPlugin.Proxy.AppSetVolume(key.Source, diff);
                 this.AdjustmentValueChanged();
             }
         }
 
         protected override void RunCommand(String actionParameter)
         {
-            if (this.Proxy.TryConvertLegacyActionParamToKey(actionParameter, out var key) && this.Proxy.CurrentAudioSources.ContainsKey(key.Source))
+            if (ObsStudioPlugin.Proxy.TryConvertLegacyActionParamToKey(actionParameter, out var key) && ObsStudioPlugin.Proxy.CurrentAudioSources.ContainsKey(key.Source))
             {
-                this.Proxy.AppToggleMute(key.Source);
+                ObsStudioPlugin.Proxy.AppToggleMute(key.Source);
             }
         }
 
@@ -55,9 +53,9 @@
         {
             var volume = "N/A";
 
-            if (this.Proxy.TryConvertLegacyActionParamToKey(actionParameter, out var key) && this.Proxy.CurrentAudioSources.ContainsKey(key.Source))
+            if (ObsStudioPlugin.Proxy.TryConvertLegacyActionParamToKey(actionParameter, out var key) && ObsStudioPlugin.Proxy.CurrentAudioSources.ContainsKey(key.Source))
             {
-                var number = this.Proxy.AppGetVolume(key.Source) * 100.0F;
+                var number = ObsStudioPlugin.Proxy.AppGetVolume(key.Source) * 100.0F;
                 volume = number.ToString("0.");
             }
 

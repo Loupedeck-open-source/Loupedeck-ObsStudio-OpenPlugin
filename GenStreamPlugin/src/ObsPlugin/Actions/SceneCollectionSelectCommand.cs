@@ -3,10 +3,8 @@
     using System;
     using System.Collections.Generic;
 
-    public class SceneCollectionSelectCommand : PluginMultistateDynamicCommand
+    internal class SceneCollectionSelectCommand : PluginMultistateDynamicCommand
     {
-        private ObsAppProxy Proxy => (this.Plugin as ObsStudioPlugin).Proxy;
-
         public const String IMGCollectionSelected = "SceneOn.png";
         public const String IMGCollectionUnselected = "SceneOff.png";
 
@@ -22,11 +20,11 @@
         protected override Boolean OnLoad()
         {
             this.IsEnabled = false;
-            this.Proxy.AppConnected += this.OnAppConnected;
-            this.Proxy.AppDisconnected += this.OnAppDisconnected;
+            ObsStudioPlugin.Proxy.AppConnected += this.OnAppConnected;
+            ObsStudioPlugin.Proxy.AppDisconnected += this.OnAppDisconnected;
 
-            this.Proxy.AppEvtSceneCollectionsChanged += this.OnSceneCollectionsChanged;
-            this.Proxy.AppEvtCurrentSceneCollectionChanged += this.OnCurrentSceneCollectionChanged;
+            ObsStudioPlugin.Proxy.AppEvtSceneCollectionsChanged += this.OnSceneCollectionsChanged;
+            ObsStudioPlugin.Proxy.AppEvtCurrentSceneCollectionChanged += this.OnCurrentSceneCollectionChanged;
 
             this.OnAppDisconnected(this, null);
 
@@ -35,11 +33,11 @@
 
         protected override Boolean OnUnload()
         {
-            this.Proxy.AppConnected -= this.OnAppConnected;
-            this.Proxy.AppDisconnected -= this.OnAppDisconnected;
+            ObsStudioPlugin.Proxy.AppConnected -= this.OnAppConnected;
+            ObsStudioPlugin.Proxy.AppDisconnected -= this.OnAppDisconnected;
 
-            this.Proxy.AppEvtSceneCollectionsChanged -= this.OnSceneCollectionsChanged;
-            this.Proxy.AppEvtCurrentSceneCollectionChanged -= this.OnCurrentSceneCollectionChanged;
+            ObsStudioPlugin.Proxy.AppEvtSceneCollectionsChanged -= this.OnSceneCollectionsChanged;
+            ObsStudioPlugin.Proxy.AppEvtCurrentSceneCollectionChanged -= this.OnCurrentSceneCollectionChanged;
 
             return true;
         }
@@ -48,7 +46,7 @@
         {
             if (actionParameter != null)
             {
-                this.Proxy.AppSwitchToSceneCollection(actionParameter);
+                ObsStudioPlugin.Proxy.AppSwitchToSceneCollection(actionParameter);
             }
         }
 
@@ -57,14 +55,14 @@
             this.RemoveAllParameters();
             if (readScenes)
             {
-                foreach (var coll in this.Proxy.SceneCollections)
+                foreach (var coll in ObsStudioPlugin.Proxy.SceneCollections)
                 {
                     this.AddParameter(coll, coll, this.GroupName);
                     _ = this.SetCurrentState(coll, 0);
                 }
-                if (!String.IsNullOrEmpty(this.Proxy.CurrentSceneCollection))
+                if (!String.IsNullOrEmpty(ObsStudioPlugin.Proxy.CurrentSceneCollection))
                 {
-                    _ = this.SetCurrentState(this.Proxy.CurrentSceneCollection, 1);
+                    _ = this.SetCurrentState(ObsStudioPlugin.Proxy.CurrentSceneCollection, 1);
                 }
             }
 

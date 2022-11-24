@@ -4,8 +4,6 @@
 
     public class ReplayBufferToggleCommand : GenericOnOffSwitch
     {
-        private ObsAppProxy Proxy => (this.Plugin as ObsStudioPlugin).Proxy;
-
         public ReplayBufferToggleCommand()
             : base(
                 name: "ReplayBufferToggle",
@@ -21,16 +19,16 @@
 
         protected override void ConnectAppEvents(EventHandler<EventArgs> eventSwitchedOff, EventHandler<EventArgs> eventSwitchedOn)
         {
-            this.Proxy.AppEvtReplayBufferOff += eventSwitchedOff;
-            this.Proxy.AppEvtReplayBufferOn += eventSwitchedOn;
+            ObsStudioPlugin.Proxy.AppEvtReplayBufferOff += eventSwitchedOff;
+            ObsStudioPlugin.Proxy.AppEvtReplayBufferOn += eventSwitchedOn;
         }
 
         protected override void DisconnectAppEvents(EventHandler<EventArgs> eventSwitchedOff, EventHandler<EventArgs> eventSwitchedOn)
         {
-            this.Proxy.AppEvtReplayBufferOff -= eventSwitchedOff;
-            this.Proxy.AppEvtReplayBufferOn -= eventSwitchedOn;
+            ObsStudioPlugin.Proxy.AppEvtReplayBufferOff -= eventSwitchedOff;
+            ObsStudioPlugin.Proxy.AppEvtReplayBufferOn -= eventSwitchedOn;
         }
 
-        protected override void RunToggle() => this.Proxy.AppToggleReplayBuffer();
+        protected override void RunToggle() => ObsStudioPlugin.Proxy.AppToggleReplayBuffer();
     }
 }

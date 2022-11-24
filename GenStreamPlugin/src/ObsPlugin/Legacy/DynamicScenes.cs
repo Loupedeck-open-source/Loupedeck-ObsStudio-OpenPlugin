@@ -4,22 +4,21 @@
 
     using Loupedeck.ObsStudioPlugin.Actions;
 
-    public class DynamicScenes : PluginDynamicCommand
+    internal class DynamicScenes : PluginDynamicCommand
     {
-        private ObsAppProxy Proxy => (this.Plugin as ObsStudioPlugin).Proxy;
-
         //Note DeviceTypeNone -- so that actions is not visible in the UI' action tree.
         public DynamicScenes()
             : base(displayName: "LegacyScenesAction",
                    description: "",
                    groupName: "",
-                   DeviceType.None) => this.Name = "DynamicScenes";
+                   DeviceType.None)
+        { }
 
         protected override Boolean OnLoad()
         {
-            this.Proxy.AppEvtCurrentSceneChanged += this.OnCurrentSceneChanged;
-            this.Proxy.AppConnected += this.OnAppConnected;
-            this.Proxy.AppDisconnected += this.OnAppDisconnected;
+            ObsStudioPlugin.Proxy.AppEvtCurrentSceneChanged += this.OnCurrentSceneChanged;
+            ObsStudioPlugin.Proxy.AppConnected += this.OnAppConnected;
+            ObsStudioPlugin.Proxy.AppDisconnected += this.OnAppDisconnected;
             this.IsEnabled = false;
 
             return true;
@@ -27,9 +26,9 @@
 
         protected override Boolean OnUnload()
         {
-            this.Proxy.AppEvtCurrentSceneChanged -= this.OnCurrentSceneChanged;
-            this.Proxy.AppConnected -= this.OnAppConnected;
-            this.Proxy.AppDisconnected -= this.OnAppDisconnected;
+            ObsStudioPlugin.Proxy.AppEvtCurrentSceneChanged -= this.OnCurrentSceneChanged;
+            ObsStudioPlugin.Proxy.AppConnected -= this.OnAppConnected;
+            ObsStudioPlugin.Proxy.AppDisconnected -= this.OnAppDisconnected;
             return true;
         }
 
@@ -54,9 +53,9 @@
         {
             var imageName = SceneSelectCommand.IMGSceneInaccessible;
 
-            if (this.Proxy.TryGetSceneByName(actionParameter, out var _))
+            if (ObsStudioPlugin.Proxy.TryGetSceneByName(actionParameter, out var _))
             {
-                imageName = actionParameter.Equals(this.Proxy.CurrentScene?.Name) ? SceneSelectCommand.IMGSceneSelected : SceneSelectCommand.IMGSceneUnselected;
+                imageName = actionParameter.Equals(ObsStudioPlugin.Proxy.CurrentScene?.Name) ? SceneSelectCommand.IMGSceneSelected : SceneSelectCommand.IMGSceneUnselected;
             }
 
             return (this.Plugin as ObsStudioPlugin).GetPluginCommandImage(imageSize, imageName, actionParameter, imageName == SceneSelectCommand.IMGSceneSelected);
@@ -64,9 +63,9 @@
 
         protected override void RunCommand(String actionParameter)
         {
-            if (this.Proxy.TryGetSceneByName(actionParameter, out var _))
+            if (ObsStudioPlugin.Proxy.TryGetSceneByName(actionParameter, out var _))
             {
-                this.Proxy.AppSwitchToScene(actionParameter);
+                ObsStudioPlugin.Proxy.AppSwitchToScene(actionParameter);
                 this.ActionImageChanged();
             }
         }

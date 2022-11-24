@@ -4,7 +4,7 @@
 
     public abstract class GenericOnOffSwitch : PluginTwoStateDynamicCommand
     {
-        private ObsAppProxy Proxy => (this.Plugin as ObsStudioPlugin).Proxy;
+        
 
         public GenericOnOffSwitch(
             String name,
@@ -12,7 +12,7 @@
             String offStateName, String onStateName,
             String offStateImage, String onStateImage):base(displayName,description,groupName)
         {
-            this.Name = name;
+            //this.Name = name;
 
             this.AddToggleCommand(
                 displayName,
@@ -25,8 +25,8 @@
 
         protected override Boolean OnLoad()
         {
-            this.Proxy.AppConnected += this.OnAppConnected;
-            this.Proxy.AppDisconnected += this.OnAppDisconnected;
+            ObsStudioPlugin.Proxy.AppConnected += this.OnAppConnected;
+            ObsStudioPlugin.Proxy.AppDisconnected += this.OnAppDisconnected;
 
             this.IsEnabled = false;
             this.ConnectAppEvents(this.AppEvtTurnedOn, this.AppEvtTurnedOff);
@@ -36,8 +36,8 @@
 
         protected override Boolean OnUnload()
         {
-            this.Proxy.AppConnected -= this.OnAppConnected;
-            this.Proxy.AppDisconnected -= this.OnAppDisconnected;
+            ObsStudioPlugin.Proxy.AppConnected -= this.OnAppConnected;
+            ObsStudioPlugin.Proxy.AppDisconnected -= this.OnAppDisconnected;
 
             this.DisconnectAppEvents(this.AppEvtTurnedOn, this.AppEvtTurnedOff);
 

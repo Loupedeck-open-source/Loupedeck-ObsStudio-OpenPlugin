@@ -4,12 +4,9 @@
 
     using Loupedeck.ObsStudioPlugin.Actions;
 
-    public class MuteAudioProfileActions: PluginDynamicCommand
+    internal class MuteAudioProfileActions: PluginDynamicCommand
     {
         private const String IMGAction = "STREAM_Transition.png";
-
-        private ObsAppProxy Proxy => (this.Plugin as ObsStudioPlugin).Proxy;
-
 
         //Note DeviceTypeNone -- so that actions is not visible in the UI' action tree.
         public MuteAudioProfileActions()
@@ -22,9 +19,9 @@
 
         protected override Boolean OnLoad()
         {
-            this.Proxy.AppConnected += this.OnAppConnected;
-            this.Proxy.AppDisconnected += this.OnAppDisconnected;
-            this.Proxy.AppEvtSourceMuteStateChanged += this.OnSourceMuteStateChanged;
+            ObsStudioPlugin.Proxy.AppConnected += this.OnAppConnected;
+            ObsStudioPlugin.Proxy.AppDisconnected += this.OnAppDisconnected;
+            ObsStudioPlugin.Proxy.AppEvtSourceMuteStateChanged += this.OnSourceMuteStateChanged;
             this.IsEnabled = false;
 
             return true;
@@ -32,9 +29,9 @@
 
         protected override Boolean OnUnload()
         {
-            this.Proxy.AppConnected -= this.OnAppConnected;
-            this.Proxy.AppDisconnected -= this.OnAppDisconnected;
-            this.Proxy.AppEvtSourceMuteStateChanged -= this.OnSourceMuteStateChanged;
+            ObsStudioPlugin.Proxy.AppConnected -= this.OnAppConnected;
+            ObsStudioPlugin.Proxy.AppDisconnected -= this.OnAppDisconnected;
+            ObsStudioPlugin.Proxy.AppEvtSourceMuteStateChanged -= this.OnSourceMuteStateChanged;
             return true;
         }
         protected void OnSourceMuteStateChanged(Object sender, MuteEventArgs args)
@@ -51,15 +48,15 @@
             var imageName = SourceMuteCommand.IMGSourceInaccessible;
             var sourceName = "Unknown";
 
-            if (this.Proxy.TryConvertLegacyActionParamToKey(actionParameter, out var key_struct))
+            if (ObsStudioPlugin.Proxy.TryConvertLegacyActionParamToKey(actionParameter, out var key_struct))
             {
                 sourceName = key_struct.Source;
 
                 var key = key_struct.Stringize();
-                if (this.Proxy.CurrentAudioSources.ContainsKey(sourceName))
+                if (ObsStudioPlugin.Proxy.CurrentAudioSources.ContainsKey(sourceName))
                 {
                     // FIXME: Find how to cache 'muted' state
-                    imageName = this.Proxy.CurrentAudioSources[sourceName].Muted ?
+                    imageName = ObsStudioPlugin.Proxy.CurrentAudioSources[sourceName].Muted ?
                                      SourceMuteCommand.IMGSourceMuted
                                      : SourceMuteCommand.IMGSourceUnmuted;
                 }
@@ -72,9 +69,9 @@
 
         protected override void RunCommand(String actionParameter)
         {
-            if (this.Proxy.TryConvertLegacyActionParamToKey(actionParameter, out var key_struct) && this.Proxy.CurrentAudioSources.ContainsKey(key_struct.Source))
+            if (ObsStudioPlugin.Proxy.TryConvertLegacyActionParamToKey(actionParameter, out var key_struct) && ObsStudioPlugin.Proxy.CurrentAudioSources.ContainsKey(key_struct.Source))
             {
-                this.Proxy.AppToggleMute(key_struct.Source);
+                ObsStudioPlugin.Proxy.AppToggleMute(key_struct.Source);
             }
         }
     }

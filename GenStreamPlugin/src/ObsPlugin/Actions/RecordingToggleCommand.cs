@@ -4,8 +4,6 @@
 
     public class RecordingToggleCommand : GenericOnOffSwitch
     {
-        private ObsAppProxy Proxy => (this.Plugin as ObsStudioPlugin).Proxy;
-
         public RecordingToggleCommand()
                         : base(
                             name: "ToggleRecording",
@@ -21,16 +19,16 @@
 
         protected override void ConnectAppEvents(EventHandler<EventArgs> eventSwitchedOff, EventHandler<EventArgs> eventSwitchedOn)
         {
-            this.Proxy.AppEvtRecordingOff += eventSwitchedOn;
-            this.Proxy.AppEvtRecordingOn += eventSwitchedOff;
+            ObsStudioPlugin.Proxy.AppEvtRecordingOff += eventSwitchedOn;
+            ObsStudioPlugin.Proxy.AppEvtRecordingOn += eventSwitchedOff;
         }
 
         protected override void DisconnectAppEvents(EventHandler<EventArgs> eventSwitchedOff, EventHandler<EventArgs> eventSwitchedOn)
         {
-            this.Proxy.AppEvtRecordingOff -= eventSwitchedOn;
-            this.Proxy.AppEvtRecordingOn -= eventSwitchedOff;
+            ObsStudioPlugin.Proxy.AppEvtRecordingOff -= eventSwitchedOn;
+            ObsStudioPlugin.Proxy.AppEvtRecordingOn -= eventSwitchedOff;
         }
 
-        protected override void RunToggle() => this.Proxy.AppToggleRecording();
+        protected override void RunToggle() => ObsStudioPlugin.Proxy.AppToggleRecording();
     }
 }
