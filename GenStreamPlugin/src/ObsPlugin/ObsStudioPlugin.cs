@@ -27,7 +27,7 @@ namespace Loupedeck.ObsStudioPlugin
 
             this.Proxy = new ObsAppProxy();
             this._connector = new ObsConnector(this.Proxy, this.GetPluginDataDirectory(),
-                                () => this.OnPluginStatusChanged(Loupedeck.PluginStatus.Warning, this.Localization.GetString("Connecting to OBS"), "https://support.loupedeck.com/obs-guide", ""));
+                                (Object sender, EventArgs e) => this.OnPluginStatusChanged(Loupedeck.PluginStatus.Warning, this.Localization.GetString("Connecting to OBS"), "https://support.loupedeck.com/obs-guide", ""));
         }
 
         // Load is called once as plugin is being initialized during service start.
@@ -125,7 +125,7 @@ namespace Loupedeck.ObsStudioPlugin
             return bitmapBuilder;
         }
 
-#if IMG_CACHE_ENABLED
+#if true
         internal String MakeCacheKey(PluginImageSize imageSize, String imageName, String text, Boolean selected) => String.IsNullOrEmpty(text) ? $"S-{imageSize}-N{imageName}-T-NONE-S{selected}" : $"S-{imageSize}-N{imageName}-T{text}- S{selected}";
         private readonly Dictionary<String, Byte[]> _localImageCache = new Dictionary<String, Byte[]>();
 #endif
@@ -143,7 +143,7 @@ namespace Loupedeck.ObsStudioPlugin
         public BitmapImage GetPluginCommandImage(PluginImageSize imageSize, String imagePath, String text = null, Boolean textSelected = false)
         {
             var imageName = ImageResPrefix + imagePath;
-#if IMG_CACHE_ENABLED
+#if true
             var key = this.MakeCacheKey(imageSize, imageName, text, textSelected);
             if (!this._localImageCache.ContainsKey(key))
             {
