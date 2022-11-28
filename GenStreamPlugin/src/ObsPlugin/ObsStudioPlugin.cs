@@ -129,10 +129,6 @@ namespace Loupedeck.ObsStudioPlugin
             return bitmapBuilder;
         }
 
-#if true
-        internal String MakeCacheKey(PluginImageSize imageSize, String imageName, String text, Boolean selected) => String.IsNullOrEmpty(text) ? $"S-{imageSize}-N{imageName}-T-NONE-S{selected}" : $"S-{imageSize}-N{imageName}-T{text}- S{selected}";
-        private readonly Dictionary<String, Byte[]> _localImageCache = new Dictionary<String, Byte[]>();
-#endif
         // Loupedeck.ObsPlugin.icons.
         public const String ImageResPrefix = "Loupedeck.ObsStudioPlugin.Icons.";
 
@@ -144,20 +140,8 @@ namespace Loupedeck.ObsStudioPlugin
         /// <param name="text">text to render</param>
         /// <param name="textSelected">If true, darker color of text is chosen</param>
         /// <returns>bitmap with text rendered</returns>
-        public BitmapImage GetPluginCommandImage(PluginImageSize imageSize, String imagePath, String text = null, Boolean textSelected = false)
-        {
-            var imageName = ImageResPrefix + imagePath;
-            var key = this.MakeCacheKey(imageSize, imageName, text, textSelected);
-            if (!this._localImageCache.ContainsKey(key))
-            {
-                var builder = this.BuildImage(imageSize, imageName, text, textSelected);
-
-                // FIXME: Control cache size and prune it as needed
-                this._localImageCache.Add(key, builder.ToArray()); 
-            }
-
-            return this._localImageCache[key].ToImage();
-        }
+        public BitmapImage GetPluginCommandImage(PluginImageSize imageSize, String imagePath, String text = null, Boolean textSelected = false) => 
+            this.BuildImage(imageSize, ImageResPrefix + imagePath, text, textSelected).ToImage();
 
         public static void Trace(String line) => Tracer.Trace("GSP:" + line); /*System.Diagnostics.Debug.WriteLine(*/
 
