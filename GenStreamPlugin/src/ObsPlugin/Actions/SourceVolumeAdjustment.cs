@@ -166,7 +166,8 @@
         {
             var key = SceneKey.Encode(ObsStudioPlugin.Proxy.CurrentSceneCollection, sourceName);
             var displayName = sourceName + (isSpecialSource ? "(G)" : "");
-            this.AddParameter(key, displayName, this.GroupName);
+            var p=this.AddParameter(key, displayName, this.GroupName);
+            p.Description = $"Control volume of audio source \"{sourceName}\"";
 
             // Moving to same group this.AddParameter(key, $"{sourceName}", isSpecialSource ? SpecialSourceGroupName : this.GroupName);
             this._muteStates[key] = ObsStudioPlugin.Proxy.AppGetMute(sourceName);

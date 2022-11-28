@@ -132,7 +132,9 @@
             var key = SceneKey.Encode(ObsStudioPlugin.Proxy.CurrentSceneCollection, sourceName);
 
             var displayName = sourceName + (isSpecialSource ? "(G)" : "") + " mute";
-            this.AddParameter(key, displayName, this.GroupName);
+            var p=this.AddParameter(key, displayName, this.GroupName);
+            p.Description = (ObsStudioPlugin.Proxy.AppGetMute(sourceName) ? "Mute" : "Unmute") + $" audio source \"{sourceName}\"";
+
             _ = this.SetCurrentState(key, ObsStudioPlugin.Proxy.AppGetMute(sourceName) ? State_Muted : State_Unmuted);
         }
 

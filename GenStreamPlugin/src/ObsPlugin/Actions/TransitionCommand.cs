@@ -7,11 +7,9 @@
         private const String IMGAction = "STREAM_Transition.png";
 
         public TransitionCommand()
-            : base(displayName: "Studio Mode Transition", 
+            : base(displayName: "Studio Mode Transition",
                    description: "Changes your preview in Studio Mode to the active program scene",
-                   groupName: "")
-        {
-        }
+                   groupName: "") => this.Name = "Transition";
 
         protected override Boolean OnLoad()
         {

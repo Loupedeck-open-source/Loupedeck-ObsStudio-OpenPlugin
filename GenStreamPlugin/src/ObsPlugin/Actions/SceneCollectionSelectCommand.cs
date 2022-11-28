@@ -57,7 +57,9 @@
             {
                 foreach (var coll in ObsStudioPlugin.Proxy.SceneCollections)
                 {
-                    this.AddParameter(coll, coll, this.GroupName);
+                    var p = this.AddParameter(coll, coll, this.GroupName);
+                    p.Description = p.Description = $"Switch to scene collection \"{coll}\"";
+
                     _ = this.SetCurrentState(coll, 0);
                 }
                 if (!String.IsNullOrEmpty(ObsStudioPlugin.Proxy.CurrentSceneCollection))

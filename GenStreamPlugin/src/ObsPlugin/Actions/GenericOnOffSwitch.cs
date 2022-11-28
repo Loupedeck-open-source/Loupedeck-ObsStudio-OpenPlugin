@@ -12,12 +12,14 @@
             String offStateName, String onStateName,
             String offStateImage, String onStateImage):base(displayName,description,groupName)
         {
-            //this.Name = name;
+            this.Name = name;
 
-            this.AddToggleCommand(
+            var p = this.AddToggleCommand(
                 displayName,
                 EmbeddedResources.ReadImage(ObsStudioPlugin.ImageResPrefix + onStateImage),
                 EmbeddedResources.ReadImage(ObsStudioPlugin.ImageResPrefix + offStateImage));
+            p.Description = description;
+            
 
             this.SetOffStateDisplayName(offStateName);
             this.SetOnStateDisplayName(onStateName);
