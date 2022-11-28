@@ -6,7 +6,7 @@
 type: plugin4
 
 # Name of the plugin.
-name: OBSStudioPlugin
+name: ObsStudio
 
 # Name that is displayed in the Loupedeck configuration application.
 displayName: OBS Studio Plugin
@@ -15,7 +15,7 @@ displayName: OBS Studio Plugin
 pluginFileName: ObsStudioPlugin.dll 
 
 # Plugin version.
-version: 5.4.1
+version: 5.4.0.90001
 
 # Author of the plugin. The author can be a company or an individual developer.
 author: Andrei Laperie, Loupedeck
