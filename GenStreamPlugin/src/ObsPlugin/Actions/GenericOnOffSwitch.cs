@@ -4,8 +4,6 @@
 
     public abstract class GenericOnOffSwitch : PluginTwoStateDynamicCommand
     {
-        
-
         public GenericOnOffSwitch(
             String name,
             String displayName, String description, String groupName,
@@ -114,7 +112,6 @@
                     break;
             }
         }
-
 
         protected override void RunCommand(String actionParameter)
         {
