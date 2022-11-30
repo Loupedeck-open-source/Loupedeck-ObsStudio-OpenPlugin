@@ -57,14 +57,12 @@
             {
                 foreach (var coll in ObsStudioPlugin.Proxy.SceneCollections)
                 {
-                    var p = this.AddParameter(coll, coll, this.GroupName);
-                    p.Description = p.Description = $"Switch to scene collection \"{coll}\"";
-
-                    _ = this.SetCurrentState(coll, 0);
+                    this.AddParameter(coll, coll, this.GroupName).Description = $"Switch to scene collection \"{coll}\"";
+                    this.SetCurrentState(coll, 0);
                 }
                 if (!String.IsNullOrEmpty(ObsStudioPlugin.Proxy.CurrentSceneCollection))
                 {
-                    _ = this.SetCurrentState(ObsStudioPlugin.Proxy.CurrentSceneCollection, 1);
+                    this.SetCurrentState(ObsStudioPlugin.Proxy.CurrentSceneCollection, 1);
                 }
             }
 

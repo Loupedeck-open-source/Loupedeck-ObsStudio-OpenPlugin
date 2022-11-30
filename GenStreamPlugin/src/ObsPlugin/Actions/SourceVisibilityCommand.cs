@@ -105,10 +105,9 @@
         internal void AddSceneItemParameter(String sceneName, String itemName)
         {
             var key = SceneItemKey.Encode(ObsStudioPlugin.Proxy.CurrentSceneCollection, sceneName, itemName);
-            var p=this.AddParameter(key, $"{itemName}", $"{this.GroupName}{CommonStrings.SubgroupSeparator}{sceneName}");
-            p.Description = ObsStudioPlugin.Proxy.AllSceneItems[key].Visible ? "Hide" : "Show" + $" source \"{itemName}\" of scene \"{sceneName}\"";
-
-            _ = this.SetCurrentState(key, ObsStudioPlugin.Proxy.AllSceneItems[key].Visible ? 1 : 0);
+            this.AddParameter(key, $"{itemName}", $"{this.GroupName}{CommonStrings.SubgroupSeparator}{sceneName}").Description = 
+                        ObsStudioPlugin.Proxy.AllSceneItems[key].Visible ? "Hide" : "Show" + $" source \"{itemName}\" of scene \"{sceneName}\"";
+            this.SetCurrentState(key, ObsStudioPlugin.Proxy.AllSceneItems[key].Visible ? 1 : 0);
         }
 
         internal void ResetParameters(Boolean readContent)
