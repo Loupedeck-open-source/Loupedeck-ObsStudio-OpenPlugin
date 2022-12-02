@@ -2,7 +2,14 @@
 {
     using System;
 
-    public class MuteEventArgs : EventArgs
+    internal class IntParamArgs : EventArgs
+    {
+        public IntParamArgs(Int32 v) => this.State = v;
+
+        public Int32 State { get; set; }
+    }
+
+    internal class MuteEventArgs : EventArgs
     {
         public String SourceName;
         public Boolean isMuted;
@@ -13,7 +20,7 @@
         }
     }
 
-    public class VolumeEventArgs : EventArgs
+    internal class VolumeEventArgs : EventArgs
     {
         public String SourceName;
         public Single Volume;
@@ -27,7 +34,7 @@
     }
 
     //Commonly used old-new arg class for 'onchange' events 
-    public class OldNewStringChangeEventArgs : EventArgs
+    internal class OldNewStringChangeEventArgs : EventArgs
     {
         public String Old;
         public String New;
@@ -38,7 +45,7 @@
         }
     }
 
-    public class SourceNameEventArgs: EventArgs
+    internal class SourceNameEventArgs: EventArgs
     {
         public String SourceName;
         public SourceNameEventArgs(String name) { this.SourceName = name; }
