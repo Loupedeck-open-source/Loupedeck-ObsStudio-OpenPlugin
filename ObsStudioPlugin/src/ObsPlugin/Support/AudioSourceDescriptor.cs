@@ -3,7 +3,7 @@
     using System;
     using OBSWebsocketDotNet;
 
-    public class AudioSourceDescriptor
+    internal class AudioSourceDescriptor
     {
         public Boolean SpecialSource;
         public Boolean Muted;

@@ -4,7 +4,7 @@
 
     using OBSWebsocketDotNet.Types;
 
-    public class SceneItemDescriptor
+    internal class SceneItemDescriptor
     {
         public String CollectionName;
 

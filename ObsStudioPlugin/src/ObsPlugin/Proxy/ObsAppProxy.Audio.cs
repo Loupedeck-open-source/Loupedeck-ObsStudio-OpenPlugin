@@ -9,7 +9,7 @@
     /// Proxy to OBS websocket server, for API reference see
     /// https://github.com/obsproject/obs-websocket/blob/4.x-compat/docs/generated/protocol.md
     /// </summary>
-    public partial class ObsAppProxy
+    internal partial class ObsAppProxy
     {
         public event EventHandler<MuteEventArgs> AppEvtSourceMuteStateChanged;
         public event EventHandler<VolumeEventArgs> AppEvtSourceVolumeChanged;
@@ -20,9 +20,8 @@
         private readonly Dictionary<String, String> _specialSources = new Dictionary<String, String>();
         private readonly List<String> _audioSourceTypes = new List<String>();
 
-        public Dictionary<String, AudioSourceDescriptor> CurrentAudioSources { get; private set; }  = new Dictionary<String, AudioSourceDescriptor>();
+        internal Dictionary<String, AudioSourceDescriptor> CurrentAudioSources { get; private set; }  = new Dictionary<String, AudioSourceDescriptor>();
 
-       
         private Boolean IsAudioSourceType(OBSWebsocketDotNet.Types.SourceSettings settings) => this._audioSourceTypes.Contains(settings.SourceKind ?? settings.SourceType);
 
         private void OnObsSourceAudioActivated(OBSWebsocket sender, String sourceName)
@@ -43,7 +42,7 @@
         /// <param name="sourceName">Name of the source</param>
         /// <param name="testAudio">Test if source has audio active</param>
         /// <returns>True if source is added</returns>
-        internal Boolean AddCurrentAudioSource(String sourceName, Boolean testSettings = true, Boolean testAudio = true)
+        private Boolean AddCurrentAudioSource(String sourceName, Boolean testSettings = true, Boolean testAudio = true)
         {
             if (!this.CurrentAudioSources.ContainsKey(sourceName) &&
                     Helpers.TryExecuteFunc(
@@ -111,14 +110,14 @@
         }
 
         // NOTE: We are NOT going to OBS for mute and volume, using cached value instead -- This is for LD UI
-        public Boolean AppGetMute(String sourceName) =>
+        internal Boolean AppGetMute(String sourceName) =>
             this.IsAppConnected & this.CurrentAudioSources.ContainsKey(sourceName) && this.CurrentAudioSources[sourceName].Muted;
 
-        public Single AppGetVolume(String sourceName) =>
+        internal Single AppGetVolume(String sourceName) =>
             this.IsAppConnected & this.CurrentAudioSources.ContainsKey(sourceName) ? this.CurrentAudioSources[sourceName].Volume : (Single)0.0;
 
         // Toggles mute on the source, returns current state of the mute.
-        public void AppToggleMute(String sourceName)
+        internal void AppToggleMute(String sourceName)
         {
             if (this.IsAppConnected && this.CurrentAudioSources.ContainsKey(sourceName))
             {
@@ -139,7 +138,7 @@
             }
         }
 
-        public void AppSetVolume(String sourceName, Int32 diff_ticks)
+        internal void AppSetVolume(String sourceName, Int32 diff_ticks)
         {
             if (this.IsAppConnected && this.CurrentAudioSources.ContainsKey(sourceName))
             {

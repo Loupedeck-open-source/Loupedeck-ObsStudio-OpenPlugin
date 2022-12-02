@@ -2,7 +2,7 @@
 {
     using System;
 
-    public class ReplayBufferSaveCommand : PluginDynamicCommand
+    internal class ReplayBufferSaveCommand : PluginDynamicCommand
     {
         private const String IMGAction = "STREAM_SaveReplay.png";
         

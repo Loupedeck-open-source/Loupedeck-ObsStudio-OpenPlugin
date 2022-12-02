@@ -8,9 +8,9 @@ namespace Loupedeck.ObsStudioPlugin
 
     // This class contains the plugin-level logic of the Loupedeck plugin.
 
-    public partial class ObsStudioPlugin : Plugin
+     partial class ObsStudioPlugin : Plugin
     {
-        public static ObsAppProxy Proxy { get; private set; } 
+        internal static ObsAppProxy Proxy { get; private set; } 
 
         // Gets a value indicating whether this is an Universal plugin or an Application plugin.
         public override Boolean UsesApplicationApiOnly => true;
@@ -98,7 +98,7 @@ namespace Loupedeck.ObsStudioPlugin
             }
         }
 
-        internal static readonly BitmapColor BitmapColorPink = new BitmapColor(255, 192, 203);
+        private static readonly BitmapColor BitmapColorPink = new BitmapColor(255, 192, 203);
 
         internal BitmapBuilder BuildImage(PluginImageSize imageSize, String imageName, String text, Boolean selected)
         {
@@ -130,7 +130,7 @@ namespace Loupedeck.ObsStudioPlugin
         }
 
         // Loupedeck.ObsPlugin.icons.
-        public const String ImageResPrefix = "Loupedeck.ObsStudioPlugin.Icons.";
+        internal const String ImageResPrefix = "Loupedeck.ObsStudioPlugin.Icons.";
 
         /// <summary>
         ///  Draws text over the bitmap. Bad location but in absence of the better components, put it here.
@@ -140,7 +140,7 @@ namespace Loupedeck.ObsStudioPlugin
         /// <param name="text">text to render</param>
         /// <param name="textSelected">If true, darker color of text is chosen</param>
         /// <returns>bitmap with text rendered</returns>
-        public BitmapImage GetPluginCommandImage(PluginImageSize imageSize, String imagePath, String text = null, Boolean textSelected = false) => 
+        internal BitmapImage GetPluginCommandImage(PluginImageSize imageSize, String imagePath, String text = null, Boolean textSelected = false) => 
             this.BuildImage(imageSize, ImageResPrefix + imagePath, text, textSelected).ToImage();
 
         public static void Trace(String line) => Tracer.Trace("GSP:" + line); /*System.Diagnostics.Debug.WriteLine(*/

@@ -2,7 +2,7 @@
 {
     using System;
 
-    public class RecordingToggleCommand : GenericOnOffSwitch
+    internal class RecordingToggleCommand : GenericOnOffSwitch
     {
         public RecordingToggleCommand()
                         : base(

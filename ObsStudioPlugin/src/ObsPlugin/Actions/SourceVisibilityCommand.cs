@@ -102,7 +102,7 @@
             return (this.Plugin as ObsStudioPlugin).GetPluginCommandImage(imageSize, imageName, sourceName, imageName == IMGSceneSelected);
         }
 
-        internal void AddSceneItemParameter(String sceneName, String itemName)
+        private void AddSceneItemParameter(String sceneName, String itemName)
         {
             var key = SceneItemKey.Encode(ObsStudioPlugin.Proxy.CurrentSceneCollection, sceneName, itemName);
             this.AddParameter(key, $"{itemName}", $"{this.GroupName}{CommonStrings.SubgroupSeparator}{sceneName}").Description = 
@@ -110,7 +110,7 @@
             this.SetCurrentState(key, ObsStudioPlugin.Proxy.AllSceneItems[key].Visible ? 1 : 0);
         }
 
-        internal void ResetParameters(Boolean readContent)
+        private void ResetParameters(Boolean readContent)
         {
             this.RemoveAllParameters();
 

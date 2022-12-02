@@ -127,7 +127,7 @@
             return (this.Plugin as ObsStudioPlugin).GetPluginCommandImage(imageSize, imageName, sourceName, imageName == IMGSourceUnmuted);
         }
 
-        internal void AddSource(String sourceName, Boolean isSpecialSource = false)
+        private void AddSource(String sourceName, Boolean isSpecialSource = false)
         {
             var key = SceneKey.Encode(ObsStudioPlugin.Proxy.CurrentSceneCollection, sourceName);
 
@@ -137,7 +137,7 @@
             this.SetCurrentState(key, ObsStudioPlugin.Proxy.AppGetMute(sourceName) ? State_Muted : State_Unmuted);
         }
 
-        internal void ResetParameters(Boolean readContent)
+        private void ResetParameters(Boolean readContent)
         {
             this.RemoveAllParameters();
 

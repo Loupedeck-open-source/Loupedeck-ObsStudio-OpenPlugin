@@ -2,7 +2,7 @@
 {
     using System;
 
-    public class ReplayBufferToggleCommand : GenericOnOffSwitch
+    internal class ReplayBufferToggleCommand : GenericOnOffSwitch
     {
         public ReplayBufferToggleCommand()
             : base(

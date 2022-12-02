@@ -28,7 +28,7 @@
     /// Proxy to OBS websocket server, for API reference see
     /// https://github.com/obsproject/obs-websocket/blob/4.x-compat/docs/generated/protocol.md
     /// </summary>
-    public partial class ObsAppProxy : OBSWebsocketDotNet.OBSWebsocket
+    internal partial class ObsAppProxy : OBSWebsocketDotNet.OBSWebsocket
     {
         // Our 'own' events
         public event EventHandler<EventArgs> AppConnected;

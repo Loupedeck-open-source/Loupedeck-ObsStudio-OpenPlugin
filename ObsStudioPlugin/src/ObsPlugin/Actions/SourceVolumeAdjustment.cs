@@ -94,7 +94,7 @@
 
             return volume;
         }
-        protected void OnSourceMuteStateChanged(Object sender, MuteEventArgs args)
+        private void OnSourceMuteStateChanged(Object sender, MuteEventArgs args)
         {
             var actionParameter = SceneKey.Encode(ObsStudioPlugin.Proxy.CurrentSceneCollection, args.SourceName);
 
@@ -120,7 +120,7 @@
             this.ActionImageChanged();
         }
 
-        protected void OnSourceVolumeChanged(Object sender, VolumeEventArgs args)
+        private void OnSourceVolumeChanged(Object sender, VolumeEventArgs args)
         {
             var actionParameter = SceneKey.Encode(ObsStudioPlugin.Proxy.CurrentSceneCollection, args.SourceName);
             this.AdjustmentValueChanged(actionParameter);
@@ -162,7 +162,7 @@
         // Instead of State for Multistate actions, we will hold the mute state here
         private readonly Dictionary<String, Boolean> _muteStates = new Dictionary<String, Boolean>();
 
-        internal void AddSource(String sourceName, Boolean isSpecialSource = false)
+        private void AddSource(String sourceName, Boolean isSpecialSource = false)
         {
             var key = SceneKey.Encode(ObsStudioPlugin.Proxy.CurrentSceneCollection, sourceName);
             var displayName = sourceName + (isSpecialSource ? "(G)" : "");
@@ -172,7 +172,7 @@
             this._muteStates[key] = ObsStudioPlugin.Proxy.AppGetMute(sourceName);
         }
 
-        internal void ResetParameters(Boolean readContent)
+        private void ResetParameters(Boolean readContent)
         {
             this.RemoveAllParameters();
             this._muteStates.Clear();

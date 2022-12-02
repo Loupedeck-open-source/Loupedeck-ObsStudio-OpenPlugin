@@ -2,7 +2,7 @@
 {
     using System;
 
-    public class RecordingPauseToggleCommand : GenericOnOffSwitch
+    internal class RecordingPauseToggleCommand : GenericOnOffSwitch
     {
         
         public RecordingPauseToggleCommand()
@@ -18,7 +18,7 @@
         {
         }
 
-        protected void OnAppRecordingStarted(Object sender, EventArgs e)
+        private void OnAppRecordingStarted(Object sender, EventArgs e)
         {
             // Note the command is only enabled if there is recording!
             this.TurnOff();
@@ -28,14 +28,14 @@
 
         private Boolean _isPaused = false;
 
-        protected void OnAppRecordingStopped(Object sender, EventArgs e)
+        private void OnAppRecordingStopped(Object sender, EventArgs e)
         {
             this.TurnOff();
             this.IsEnabled = false;
             this._isPaused = false;
         }
 
-        protected void OnAppRecordingResumed(Object sender, EventArgs e)
+        private void OnAppRecordingResumed(Object sender, EventArgs e)
         {
             // Note this can be called from OnLoad as well (eventSwitchedOn) in which case we check if we are InRecording
             this.IsEnabled = ObsStudioPlugin.Proxy.InRecording;
@@ -43,7 +43,7 @@
             this.TurnOff();
         }
 
-        protected void OnAppRecordingPaused(Object sender, EventArgs e)
+        private void OnAppRecordingPaused(Object sender, EventArgs e)
         {
             this._isPaused = true;
             this.TurnOn();
