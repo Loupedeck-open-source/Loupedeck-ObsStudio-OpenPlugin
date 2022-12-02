@@ -1,0 +1,4 @@
+[submodule "ObsStudioPlugin/src/obs-websocket-net"]
+	path = ObsStudioPlugin/src/obs-websocket-net
+	url = git@github.com:BarRaider/obs-websocket-dotnet.git
+	branch = v4.9.1
