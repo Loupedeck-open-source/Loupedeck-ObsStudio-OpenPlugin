@@ -9,7 +9,7 @@
     /// Proxy to OBS websocket server, for API reference see
     /// https://github.com/obsproject/obs-websocket/blob/4.x-compat/docs/generated/protocol.md
     /// </summary>
-    public partial class ObsAppProxy
+    internal partial class ObsAppProxy
     {
         public event EventHandler<EventArgs> AppEvtRecordingOn;
 
@@ -22,13 +22,6 @@
         public event EventHandler<IntParamArgs> AppEvtRecordingStateChange;
 
         public Boolean InRecording { get; private set; } = false;
-
-        public class IntParamArgs : EventArgs
-        {
-            public IntParamArgs(Int32 v) => this.State = v;
-
-            public Int32 State { get; set; }
-        }
 
         private void OnObsRecordPaused(Object sender, EventArgs e) => this.AppEvtRecordingPaused?.Invoke(sender, e);
 
