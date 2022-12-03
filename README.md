@@ -1,2 +1,15 @@
 # Loupedeck plugin for OBS Studio 
 Adds OBS Studio (28+) support to Loupedeck (5.4+)
+
+This is the repository for OBS open source plugin for [Loupedeck](https://loupedeck.com).
+
+## How to contribute:
+- Send pull requests. These will be reviewed by project maintainers when there's time available.
+- Send issues
+- Loupedeck will build plugin version updates and make them available in Loupedeck Marketplace
+
+## How to communicate:
+- Join [Loupedek Developer Discord](https://discord.gg/etJCPZytHg)
+- Documentation for [Loupedeck SDK](https://github.com/Loupedeck/PluginSdk/wiki)
+
+
