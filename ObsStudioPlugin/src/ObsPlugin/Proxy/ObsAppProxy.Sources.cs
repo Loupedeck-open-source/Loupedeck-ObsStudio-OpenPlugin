@@ -34,7 +34,7 @@
             }
             else
             {
-                ObsStudioPlugin.Trace($"WARNING: Cannot update visiblity: item {itemName} scene {sceneName} not in dictionary");
+                this.Plugin.Log.Warning($"Cannot update visiblity: item {itemName} scene {sceneName} not in dictionary");
             }
 
             this.AppEvtSceneItemVisibilityChanged?.Invoke(sender, sceneName, itemName, isVisible);
@@ -42,24 +42,24 @@
 
         private void OnObsSceneItemAdded(OBSWebsocket sender, String sceneName, String itemName)
         {
-            ObsStudioPlugin.Trace($"OBS: OnObsSceneItemAdded: Item '{itemName}' scene '{sceneName}'");
+            this.Plugin.Log.Info($"OBS: OnObsSceneItemAdded: Item '{itemName}' scene '{sceneName}'");
 
             if ( sceneName!= this.CurrentScene.Name ) 
             {
-                ObsStudioPlugin.Trace($"Warning: OnObsSceneItemAdded received non-current scene '{sceneName}'. Current is '{this.CurrentScene.Name}'. Ignoring");
+                this.Plugin.Log.Warning($"OnObsSceneItemAdded received non-current scene '{sceneName}'. Current is '{this.CurrentScene.Name}'. Ignoring");
                 return;
             }
 
             // Re-reading current scene, since this.CurrentScene does not contain the item
             if(!Helpers.TryExecuteFunc(() => this.GetCurrentScene(), out var obsCurrentScene))
             {
-                ObsStudioPlugin.Trace($"Warning:Cannot get current scene from OBS");
+                this.Plugin.Log.Warning($"Cannot get current scene from OBS");
                 return;
             }
 
             if( obsCurrentScene.Name != this.CurrentScene.Name )
             {
-                ObsStudioPlugin.Trace($"Warning: Current scene changed to '{obsCurrentScene}' mid-way.");
+                this.Plugin.Log.Warning($"Current scene changed to '{obsCurrentScene}' mid-way.");
                 return;
             }
 
@@ -69,7 +69,7 @@
             
             if (itemIndex == -1)
             {
-                ObsStudioPlugin.Trace($"Warning: Cannot find item '{itemName}' among current scene items.");
+                this.Plugin.Log.Warning($"Cannot find item '{itemName}' among current scene items.");
                 return;
             }
 
@@ -80,7 +80,7 @@
 
             if (sourceDictItem == null)
             {
-                ObsStudioPlugin.Trace($"Warning: Cannot get properties for item '{itemName}'.");
+                this.Plugin.Log.Warning($"Cannot get properties for item '{itemName}'.");
                 return;
             }
 
@@ -91,17 +91,17 @@
 
         private void OnObsSceneItemRemoved(OBSWebsocket sender, String sceneName, String itemName)
         {
-            ObsStudioPlugin.Trace($"OBS: Scene Item {itemName} removed from scene {sceneName}");
+            this.Plugin.Log.Info($"OBS: Scene Item {itemName} removed from scene {sceneName}");
 
             var key = SceneItemKey.Encode(this.CurrentSceneCollection, sceneName, itemName);
             if (this.AllSceneItems.ContainsKey(key))
             {
-                _ = this.AllSceneItems.Remove(key);
+                this.AllSceneItems.Remove(key);
                 this.AppEvtSceneItemRemoved?.Invoke(this, sceneName, itemName);
             }
             else
             {
-                ObsStudioPlugin.Trace($"Warning: Cannot find item {itemName} in scene {sceneName}");
+                this.Plugin.Log.Warning($"Cannot find item {itemName} in scene {sceneName}");
             }
         }
 
@@ -116,7 +116,7 @@
                 }
                 catch (Exception ex)
                 {
-                    ObsStudioPlugin.Trace($"Warning: Exception {ex.Message} when toggling visibility to {key}");
+                    this.Plugin.Log.Error($"Exception {ex.Message} when toggling visibility to {key}");
                 }
             }
         }

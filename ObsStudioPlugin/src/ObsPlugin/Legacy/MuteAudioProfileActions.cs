@@ -36,7 +36,7 @@
         }
         protected void OnSourceMuteStateChanged(Object sender, MuteEventArgs args)
         {
-            ObsStudioPlugin.Trace($"OnSourceMuteStateChanged: Mute signal for '{args.SourceName}' is '{args.isMuted}'");
+            this.Plugin.Log.Info($"OnSourceMuteStateChanged: Mute signal for '{args.SourceName}' is '{args.isMuted}'");
             this.ActionImageChanged();
         }
 
@@ -62,7 +62,7 @@
                 }
             }
 
-            ObsStudioPlugin.Trace($"MuteAudioProfileActions: Mute image for '{actionParameter}' is '{imageName}'");
+            this.Plugin.Log.Info($"MuteAudioProfileActions: Mute image for '{actionParameter}' is '{imageName}'");
 
             return (this.Plugin as ObsStudioPlugin).GetPluginCommandImage(imageSize, imageName, sourceName, imageName == SourceMuteCommand.IMGSourceUnmuted);
         }

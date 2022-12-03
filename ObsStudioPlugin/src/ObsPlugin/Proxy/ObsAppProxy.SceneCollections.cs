@@ -21,11 +21,11 @@
 
         private void OnObsSceneCollectionListChanged(Object sender, EventArgs args)
         {
-            ObsStudioPlugin.Trace("OBS SceneCollectionList changed");
+            this.Plugin.Log.Info("OBS SceneCollectionList changed");
 
             if (Helpers.TryExecuteSafe(() => this.SceneCollections = this.ListSceneCollections()))
             {
-                ObsStudioPlugin.Trace($"Retreived list of {this.SceneCollections.Count} collections");
+                this.Plugin.Log.Info($"Retreived list of {this.SceneCollections.Count} collections");
 
                 this.AppEvtSceneCollectionsChanged?.Invoke(sender, args);
             }
@@ -36,7 +36,7 @@
             if (Helpers.TryExecuteFunc(()=> this.GetCurrentSceneCollection(),out var newSceneCollection) && newSceneCollection != this.CurrentSceneCollection)
             {
                 var args = new OldNewStringChangeEventArgs(this.CurrentSceneCollection, newSceneCollection);
-                ObsStudioPlugin.Trace($"OBS Current Scene collection changing from {args.Old} to {args.New}");
+                this.Plugin.Log.Info($"OBS Current Scene collection changing from {args.Old} to {args.New}");
                 this.CurrentSceneCollection = newSceneCollection;
 
                 // Regenerating all internal structures
@@ -48,7 +48,7 @@
             }
             else
             {
-                ObsStudioPlugin.Trace($"OBS Warning: cannot handle Collection Changed");
+                this.Plugin.Log.Warning($"Cannot handle Collection Changed");
             }
         }
 
@@ -60,11 +60,11 @@
                 // BEFORE we get SceneCollectionChanged event
                 //  SINCE OUR INTERNAL DATA STRUCTURES ARE REGENERATED FROM THE LATTER, we temporarily set the 'suspend events' flag
 
-                ObsStudioPlugin.Trace($"Switching to Scene Collection {newCollection}");
+                this.Plugin.Log.Info($"Switching to Scene Collection {newCollection}");
 
                 this.UnsubscribeFromSceneCollectionEvents();
 
-                _ = Helpers.TryExecuteSafe(() => this.SetCurrentSceneCollection(newCollection));
+                Helpers.TryExecuteSafe(() => this.SetCurrentSceneCollection(newCollection));
             }
         }
 
@@ -73,14 +73,14 @@
         {
             this.AllSceneItems.Clear();
 
-            ObsStudioPlugin.Trace("Adding scene items");
+            this.Plugin.Log.Info("Adding scene items");
 
             // sources
             foreach (var scene in this.Scenes)
             {
                 if (!Helpers.TryExecuteFunc(() => this.GetSceneItemList(scene.Name), out var sceneDetailsList))
                 {
-                    ObsStudioPlugin.Trace($"Warning: Cannot get SceneList for scene {scene.Name}");
+                    this.Plugin.Log.Warning($"Cannot get SceneList for scene {scene.Name}");
                     continue;
                 }
 
@@ -97,12 +97,12 @@
                         }
                         else
                         {
-                            ObsStudioPlugin.Trace($"Warning: Cannot get CreateSourceDictItem for scene {scene.Name}, item {sceneItem.SourceName}");
+                            this.Plugin.Log.Warning($"Cannot get CreateSourceDictItem for scene {scene.Name}, item {sceneItem.SourceName}");
                         }
                     }
                     else
                     {
-                        ObsStudioPlugin.Trace($"Warning: Cannot get SceneItemList for scene {scene.Name}");
+                        this.Plugin.Log.Warning($"Cannot get SceneItemList for scene {scene.Name}");
                     }
                 }
             }

@@ -48,7 +48,7 @@
                 }
                 catch (Exception ex)
                 {
-                    ObsStudioPlugin.Trace($"Exception {ex} reading legacy strings file");
+                    this.Plugin.Log.Info($"Exception {ex} reading legacy strings file");
                 }
             }
 
@@ -94,7 +94,7 @@
 
             this.ActionImageChanged();
 
-            ObsStudioPlugin.Trace($"DynamicSceneCols: OnCurrentSceneCollectionChanged: old {arg.Old}, new {arg.New} ");
+            this.Plugin.Log.Info($"DynamicSceneCols: OnCurrentSceneCollectionChanged: old {arg.Old}, new {arg.New} ");
         }
 
         internal String GetSceneCollectionName(String actionParameter) => 
@@ -110,7 +110,7 @@
                 imageName = collection.Equals(ObsStudioPlugin.Proxy.CurrentSceneCollection) ? SceneCollectionSelectCommand.IMGCollectionSelected : SceneCollectionSelectCommand.IMGCollectionUnselected;
             }
 
-            ObsStudioPlugin.Trace($"DynamicSceneCols:Collection {collection}, Selected? { imageName == SceneCollectionSelectCommand.IMGCollectionSelected }");
+            this.Plugin.Log.Info($"DynamicSceneCols:Collection {collection}, Selected? { imageName == SceneCollectionSelectCommand.IMGCollectionSelected }");
 
             return (this.Plugin as ObsStudioPlugin).GetPluginCommandImage(imageSize, imageName, collection, imageName == SceneCollectionSelectCommand.IMGCollectionSelected);
         }

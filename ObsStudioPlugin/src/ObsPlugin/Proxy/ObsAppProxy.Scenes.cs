@@ -27,7 +27,7 @@
             {
                 this.Scenes = (listInfo as GetSceneListInfo).Scenes;
 
-                ObsStudioPlugin.Trace($"OBS Rescanned scene list. Currently {this.Scenes.Count} scenes in collection {this.CurrentSceneCollection} ");
+                this.Plugin.Log.Info($"OBS Rescanned scene list. Currently {this.Scenes.Count} scenes in collection {this.CurrentSceneCollection} ");
 
                 // Retreiving properties for all scenes
                 this.OnObsSceneCollectionChange_FetchSceneItems();
@@ -41,7 +41,7 @@
                 }
                 else
                 {
-                    ObsStudioPlugin.Trace("OBS Warning: SceneListChanged: cannot fetch current scene");
+                    this.Plugin.Log.Warning("SceneListChanged: cannot fetch current scene");
                 }
 
                 this.OnObsSceneCollectionChanged_RetreiveAudioSources();
@@ -49,7 +49,7 @@
             }
             else
             {
-                ObsStudioPlugin.Trace("OBS Warning: Cannot handle SceneListChanged event");
+                this.Plugin.Log.Warning("Cannot handle SceneListChanged event");
             }
         }
 
@@ -73,14 +73,14 @@
         {
             if( this.TryGetSceneByName(newScene, out var scene)  && this.CurrentScene != scene)
             {
-                ObsStudioPlugin.Trace($"OBS - Current scene changed from {this.CurrentScene?.Name} to {newScene}");
+                this.Plugin.Log.Info($"OBS - Current scene changed from {this.CurrentScene?.Name} to {newScene}");
                 var args = new OldNewStringChangeEventArgs(this.CurrentScene?.Name, scene.Name);
                 this.CurrentScene = scene;
                 this.AppEvtCurrentSceneChanged?.Invoke(sender,args);
             }
             else
             {
-                ObsStudioPlugin.Trace($"Warning: Cannot find scene {newScene} in current collection {this.CurrentSceneCollection}");
+                this.Plugin.Log.Warning($"Cannot find scene {newScene} in current collection {this.CurrentSceneCollection}");
             }
         }
 
@@ -88,9 +88,9 @@
         {
             if (this.IsAppConnected && this.TryGetSceneByName(newScene, out var _ ))
             {
-                ObsStudioPlugin.Trace($"Switching to scene {newScene}");
+                this.Plugin.Log.Info($"Switching to scene {newScene}");
 
-                _ = Helpers.TryExecuteSafe(() => this.SetCurrentScene(newScene));
+                Helpers.TryExecuteSafe(() => this.SetCurrentScene(newScene));
             }
         }
     }

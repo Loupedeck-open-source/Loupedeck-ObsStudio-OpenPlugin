@@ -30,7 +30,7 @@
         // FIXME: Provide customized images for starting/started... -- For that, create special event handler on Action side.
         private void OnObsRecordingStateChange(OBSWebsocket sender, OBSWebsocketDotNet.Types.OutputState newState)
         {
-            ObsStudioPlugin.Trace($"OBS Recording state change, new state is {newState}");
+            this.Plugin.Log.Info($"OBS Recording state change, new state is {newState}");
 
             if ((newState == OBSWebsocketDotNet.Types.OutputState.Started) || (newState == OBSWebsocketDotNet.Types.OutputState.Starting))
             {
@@ -50,9 +50,9 @@
         {
             if (this.IsAppConnected)
             {
-                ObsStudioPlugin.Trace("Toggle recording");
+                this.Plugin.Log.Info("Toggle recording");
 
-                _ = Helpers.TryExecuteSafe(() => this.ToggleRecording());
+                Helpers.TryExecuteSafe(() => this.ToggleRecording());
             }
         }
 
@@ -60,9 +60,9 @@
         {
             if (this.IsAppConnected)
             {
-                ObsStudioPlugin.Trace("Start recording");
+                this.Plugin.Log.Info("Start recording");
 
-                _ = Helpers.TryExecuteSafe(() => this.StartRecording());
+                Helpers.TryExecuteSafe(() => this.StartRecording());
             }
         }
 
@@ -70,9 +70,9 @@
         {
             if (this.IsAppConnected)
             {
-                ObsStudioPlugin.Trace("Stop recording");
+                this.Plugin.Log.Info("Stop recording");
 
-                _ = Helpers.TryExecuteSafe(() => this.StopRecording());
+                Helpers.TryExecuteSafe(() => this.StopRecording());
             }
         }
 
@@ -80,9 +80,9 @@
         {
             if (this.IsAppConnected)
             {
-                ObsStudioPlugin.Trace("Pause recording");
+                this.Plugin.Log.Info("Pause recording");
 
-                _ = Helpers.TryExecuteSafe(() => this.PauseRecording());
+                Helpers.TryExecuteSafe(() => this.PauseRecording());
             }
         }
 
@@ -90,9 +90,9 @@
         {
             if (this.IsAppConnected)
             {
-                ObsStudioPlugin.Trace("Resume recording");
+                this.Plugin.Log.Info("Resume recording");
 
-                _ = Helpers.TryExecuteSafe(() => this.ResumeRecording());
+                Helpers.TryExecuteSafe(() => this.ResumeRecording());
             }
         }
     }

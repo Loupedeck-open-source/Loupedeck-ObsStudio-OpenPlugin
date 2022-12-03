@@ -119,7 +119,7 @@ namespace Loupedeck.ObsStudioPlugin
         {
             // Starting the timer
             this._connect_retry_timer.Enabled = true;
-            ObsStudioPlugin.Trace($"OBS: Re-trying connection in {this._connect_retry_timer.Interval} ms ");
+            Tracer.Trace($"OBS: Re-trying connection in {this._connect_retry_timer.Interval} ms ");
         }
 
         private void Connect()
@@ -160,7 +160,7 @@ namespace Loupedeck.ObsStudioPlugin
                 // Actual connection
                 var obs_ws_conn = $"ws://localhost:{wsPort}";
 
-                ObsStudioPlugin.Trace($"OBS: connecting to '{obs_ws_conn}' ");
+                Tracer.Trace($"OBS: connecting to '{obs_ws_conn}' ");
 
                 this.ConnectingCallback?.Invoke(this, new EventArgs());
 

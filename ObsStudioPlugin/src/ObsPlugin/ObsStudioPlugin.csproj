@@ -64,6 +64,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Actions\RecordingPauseToggleCommand.cs" />
+    <None Include="Actions\UniversalStateSwitch.cs" />
+    <Compile Include="Actions\ScreenshotCommand.cs" />
     <Compile Include="Actions\TransitionCommand.cs" />
     <Compile Include="Actions\ReplayBufferSaveCommand.cs" />
     <Compile Include="Actions\GenericOnOffSwitch.cs" />
@@ -96,7 +98,7 @@
     <Compile Include="Proxy\ObsAppProxy.Scenes.cs" />
     <Compile Include="Proxy\ObsAppProxy.Sources.cs" />
     <Compile Include="Proxy\ObsAppProxy.Audio.cs" />
-    <Compile Include="Proxy\ObsAppProxy.TEMPLATE.cs" />
+    <Compile Include="Proxy\ObsAppProxy.Misc.cs" />
     <Compile Include="Proxy\ObsAppProxy.VirtualCam.cs" />
     <Compile Include="Proxy\ObsAppProxy.Streaming.cs" />
     <Compile Include="Support\EventArgs.cs" />

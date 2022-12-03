@@ -23,7 +23,7 @@
             }
             catch (Exception ex)
             {
-                ObsStudioPlugin.Trace($"Exception {ex.Message} getting volume information for source {name}");
+                Tracer.Error($"Exception {ex.Message} getting volume information for source {name}");
             }
         }
     }

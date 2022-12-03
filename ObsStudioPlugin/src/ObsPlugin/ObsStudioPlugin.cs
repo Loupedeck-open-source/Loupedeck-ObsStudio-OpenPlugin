@@ -22,7 +22,7 @@ namespace Loupedeck.ObsStudioPlugin
 
         public ObsStudioPlugin()
         {
-            ObsStudioPlugin.Proxy = new ObsAppProxy();
+            ObsStudioPlugin.Proxy = new ObsAppProxy(this);
             this._connector = new ObsConnector(ObsStudioPlugin.Proxy, this.GetPluginDataDirectory(),
                                 (Object sender, EventArgs e) => this.OnPluginStatusChanged(Loupedeck.PluginStatus.Warning, this.Localization.GetString("Connecting to OBS"), "https://support.loupedeck.com/obs-guide", ""));
         }
@@ -105,12 +105,13 @@ namespace Loupedeck.ObsStudioPlugin
             var bitmapBuilder = new BitmapBuilder(imageSize);
             try
             {
+                
                 var image = EmbeddedResources.ReadImage(imageName);
                 bitmapBuilder.DrawImage(image);
             }
             catch (Exception ex)
             {
-                Trace($"Cannot load image {imageName}, exception {ex}");
+                this.Log.Error($"Cannot load image {imageName}, exception {ex}");
             }
 
             if (!String.IsNullOrEmpty(text))

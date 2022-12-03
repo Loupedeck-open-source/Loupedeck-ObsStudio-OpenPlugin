@@ -65,7 +65,7 @@
             }
             catch (Exception ex)
             {
-                ObsStudioPlugin.Trace($"Warning: Exception: {ex.Message} in creating source item for item '{in_sceneItem.SourceName}' of scene '{in_sceneName}'");
+                Tracer.Error($"Warning: Exception: {ex.Message} in creating source item for item '{in_sceneItem.SourceName}' of scene '{in_sceneName}'");
             }
 
             return null;

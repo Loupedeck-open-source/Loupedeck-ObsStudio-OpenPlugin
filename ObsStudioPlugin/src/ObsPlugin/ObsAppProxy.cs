@@ -33,15 +33,17 @@
         // Our 'own' events
         public event EventHandler<EventArgs> AppConnected;
         public event EventHandler<EventArgs> AppDisconnected;
-      
+
+        public Plugin Plugin { get; private set; }
 
         // Properties
         public Boolean IsAppConnected => this.IsConnected;
 
-        public ObsAppProxy()
+        public ObsAppProxy(Plugin _plugin)
         {
             this.CurrentScene = new OBSWebsocketDotNet.Types.OBSScene();
             this.Scenes = new List<OBSWebsocketDotNet.Types.OBSScene>();
+            this.Plugin = _plugin;
         }
         public void RegisterAppEvents()
         {
@@ -138,7 +140,7 @@
 
         private void OnAppConnected(Object sender, EventArgs e)
         {
-            ObsStudioPlugin.Trace("Entering AppConnected");
+            this.Plugin.Log.Info("Entering AppConnected");
 
             // Subscribing to App events
             // Notifying all subscribers on App Connected
@@ -157,7 +159,7 @@
 
             this.AppConnected?.Invoke(sender, e);
 
-            ObsStudioPlugin.Trace("AppConnected: Initializing data");
+            this.Plugin.Log.Info("AppConnected: Initializing data");
             _ = Helpers.TryExecuteSafe(() =>
             {
                 this.InitializeObsData(sender, e);
@@ -170,7 +172,7 @@
 
         private void OnAppDisconnected(Object sender, EventArgs e)
         {
-            ObsStudioPlugin.Trace("Entering AppDisconnected");
+            this.Plugin.Log.Info("Entering AppDisconnected");
 
             // Unsubscribing from App events here
             this.RecordingStateChanged -= this.OnObsRecordingStateChange;

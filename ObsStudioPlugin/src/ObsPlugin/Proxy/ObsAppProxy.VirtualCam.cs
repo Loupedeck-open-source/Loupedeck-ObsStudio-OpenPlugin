@@ -14,13 +14,13 @@
 
         private void OnObsVirtualCameraStarted(Object sender, EventArgs e)
         {
-            ObsStudioPlugin.Trace("Obs Virtual camera started");
+            this.Plugin.Log.Info("Obs Virtual camera started");
             this.AppEvtVirtualCamOn?.Invoke(this, new EventArgs());
         }
 
         private void OnObsVirtualCameraStopped(Object sender, EventArgs e)
         {
-            ObsStudioPlugin.Trace("Obs Virtual camera stopped");
+            this.Plugin.Log.Info("Obs Virtual camera stopped");
             this.AppEvtVirtualCamOff?.Invoke(this, new EventArgs());
         }
 
@@ -28,7 +28,7 @@
         {
             if (this.IsAppConnected)
             {
-                _ = Helpers.TryExecuteSafe(() => this.ToggleVirtualCam());
+               Helpers.TryExecuteSafe(() => this.ToggleVirtualCam());
             }
         }
     }
