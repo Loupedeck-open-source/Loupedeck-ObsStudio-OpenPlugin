@@ -116,7 +116,7 @@
 
             if (readContent)
             {
-                ObsStudioPlugin.Trace($"Adding {ObsStudioPlugin.Proxy.AllSceneItems?.Count} sources");
+                this.Plugin.Log.Info($"Adding {ObsStudioPlugin.Proxy.AllSceneItems?.Count} sources");
 
                 foreach (var item in ObsStudioPlugin.Proxy.AllSceneItems)
                 {

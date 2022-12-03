@@ -143,7 +143,7 @@
 
             if (readContent)
             {
-                ObsStudioPlugin.Trace($"Adding {ObsStudioPlugin.Proxy.CurrentAudioSources.Count} sources");
+                this.Plugin.Log.Info($"Adding {ObsStudioPlugin.Proxy.CurrentAudioSources.Count} sources");
 
                 foreach (var item in ObsStudioPlugin.Proxy.CurrentAudioSources)
                 {

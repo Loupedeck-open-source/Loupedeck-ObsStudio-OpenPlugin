@@ -79,7 +79,7 @@
             }
             else
             {
-                ObsStudioPlugin.Trace($"Warning: Cannot  parse actionParameter {actionParameter}");
+                this.Plugin.Log.Info($"Warning: Cannot  parse actionParameter {actionParameter}");
             }
         }
 

@@ -70,7 +70,7 @@
 
         private void AppEvtTurnedOff(Object sender, EventArgs e)
         {
-            ObsStudioPlugin.Trace($"Action {this.Name}: Setting state to OFF");
+            this.Plugin.Log.Info($"Action {this.Name}: Setting state to OFF");
             this.TurnOff();
             if(this._legacyActionDetected)
             {  
@@ -81,7 +81,7 @@
 
         private void AppEvtTurnedOn(Object sender, EventArgs e)
         {
-            ObsStudioPlugin.Trace($"Action {this.Name}: Setting state to ON");
+            this.Plugin.Log.Info($"Action {this.Name}: Setting state to ON");
             this.TurnOn();
             if (this._legacyActionDetected)
             {
@@ -104,7 +104,7 @@
                 // Unimplemented
 
                 case TwoStateCommand.TurnOn:
-                    ObsStudioPlugin.Trace($"Action {this.Name}: On and Off direct switches not implemented");
+                    this.Plugin.Log.Info($"Action {this.Name}: On and Off direct switches not implemented");
                     break;
 
                 case TwoStateCommand.Toggle:
@@ -119,7 +119,7 @@
             {
                 this._legacyActionDetected = true;
                 // Handling legacy (old OBS plugin) actions
-                ObsStudioPlugin.Trace($"Legacy run for {this.Name}");
+                this.Plugin.Log.Info($"Legacy run for {this.Name}");
                 this.RunToggle();
             }
             else
@@ -135,7 +135,7 @@
                 // Handling legacy (old OBS plugin) actions. For some strange reason TryGetStateIndex is not working...
                 var stateIndex = this.IsTurnedOn ? 1 : 0;
                 this._legacyActionDetected = true;
-                ObsStudioPlugin.Trace($"Legacy GCM for {this.Name}, state index {stateIndex}");
+                this.Plugin.Log.Info($"Legacy GCM for {this.Name}, state index {stateIndex}");
                 return this.GetCommandImage($"{(Int32)TwoStateCommand.Toggle}", stateIndex, imageSize);
             }
             else

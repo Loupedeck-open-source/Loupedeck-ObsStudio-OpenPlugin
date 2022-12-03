@@ -57,7 +57,7 @@
 
             if (readContent)
             {
-                ObsStudioPlugin.Trace($"Adding {ObsStudioPlugin.Proxy.Scenes?.Count} scene items");
+                this.Plugin.Log.Info($"Adding {ObsStudioPlugin.Proxy.Scenes?.Count} scene items");
                 foreach (var scene in ObsStudioPlugin.Proxy.Scenes)
                 {
                     var key = SceneKey.Encode(ObsStudioPlugin.Proxy.CurrentSceneCollection, scene.Name);
