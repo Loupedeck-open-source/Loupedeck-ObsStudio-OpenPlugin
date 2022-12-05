@@ -44,6 +44,18 @@
             this.CurrentScene = new OBSWebsocketDotNet.Types.OBSScene();
             this.Scenes = new List<OBSWebsocketDotNet.Types.OBSScene>();
             this.Plugin = _plugin;
+
+            if (ObsAppProxy.ScreenshotsSavingPath == "")
+            {
+                ObsAppProxy.ScreenshotsSavingPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "Pictures");
+
+                /*
+                ObsAppProxy.ScreenshotsSavingPath = Helpers.IsWindows()
+                    ? Environment.ExpandEnvironmentVariables("%USERPROFILE%\\Videos\\")
+                    : Environment.ExpandEnvironmentVariables("~/Pictures/");
+                */
+            }
+
         }
         public void RegisterAppEvents()
         {
