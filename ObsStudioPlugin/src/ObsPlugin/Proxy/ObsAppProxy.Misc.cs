@@ -11,8 +11,7 @@
     /// </summary>
     internal partial class ObsAppProxy
     {
-        //TODO: This kind of stuff needs to be in plugin settings
-        static internal String DefaultScreenshotPath = "";
+        public static String ScreenshotsSavingPath { get; private set; } = "";
 
         public void AppTakeScreenshot()
         {
@@ -20,15 +19,11 @@
 
             if (this.IsAppConnected && !String.IsNullOrEmpty(currentScene))
             {
-                if (ObsAppProxy.DefaultScreenshotPath == "")
-                {
-                    ObsAppProxy.DefaultScreenshotPath = Environment.ExpandEnvironmentVariables("%USERPROFILE%\\Videos\\");
-                }
-
                 try
                 {
+
                     //Generate unique filename 
-                    var filename = ObsAppProxy.DefaultScreenshotPath + "Screenshot-" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".png";
+                    var filename = System.IO.Path.Combine(ObsAppProxy.ScreenshotsSavingPath, "Screenshot-" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".png");
                     var resp = this.TakeSourceScreenshot((String)currentScene, null, filename, -1, -1);
                     this.Plugin.Log.Info($"Screenshot taken and saved to {resp.ImageFile}");
                 }
