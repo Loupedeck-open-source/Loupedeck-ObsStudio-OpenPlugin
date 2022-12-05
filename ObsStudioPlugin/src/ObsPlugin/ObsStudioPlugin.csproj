@@ -99,6 +99,7 @@
     <Compile Include="Proxy\ObsAppProxy.Sources.cs" />
     <Compile Include="Proxy\ObsAppProxy.Audio.cs" />
     <Compile Include="Proxy\ObsAppProxy.Misc.cs" />
+    <Compile Include="Proxy\ObsAppProxy.TEMPLATE.cs" />
     <Compile Include="Proxy\ObsAppProxy.VirtualCam.cs" />
     <Compile Include="Proxy\ObsAppProxy.Streaming.cs" />
     <Compile Include="Support\EventArgs.cs" />
