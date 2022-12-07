@@ -1,26 +1,5 @@
 ﻿namespace Loupedeck.ObsStudioPlugin
 {
-    // TODO:
-
-    // Legacy actions and adustments
-    // Source rename
-    // FIXME: Reconnect on OBS crash? 
-
-    // Universal toggle action
-    // CPU action
-    // 6. Profiles actions 
-    // Use scene icon -- TakeSourceScreenshot
-    
-    // HOW TO STOP SHOWING SOURCES THAT ARE NOT VISIBLE IN MIXER
-
-    // Useful command -- RefreshBrowserSource
-    //  Add Multistate-Parameter Profile
-    // ? source action?
-
-    // For all actions,
-    //  - Handle added/deleted/created/destroyed signals (editing)
-    // --> For later, upgrade to new OBS websocket and see if port/password can be parsed from the Ini file in C:\Users\[User]\AppData\Roaming\obs-studio
-
     using System;
     using System.Collections.Generic;
 

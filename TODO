@@ -1,0 +1,39 @@
+OBS Plugin TODO
+
+
+
+ADD: Legacy actions and adustments
+	- to the extent possible. 
+
+FIX: Handle renamings and deletions
+	- sources
+	- scene
+	- scene collection? 
+
+FIX: Reconnect on OBS crash? 
+	-Test if we reconnect well after OBS crash
+
+ADD: Universal toggle action
+	- Implement based on ActionEditor
+
+ADD: CPU action
+	- for backwards compatibility. NB, more customizatio in future
+	
+ADD: Profiles actions 
+	- Add profile selector action (same as scene collection)
+
+ADD: Use scene icon
+	- Consider using TakeSourceScreenshot for default scenes and sources action
+
+ADD: Useful command RefreshBrowserSource
+
+ADD: Media control command 
+                          
+
+FOR LATER:
+	- Migrate to OBS Websocket 5.0, 
+		- add support for parsing the ini for connection parameters C:\Users\[User]\AppData\Roaming\obs-studio
+		- add configuration UI to enter these (browser + deep links?)
+	
+			
+
