@@ -8,7 +8,7 @@
 
         public ScreenshotCommand()
             : base(displayName: "Screenshot",
-                   description: "Take a screenshot of currently active scene and saves it to " + ObsAppProxy.ScreenshotsSavingPath,
+                   description: "Takes a screenshot of currently active scene and saves it to " + ObsAppProxy.ScreenshotsSavingPath,
                    groupName: "") => this.Name = "Screenshot";
 
         protected override Boolean OnLoad()
