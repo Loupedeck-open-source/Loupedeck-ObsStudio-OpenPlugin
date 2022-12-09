@@ -107,7 +107,7 @@
 
                 if( ObsStudioPlugin.Proxy.TryGetSceneByName(parsed.Scene, out var _) )
                 {
-                    imageName = sceneName.Equals(ObsStudioPlugin.Proxy.CurrentScene?.Name) ? IMGSceneSelected : IMGSceneUnselected;
+                    imageName = stateIndex == 1 ? IMGSceneSelected : IMGSceneUnselected;
                 }
             }            
             return (this.Plugin as ObsStudioPlugin).GetPluginCommandImage(imageSize, imageName, sceneName, imageName == IMGSceneSelected);
