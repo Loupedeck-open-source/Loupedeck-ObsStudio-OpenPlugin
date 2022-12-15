@@ -4,9 +4,8 @@
 
     internal class UniversalStateSwitch : ActionEditorCommand
     {
-        //NOTE IT MUST START WITH LOWERCASE
-        private const String ActionNameControlName = "actionControlName";
-        private const String ActionActsControlName = "actionActsControlName";
+        private const String ActionNameControlName = "ActionControlName";
+        private const String ActionActsControlName = "ActionActsControlName";
 
         public UniversalStateSwitch()
         {
@@ -67,22 +66,15 @@
 
         private void OnActionEditorControlValueChanged(Object sender, ActionEditorControlValueChangedEventArgs e)
         {
-            
             if (e.ControlName.EqualsNoCase(ActionNameControlName))
             {
                 this.ActionEditor.ListboxItemsChanged(ActionActsControlName);
             }
-
-
-            //e.ActionEditorState.SetDisplayName("something")
-
-            /*if (e.ControlName.EqualsNoCase(ActionActsControlName))
+            else if (e.ControlName.EqualsNoCase(ActionActsControlName))
             {
-                var listbox2ControlValue = e.ActionEditorState.GetControlValue(ActionActsControlName);
-   
+                //var listbox2ControlValue = e.ActionEditorState.GetControlValue(ActionActsControlName);
+                e.ActionEditorState.SetDisplayName($"What- {e.ActionEditorState.GetControlValue(ActionNameControlName)} - {e.ActionEditorState.GetControlValue(ActionActsControlName)} ");
             }
-            */
-
         }
 
         class ToggleActionDescription
