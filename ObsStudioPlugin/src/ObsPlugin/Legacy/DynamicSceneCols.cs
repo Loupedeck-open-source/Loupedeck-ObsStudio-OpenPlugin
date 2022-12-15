@@ -43,7 +43,7 @@
                     var items = JObject.Parse(File.ReadAllText(filepath)).Properties().ToList();
                     foreach (var item in items)
                     {
-                        this._collection_guid_name_map.Add(item.Name, item.Value.ToString());
+                        this._collection_guid_name_map[item.Name] = item.Value.ToString();
                     }
                 }
                 catch (Exception ex)

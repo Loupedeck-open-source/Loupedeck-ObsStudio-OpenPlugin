@@ -84,7 +84,7 @@
                 return;
             }
 
-            this.AllSceneItems.Add( SceneItemKey.Encode(this.CurrentSceneCollection, sceneName, item.SourceName), sourceDictItem);
+            this.AllSceneItems[SceneItemKey.Encode(this.CurrentSceneCollection, sceneName, item.SourceName)] = sourceDictItem;
 
             this.AppEvtSceneItemAdded?.Invoke(this, sceneName, itemName);
         }

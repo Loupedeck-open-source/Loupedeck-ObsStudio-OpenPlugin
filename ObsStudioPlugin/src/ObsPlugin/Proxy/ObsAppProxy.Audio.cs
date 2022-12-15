@@ -44,12 +44,11 @@
         /// <returns>True if source is added</returns>
         private Boolean AddCurrentAudioSource(String sourceName, Boolean testSettings = true, Boolean testAudio = true)
         {
-            if (!this.CurrentAudioSources.ContainsKey(sourceName) &&
-                    Helpers.TryExecuteFunc(
+            if ( Helpers.TryExecuteFunc(
                         () => (!testSettings || this.IsAudioSourceType(this.GetSourceSettings(sourceName)))
                                                  && (!testAudio || this.GetAudioActive(sourceName)), out var good) && good)
             {
-                this.CurrentAudioSources.Add(sourceName, new AudioSourceDescriptor(sourceName, this));
+                this.CurrentAudioSources[sourceName] = new AudioSourceDescriptor(sourceName, this);
                 this.Plugin.Log.Info($"Adding Regular audio source {sourceName}");
                 return true;
             }
@@ -189,7 +188,8 @@
                             && this.GetAudioActive(source.Name))
                     {
                         // Adding audio source and populating initial values
-                        this.CurrentAudioSources.Add(source.Name, new AudioSourceDescriptor(source.Name, this));
+                        this.CurrentAudioSources[source.Name] = new AudioSourceDescriptor(source.Name, this);
+
                         this.Plugin.Log.Info($"Adding audio source {source.Name}");
                     }
                 }
