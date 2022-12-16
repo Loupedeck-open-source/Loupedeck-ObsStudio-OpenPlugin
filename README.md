@@ -5,7 +5,7 @@ This is the repository for OBS open source plugin for [Loupedeck](https://louped
 
 ## How to contribute:
 - Send pull requests. These will be reviewed by project maintainers when there's time available.
-- Send issues
+- Send issues  (please include logs, see [Loupedeck support article](https://support.loupedeck.com/loupedeck-logs-collection) for it)
 - Loupedeck will build plugin version updates and make them available in Loupedeck Marketplace
 
 ## How to communicate:
