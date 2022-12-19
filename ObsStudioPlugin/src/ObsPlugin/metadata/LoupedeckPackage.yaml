@@ -15,7 +15,7 @@ displayName: OBS Studio
 pluginFileName: ObsStudioPlugin.dll 
 
 # Plugin version.
-version: 5.4.0.90005
+version: 5.4.2.20000
 
 # Author of the plugin. The author can be a company or an individual developer.
 author: Andrei Laperie, Loupedeck
@@ -23,6 +23,8 @@ author: Andrei Laperie, Loupedeck
 # Copyright information.
 copyright: Copyright © 2022 Loupedeck. All rights reserved.
 
+# Minimal Loupedeck Version to be used
+minimalLoupedeckVersion: 5.4.0
 
 # ==================================================================================================
 # PLUGIN PROPERTIES
@@ -34,7 +36,8 @@ pluginFolderWin: win
 
 # Location of plugin files on macOS (relative to the plugin base directory).
 # This parameter is required to support Mac.
-#pluginFolderMac: mac
+# GLORY TO THE BYTECODE! In case of OBS it works well for Mac too!
+pluginFolderMac: win
 
 # List of supported devices.
 supportedDevices:
