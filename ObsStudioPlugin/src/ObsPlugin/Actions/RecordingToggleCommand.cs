@@ -29,6 +29,23 @@
             ObsStudioPlugin.Proxy.AppEvtRecordingOn -= eventSwitchedOff;
         }
 
-        protected override void RunToggle() => ObsStudioPlugin.Proxy.AppToggleRecording();
+        protected override void RunCommand(TwoStateCommand command)
+        {
+            switch (command)
+            {
+                case TwoStateCommand.TurnOff:
+                    ObsStudioPlugin.Proxy.AppStopRecording();
+                    break;
+
+                case TwoStateCommand.TurnOn:
+                    ObsStudioPlugin.Proxy.AppStartRecording();
+                    break;
+
+                case TwoStateCommand.Toggle:
+                    ObsStudioPlugin.Proxy.AppToggleRecording();
+                    break;
+            }
+        }
+
     }
 }

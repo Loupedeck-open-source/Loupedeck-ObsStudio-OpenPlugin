@@ -30,6 +30,23 @@
             ObsStudioPlugin.Proxy.AppEvtVirtualCamOn -= eventSwitchedOff;
         }
 
-        protected override void RunToggle() => ObsStudioPlugin.Proxy.AppToggleVirtualCam();
+        protected override void RunCommand(TwoStateCommand command)
+        {
+            switch (command)
+            {
+                case TwoStateCommand.TurnOff:
+                    ObsStudioPlugin.Proxy.AppStopVirtualCam();
+                    break;
+
+                case TwoStateCommand.TurnOn:
+                    ObsStudioPlugin.Proxy.AppStartVirtualCam();
+                    break;
+
+                case TwoStateCommand.Toggle:
+                    ObsStudioPlugin.Proxy.AppToggleVirtualCam();
+                    break;
+            }
+        }
+
     }
 }

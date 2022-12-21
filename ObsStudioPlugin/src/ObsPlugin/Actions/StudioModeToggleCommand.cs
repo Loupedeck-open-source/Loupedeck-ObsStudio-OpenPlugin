@@ -29,6 +29,23 @@
             ObsStudioPlugin.Proxy.AppEvtStudioModeOn -= eventSwitchedOff;
         }
 
-        protected override void RunToggle() => ObsStudioPlugin.Proxy.AppToggleStudioMode();
+        
+        protected override void RunCommand(TwoStateCommand command)
+        {
+            switch (command)
+            {
+                case TwoStateCommand.TurnOff:
+                    ObsStudioPlugin.Proxy.AppStopStudioMode();
+                    break;
+
+                case TwoStateCommand.TurnOn:
+                    ObsStudioPlugin.Proxy.AppStartStudioMode();
+                    break;
+
+                case TwoStateCommand.Toggle:
+                    ObsStudioPlugin.Proxy.AppToggleStudioMode();
+                    break;
+            }
+        }
     }
 }

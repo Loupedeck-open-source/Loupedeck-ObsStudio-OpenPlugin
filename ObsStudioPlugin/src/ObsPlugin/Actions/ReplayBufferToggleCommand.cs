@@ -29,6 +29,23 @@
             ObsStudioPlugin.Proxy.AppEvtReplayBufferOn -= eventSwitchedOn;
         }
 
-        protected override void RunToggle() => ObsStudioPlugin.Proxy.AppToggleReplayBuffer();
+        protected override void RunCommand(TwoStateCommand command)
+        {
+            switch (command)
+            {
+                case TwoStateCommand.TurnOff:
+                    ObsStudioPlugin.Proxy.AppStopReplayBuffer();
+                    break;
+
+                case TwoStateCommand.TurnOn:
+                    ObsStudioPlugin.Proxy.AppStartReplayBuffer();
+                    break;
+
+                case TwoStateCommand.Toggle:
+                    ObsStudioPlugin.Proxy.AppToggleReplayBuffer();
+                    break;
+            }
+        }
+
     }
 }

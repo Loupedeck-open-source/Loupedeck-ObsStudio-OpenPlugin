@@ -60,7 +60,22 @@
             ObsStudioPlugin.Proxy.AppEvtRecordingPaused -= this.OnAppRecordingPaused;
             ObsStudioPlugin.Proxy.AppEvtRecordingResumed -= this.OnAppRecordingResumed;
         }
+        protected override void RunCommand(TwoStateCommand command)
+        {
+            switch (command)
+            {
+                case TwoStateCommand.TurnOff:
+                    ObsStudioPlugin.Proxy.AppResumeRecording();
+                    break;
 
-        protected override void RunToggle() => ObsStudioPlugin.Proxy.AppToggleRecordingPause();
+                case TwoStateCommand.TurnOn:
+                    ObsStudioPlugin.Proxy.AppPauseRecording();
+                    break;
+
+                case TwoStateCommand.Toggle:
+                    ObsStudioPlugin.Proxy.AppToggleRecordingPause();
+                    break;
+            }
+        }
     }
 }

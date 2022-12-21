@@ -90,29 +90,6 @@
             }
         }
 
-        /// <summary>
-        /// executes toggle at the application side.
-        /// </summary>
-        /// <param name="currentState">Index of current state of the control: 0 - off, 1 - on </param>
-        protected abstract void RunToggle();
-
-        protected override void RunCommand(TwoStateCommand command)
-        {
-            switch (command)
-            {
-                case TwoStateCommand.TurnOff:
-                // Unimplemented
-
-                case TwoStateCommand.TurnOn:
-                    this.Plugin.Log.Info($"Action {this.Name}: On and Off direct switches not implemented");
-                    break;
-
-                case TwoStateCommand.Toggle:
-                    this.RunToggle();
-                    break;
-            }
-        }
-
         protected override void RunCommand(String actionParameter)
         {
             if (String.IsNullOrEmpty(actionParameter))
@@ -120,7 +97,7 @@
                 this._legacyActionDetected = true;
                 // Handling legacy (old OBS plugin) actions
                 this.Plugin.Log.Info($"Legacy run for {this.Name}");
-                this.RunToggle();
+                this.RunCommand(TwoStateCommand.Toggle);
             }
             else
             {

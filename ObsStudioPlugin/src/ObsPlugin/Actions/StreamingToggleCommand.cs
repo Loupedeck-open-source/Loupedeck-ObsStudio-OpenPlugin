@@ -30,6 +30,22 @@
             ObsStudioPlugin.Proxy.AppEvtStreamingOn -= eventSwitchedOff;
         }
 
-        protected override void RunToggle() => ObsStudioPlugin.Proxy.AppToggleStreaming();
+        protected override void RunCommand(TwoStateCommand command)
+        {
+            switch (command)
+            {
+                case TwoStateCommand.TurnOff:
+                    ObsStudioPlugin.Proxy.AppStopStreaming();
+                    break;
+
+                case TwoStateCommand.TurnOn:
+                    ObsStudioPlugin.Proxy.AppStartStreaming();
+                    break;
+
+                case TwoStateCommand.Toggle:
+                    ObsStudioPlugin.Proxy.AppToggleStreaming();
+                    break;
+            }
+        }
     }
 }
