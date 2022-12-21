@@ -23,14 +23,28 @@
 
         public Boolean InRecording { get; private set; } = false;
 
-        private void OnObsRecordPaused(Object sender, EventArgs e) => this.AppEvtRecordingPaused?.Invoke(sender, e);
+        public Boolean IsRecordingPaused { get; private set; } = false;
 
-        private void OnObsRecordResumed(Object sender, EventArgs e) => this.AppEvtRecordingResumed?.Invoke(sender, e);
+        private void OnObsRecordPaused(Object sender, EventArgs e)
+        {
+            this.IsRecordingPaused = true;
+            this.AppEvtRecordingPaused?.Invoke(sender, e);
+        }
+
+
+        private void OnObsRecordResumed(Object sender, EventArgs e)
+        {
+            this.IsRecordingPaused = false;
+            this.AppEvtRecordingResumed?.Invoke(sender, e);
+        }
+
 
         // FIXME: Provide customized images for starting/started... -- For that, create special event handler on Action side.
         private void OnObsRecordingStateChange(OBSWebsocket sender, OBSWebsocketDotNet.Types.OutputState newState)
         {
             this.Plugin.Log.Info($"OBS Recording state change, new state is {newState}");
+
+            this.IsRecordingPaused = false;
 
             if ((newState == OBSWebsocketDotNet.Types.OutputState.Started) || (newState == OBSWebsocketDotNet.Types.OutputState.Starting))
             {
@@ -46,53 +60,31 @@
             this.AppEvtRecordingStateChange?.Invoke(this, new IntParamArgs((Int32)newState));
         }
 
-        public void AppToggleRecording()
-        {
-            if (this.IsAppConnected)
-            {
-                this.Plugin.Log.Info("Toggle recording");
 
-                Helpers.TryExecuteSafe(() => this.ToggleRecording());
+        public void AppToggleRecording() => this.SafeRunConnected(() => this.ToggleRecording(), "Cannot toggle Recording");
+
+        public void AppStartRecording() => this.SafeRunConnected(() => this.StartRecording(), "Cannot start Recording");
+
+        public void AppStopRecording() => this.SafeRunConnected(() => this.StopRecording(), "Cannot stop Recording");
+
+
+        public void AppToggleRecordingPause() => this.SafeRunConnected(() => this.ToggleRecordingPause(), "Cannot toggle Recorging Pause");
+
+        public void AppPauseRecording() => this.SafeRunConnected(() => this.PauseRecording(), "Cannot pause recording");
+
+        public void AppResumeRecording() => this.SafeRunConnected(() => this.ResumeRecording(), "Cannot resume recording");
+
+
+        //A wrapper for Recording Pause Toggle, throws!
+        private void ToggleRecordingPause()
+        {
+            if(this.IsRecordingPaused)
+            {
+                this.ResumeRecording();
             }
-        }
-
-        public void AppStartRecording()
-        {
-            if (this.IsAppConnected)
+            else if(this.InRecording)
             {
-                this.Plugin.Log.Info("Start recording");
-
-                Helpers.TryExecuteSafe(() => this.StartRecording());
-            }
-        }
-
-        public void AppStopRecording()
-        {
-            if (this.IsAppConnected)
-            {
-                this.Plugin.Log.Info("Stop recording");
-
-                Helpers.TryExecuteSafe(() => this.StopRecording());
-            }
-        }
-
-        public void AppPauseRecording()
-        {
-            if (this.IsAppConnected)
-            {
-                this.Plugin.Log.Info("Pause recording");
-
-                Helpers.TryExecuteSafe(() => this.PauseRecording());
-            }
-        }
-
-        public void AppResumeRecording()
-        {
-            if (this.IsAppConnected)
-            {
-                this.Plugin.Log.Info("Resume recording");
-
-                Helpers.TryExecuteSafe(() => this.ResumeRecording());
+                this.PauseRecording();
             }
         }
     }
