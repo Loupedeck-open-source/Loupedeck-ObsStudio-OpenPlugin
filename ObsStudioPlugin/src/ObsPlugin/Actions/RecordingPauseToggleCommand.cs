@@ -23,31 +23,22 @@
             // Note the command is only enabled if there is recording!
             this.TurnOff();
             this.IsEnabled = true;
-            this._isPaused = false;
         }
-
-        private Boolean _isPaused = false;
 
         private void OnAppRecordingStopped(Object sender, EventArgs e)
         {
             this.TurnOff();
             this.IsEnabled = false;
-            this._isPaused = false;
         }
 
         private void OnAppRecordingResumed(Object sender, EventArgs e)
         {
             // Note this can be called from OnLoad as well (eventSwitchedOn) in which case we check if we are InRecording
             this.IsEnabled = ObsStudioPlugin.Proxy.InRecording;
-            this._isPaused = false;
             this.TurnOff();
         }
 
-        private void OnAppRecordingPaused(Object sender, EventArgs e)
-        {
-            this._isPaused = true;
-            this.TurnOn();
-        }
+        private void OnAppRecordingPaused(Object sender, EventArgs e) => this.TurnOn();
 
         protected override void ConnectAppEvents(EventHandler<EventArgs> eventSwitchedOff, EventHandler<EventArgs> eventSwitchedOn)
         {
@@ -70,16 +61,6 @@
             ObsStudioPlugin.Proxy.AppEvtRecordingResumed -= this.OnAppRecordingResumed;
         }
 
-        protected override void RunToggle()
-        {
-            if (this._isPaused)
-            {
-                ObsStudioPlugin.Proxy.AppResumeRecording();
-            }
-            else
-            {
-                ObsStudioPlugin.Proxy.AppPauseRecording();
-            }
-        }
+        protected override void RunToggle() => ObsStudioPlugin.Proxy.AppToggleRecordingPause();
     }
 }
