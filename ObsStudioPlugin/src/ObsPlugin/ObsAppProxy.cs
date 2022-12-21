@@ -200,5 +200,17 @@
             return key != null;
         }
 
+        private void SafeRunConnected(Action action, String warning) 
+        {
+            if (this.IsAppConnected)
+            {
+                if (!Helpers.TryExecuteSafe(action))
+                {
+                    this.Plugin.Log.Warning(warning);
+                }
+            }
+        }
+
+
     }
 }
