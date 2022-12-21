@@ -30,13 +30,11 @@
             }
         }
 
-        public void AppToggleStreaming()
-        {
-            if (this.IsAppConnected)
-            {
-                this.Plugin.Log.Info("Toggling streaming");
-                Helpers.TryExecuteSafe(() => this.ToggleStreaming());
-            }
-        }
+        public void AppToggleStreaming() => this.SafeRunConnected(() => this.ToggleStreaming(), "Cannot toggle streaming");
+
+        public void AppStartStreaming() => this.SafeRunConnected(() => this.StartStreaming(), "Cannot start streaming");
+
+        public void AppStopStreaming() => this.SafeRunConnected(() => this.StopStreaming(), "Cannot stop streaming");
+
     }
 }

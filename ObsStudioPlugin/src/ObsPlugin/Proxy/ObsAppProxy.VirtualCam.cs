@@ -24,12 +24,11 @@
             this.AppEvtVirtualCamOff?.Invoke(this, new EventArgs());
         }
 
-        public void AppToggleVirtualCam()
-        {
-            if (this.IsAppConnected)
-            {
-               Helpers.TryExecuteSafe(() => this.ToggleVirtualCam());
-            }
-        }
+        public void AppToggleVirtualCam() => this.SafeRunConnected(() => this.ToggleVirtualCam(), "Cannot toggle virtual cam");
+
+        public void AppStartVirtualCam() => this.SafeRunConnected(() => this.StartVirtualCam(), "Cannot start virtual cam");
+
+        public void AppStopVirtualCam() => this.SafeRunConnected(() => this.StopVirtualCam(), "Cannot stop virtual cam");
+
     }
 }

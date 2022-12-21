@@ -29,16 +29,11 @@
             }
         }
 
-        public void AppToggleReplayBuffer()
-        {
-            if (this.IsAppConnected)
-            {
-                if (!Helpers.TryExecuteSafe(() => this.ToggleReplayBuffer()))
-                {
-                    this.Plugin.Log.Warning("Cannot toggle replayBuffer");
-                }
-            }
-        }
+        public void AppToggleReplayBuffer() => this.SafeRunConnected(() => this.ToggleReplayBuffer(), "Cannot toggle Replay Buffer");
+
+        public void AppStartReplayBuffer() => this.SafeRunConnected(() => this.StartReplayBuffer(), "Cannot start Replay Buffer");
+
+        public void AppStopReplayBuffer() => this.SafeRunConnected(() => this.StopReplayBuffer(), "Cannot stop Replay Buffer");
 
         public void AppSaveReplayBuffer()
         {

@@ -49,13 +49,11 @@
             }
         }
 
-        public void AppToggleStudioMode()
-        {
-            if (this.IsAppConnected)
-            {
-                this.Plugin.Log.Info("Toggling studio mode");
-                Helpers.TryExecuteSafe(() => this.ToggleStudioMode());
-            }
-        }
+        public void AppToggleStudioMode() => this.SafeRunConnected(() => this.ToggleStudioMode(), "Cannot toggle studio mode");
+
+        public void AppStartStudioMode() => this.SafeRunConnected(() => this.EnableStudioMode(), "Cannot start studio mode");
+
+        public void AppStopStudioMode() => this.SafeRunConnected(() => this.DisableStudioMode(), "Cannot stop studio mode");
+
     }
 }
