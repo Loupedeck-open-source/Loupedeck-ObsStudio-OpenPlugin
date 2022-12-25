@@ -4,6 +4,15 @@
 
     public abstract class GenericOnOffSwitch : PluginTwoStateDynamicCommand
     {
+        public Byte[] OnStateImage { get; private set; }
+        public Byte[] OffStateImage { get; private set; }
+
+        public String OnStateName { get; private set; }
+        public String OffStateName { get; private set; }
+
+        public void SwitchOn() => this.RunCommand(TwoStateCommand.TurnOff);
+        public void SwitchOff() => this.RunCommand(TwoStateCommand.TurnOn);
+
         public GenericOnOffSwitch(
             String name,
             String displayName, String description, String groupName,
@@ -11,16 +20,21 @@
             String offStateImage, String onStateImage):base(displayName,description,groupName)
         {
             this.Name = name;
+            this.OnStateImage = EmbeddedResources.ReadBinaryFile(ObsStudioPlugin.ImageResPrefix + onStateImage);
+            this.OffStateImage = EmbeddedResources.ReadBinaryFile(ObsStudioPlugin.ImageResPrefix + offStateImage);
+            this.OnStateName = onStateName;
+            this.OffStateName = offStateName;
 
             var p = this.AddToggleCommand(
                 displayName,
-                EmbeddedResources.ReadImage(ObsStudioPlugin.ImageResPrefix + onStateImage),
-                EmbeddedResources.ReadImage(ObsStudioPlugin.ImageResPrefix + offStateImage));
+                this.OnStateImage.ToImage(),
+                this.OffStateImage.ToImage());
             p.Description = description;
             
+            this.SetOffStateDisplayName(this.OffStateName);
+            this.SetOnStateDisplayName(this.OnStateName);
 
-            this.SetOffStateDisplayName(offStateName);
-            this.SetOnStateDisplayName(onStateName);
+            UniversalStateSwitch.RegisterToggle(this);
         }
 
         protected override Boolean OnLoad()
