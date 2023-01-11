@@ -12,4 +12,6 @@ This is the repository for OBS open source plugin for [Loupedeck](https://louped
 - Join [Loupedek Developer Discord](https://discord.gg/etJCPZytHg)
 - Documentation for [Loupedeck SDK](https://github.com/Loupedeck/PluginSdk/wiki)
 
-
+## Notes:
+In order for Loupedeck side plugin to work correctly, the OBS-side Loupedeck connector needs to be installed to OBS plugins directory. 
+If you have problems connecting to OBS, please read this first: https://support.loupedeck.com/cannot-connect-to-obs
