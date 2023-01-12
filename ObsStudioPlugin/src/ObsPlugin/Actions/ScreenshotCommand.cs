@@ -6,9 +6,11 @@
     {
         private const String IMGAction = "Workspaces.png";
 
+        private const String InvalidScreenshotFolder = "Cannot find folder for screenshot saving, feature disabled";
+
         public ScreenshotCommand()
             : base(displayName: "Screenshot",
-                   description: "Takes a screenshot of currently active scene and saves it to " + ObsAppProxy.ScreenshotsSavingPath,
+                   description: String.IsNullOrEmpty(ObsAppProxy.ScreenshotsSavingPath) ? InvalidScreenshotFolder  : "Takes a screenshot of currently active scene and saves it to " + ObsAppProxy.ScreenshotsSavingPath,
                    groupName: "") => this.Name = "Screenshot";
 
         protected override Boolean OnLoad()
@@ -26,7 +28,7 @@
             return true;
         }
 
-        private void OnAppConnected(Object sender, EventArgs e) => this.IsEnabled = true;
+        private void OnAppConnected(Object sender, EventArgs e) => this.IsEnabled = !String.IsNullOrEmpty(ObsAppProxy.ScreenshotsSavingPath);
 
         private void OnAppDisconnected(Object sender, EventArgs e) => this.IsEnabled = false;
 
