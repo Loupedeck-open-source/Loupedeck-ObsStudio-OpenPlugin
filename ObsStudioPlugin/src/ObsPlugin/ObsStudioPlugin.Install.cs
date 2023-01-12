@@ -53,6 +53,7 @@
             return true;
         }
 
+        // NOTE! Install/UninstallAdmin is NOT executed during Marketplace plugin installation.
         public override Boolean InstallAdmin()
         {
             var pluginDestination = GetWSPluginDestinationPath();

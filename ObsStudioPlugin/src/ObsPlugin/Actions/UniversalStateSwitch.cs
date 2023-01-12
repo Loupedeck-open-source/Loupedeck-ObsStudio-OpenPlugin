@@ -1,31 +1,37 @@
 ﻿namespace Loupedeck.ObsStudioPlugin.Actions
 {
     using System;
+    using System.Collections.Generic;
 
     internal class UniversalStateSwitch : ActionEditorCommand
     {
-        private const String ActionNameControlName = "ActionControlName";
-        private const String ActionActsControlName = "ActionActsControlName";
+        private static readonly SortedDictionary<String, GenericOnOffSwitch> _toggles = new SortedDictionary<String, GenericOnOffSwitch>();        
+
+        //will be calling this method from toggle GenericOnOffSwitch' constructor.
+        public static void RegisterToggle(GenericOnOffSwitch item) => _toggles[item.Name] = item;
+
+        private Boolean TryGetToggle(String name, out GenericOnOffSwitch item)
+        {
+            item = !String.IsNullOrEmpty(name) && UniversalStateSwitch._toggles.ContainsKey(name) ? UniversalStateSwitch._toggles[name] : null;
+            return item != null;
+        }
+
+        private const String ToggleActionSelector = "actionControlName";
+        private const String ToggleStateSelector = "actionActsControlName";
 
         public UniversalStateSwitch()
         {
 
-            this.DisplayName = "Universal switch";
-            this.Description = "Sets whatever to whatever state you want";
+            this.DisplayName = "OBS General Toggle";
+            this.Description = "Forces a specific toggle to go to a pre-defined state. Useful when you want to ensure that something is on or off, for example in Macros";
             this.GroupName = "";
 
 
             this.ActionEditor.AddControl(
-                new ActionEditorListbox(name: ActionNameControlName, labelText: "What to switch:"));
+                new ActionEditorListbox(name: ToggleActionSelector, labelText: "OBS toggle:"));
             
             this.ActionEditor.AddControl(
-                new ActionEditorListbox(name: ActionActsControlName, labelText: "Select to what state to switch:"));
-/*
-            this.ActionEditor.AddControl(
-                new ActionEditorCheckbox(name: ActionActsControlName, labelText: "Select to what state to switch:")
-                    .SetDefaultValue(true)
-                );
-*/
+                new ActionEditorListbox(name: ToggleStateSelector, labelText: "Force to state:"));
             this.ActionEditor.ListboxItemsRequested += this.OnActionEditorListboxItemsRequested;
             this.ActionEditor.ControlValueChanged += this.OnActionEditorControlValueChanged;
         }
@@ -46,105 +52,83 @@
             return true;
         }
 
-        protected override String GetCommandDisplayName(ActionEditorActionParameters actionParameters)
-        {
-            if( !actionParameters.TryGetString(ActionNameControlName, out var p1val))
-            {
-                p1val = "Unknown";
-            }
-
-            if (!actionParameters.TryGetString(ActionActsControlName, out var p2val))
-            {
-                p2val = "Unknown";
-            }
-
-            return "Ctrl -" + p1val + "  " + p2val;
-
-
-        }
-
-
         private void OnActionEditorControlValueChanged(Object sender, ActionEditorControlValueChangedEventArgs e)
         {
-            if (e.ControlName.EqualsNoCase(ActionNameControlName))
+            if (e.ControlName.EqualsNoCase(ToggleActionSelector))
             {
-                this.ActionEditor.ListboxItemsChanged(ActionActsControlName);
+                this.ActionEditor.ListboxItemsChanged(ToggleStateSelector);
             }
-            else if (e.ControlName.EqualsNoCase(ActionActsControlName))
+            else if (e.ControlName.EqualsNoCase(ToggleStateSelector))
             {
-                //var listbox2ControlValue = e.ActionEditorState.GetControlValue(ActionActsControlName);
-                e.ActionEditorState.SetDisplayName($"What- {e.ActionEditorState.GetControlValue(ActionNameControlName)} - {e.ActionEditorState.GetControlValue(ActionActsControlName)} ");
+                e.ActionEditorState.SetDisplayName($"{e.ActionEditorState.GetControlValue(ToggleStateSelector)}");
             }
         }
-
-        class ToggleActionDescription
-        {
-            public String ToggleName;
-            public String ToggleDescription;
-            public String OnCommand;
-            public String OffCommand;
-            public ToggleActionDescription(String name, String description, String onCmd, String offCmd)
-            {
-                this.ToggleName = name;
-                this.ToggleDescription = description;
-                this.OnCommand = onCmd;
-                this.OffCommand = offCmd;
-            }
-            //TODO: Add run command
-        };
-
-        private static readonly ToggleActionDescription[] allActions =
-                new ToggleActionDescription[] {
-                        new ToggleActionDescription( "a1", "b1", "c1", "d1" ),
-                        new ToggleActionDescription( "a2", "b2", "c2", "d2" ),
-                        new ToggleActionDescription( "a3", "b3", "c3", "d3" ),
-                        new ToggleActionDescription( "a4", "b4", "c4", "d4" ) };
 
         private void OnActionEditorListboxItemsRequested(Object sender, ActionEditorListboxItemsRequestedEventArgs e)
         {
-            if (e.ControlName.EqualsNoCase(ActionNameControlName))
+            if (e.ControlName.EqualsNoCase(ToggleActionSelector))
             {
-                foreach (var v in allActions)
+                foreach (var v in UniversalStateSwitch._toggles.Values)
                 {
-                    e.AddItem(v.ToggleName, v.ToggleName, v.ToggleDescription);
+                    e.AddItem(v.Name, v.DisplayName, v.Description);
+                    this.Plugin.Log.Info($"AE: Adding ('{v.Name}','{v.DisplayName}','{v.Description}')");
                 }
             }
-            else if (e.ControlName.EqualsNoCase(ActionActsControlName))
+            else if (e.ControlName.EqualsNoCase(ToggleStateSelector))
             {
+                var selectedAction = e.ActionEditorState.GetControlValue(ToggleActionSelector);
+
                 // We get the control value from the 1st list box and generate the list accordingly
-                //FIXME REPLACE ALLACTIONS WITH THE PROPER CODE ON THE PROXY LEVEL, with events and on-and off- commands
-                var x = e.ActionEditorState.GetControlValue(ActionNameControlName);
-                foreach (var v in allActions)
-                {
-                    if (v.ToggleName == x)
-                    {
-                        e.AddItem(v.OffCommand, v.OffCommand, "Turns it off");
-                        e.AddItem(v.OnCommand, v.OnCommand, "Turns it on");
-
-                    }
+                if (!String.IsNullOrEmpty(selectedAction) && this.TryGetToggle(selectedAction, out var v))
+                { 
+                    e.AddItem(v.OffStateName, v.OffStateName, "Turns Off");
+                    e.AddItem(v.OnStateName, v.OnStateName, "Turns On");
                 }
-
+                else
+                {
+                    this.Plugin.Log.Error($"AE: Cannot get toggle for control value for action {selectedAction}");
+                }
             }
-
-
+            else
+            {
+                this.Plugin.Log.Error($"Unexpected control name '{e.ControlName}'");
+            }
         }
-
-
 
         private void OnAppConnected(Object sender, EventArgs e)
         {
         }
+
         private void OnAppDisconnected(Object sender, EventArgs e)
         {
         }
 
-        //protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize) => (this.Plugin as ObsStudioPlugin).GetPluginCommandImage(imageSize, IMGAction);
+        protected override BitmapImage GetCommandImage(ActionEditorActionParameters actionParameters, Int32 imageWidth, Int32 imageHeight)
+        {
+            return actionParameters.TryGetString(ToggleActionSelector, out var toggleName)
+                && actionParameters.TryGetString(ToggleStateSelector, out var toggleValue)
+                && this.TryGetToggle(toggleName, out var item)
+                ? toggleValue == item.OffStateName ? item.OffStateImage.ToImage() : item.OnStateImage.ToImage()
+                : null;
+        }
 
         protected override Boolean RunCommand(ActionEditorActionParameters actionParameters)
         {
-            this.Plugin.Log.Info($"Run command for {actionParameters}");
-            return false;
+            if (  actionParameters.TryGetString(ToggleActionSelector, out var toggleName)
+               && actionParameters.TryGetString(ToggleStateSelector, out var toggleValue)
+               && this.TryGetToggle(toggleName, out var item))
+            {
+                this.Plugin.Log.Info($"Running command '{toggleValue}'");
+                if(toggleValue == item.OffStateName)
+                {
+                    item.SwitchOff();
+                }
+                else
+                {
+                    item.SwitchOn();
+                }
+            }
+            return true;
         }
-
     }
 }
