@@ -22,7 +22,7 @@
         public UniversalStateSwitch()
         {
 
-            this.DisplayName = "Force on/off action";
+            this.DisplayName = "OBS General Toggle";
             this.Description = "Forces a specific toggle to go to a pre-defined state. Useful when you want to ensure that something is on or off, for example in Macros";
             this.GroupName = "";
 
