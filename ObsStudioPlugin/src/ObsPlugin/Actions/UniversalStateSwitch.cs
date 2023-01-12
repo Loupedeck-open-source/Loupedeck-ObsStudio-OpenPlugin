@@ -23,12 +23,12 @@
         {
 
             this.DisplayName = "Force on/off action";
-            this.Description = "Forces a specific switch to go to a pre-defined state. Useful when you want to ensure that something is on or off, for example in Macros";
+            this.Description = "Forces a specific toggle to go to a pre-defined state. Useful when you want to ensure that something is on or off, for example in Macros";
             this.GroupName = "";
 
 
             this.ActionEditor.AddControl(
-                new ActionEditorListbox(name: ToggleActionSelector, labelText: "OBS Switch:"));
+                new ActionEditorListbox(name: ToggleActionSelector, labelText: "OBS toggle:"));
             
             this.ActionEditor.AddControl(
                 new ActionEditorListbox(name: ToggleStateSelector, labelText: "Force to state:"));
