@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
 
     /// <summary>
     /// Proxy to OBS websocket server, for API reference see
@@ -18,23 +19,30 @@
         // Properties
         public Boolean IsAppConnected => this.IsConnected;
 
+        // Folders to select from when we try saving screenshots
+        public static readonly Environment.SpecialFolder[] ScreenshotFolders =
+            {                
+                Environment.SpecialFolder.MyPictures,
+                Environment.SpecialFolder.MyDocuments,
+                Environment.SpecialFolder.Personal,
+                Environment.SpecialFolder.CommonPictures
+            };
+
         public ObsAppProxy(Plugin _plugin)
         {
             this.CurrentScene = new OBSWebsocketDotNet.Types.OBSScene();
             this.Scenes = new List<OBSWebsocketDotNet.Types.OBSScene>();
             this.Plugin = _plugin;
 
-            if (ObsAppProxy.ScreenshotsSavingPath == "")
+            // Trying to set screenshot save-to path
+            for(var i=0; (i< ScreenshotFolders.Length) && String.IsNullOrEmpty(ObsAppProxy.ScreenshotsSavingPath); i++)
             {
-                ObsAppProxy.ScreenshotsSavingPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "Pictures");
-
-                /*
-                ObsAppProxy.ScreenshotsSavingPath = Helpers.IsWindows()
-                    ? Environment.ExpandEnvironmentVariables("%USERPROFILE%\\Videos\\")
-                    : Environment.ExpandEnvironmentVariables("~/Pictures/");
-                */
+                var folder = Environment.GetFolderPath(ScreenshotFolders[i]);
+                if (Directory.Exists(folder))
+                {
+                    ObsAppProxy.ScreenshotsSavingPath = folder;
+                }
             }
-
         }
         public void RegisterAppEvents()
         {
@@ -210,7 +218,5 @@
                 }
             }
         }
-
-
     }
 }
