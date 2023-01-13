@@ -22,16 +22,15 @@
         public UniversalStateSwitch()
         {
 
-            this.DisplayName = "OBS General Toggle";
-            this.Description = "Forces a specific toggle to go to a pre-defined state. Useful when you want to ensure that something is on or off, for example in Macros";
+            this.DisplayName = "Set OBS Toggle On/Off";
+            this.Description = "Sets a specific action toggle to go to a pre-defined state. This is particularly useful to ensure that a Toggle is set on or off in custom Multi-Action.";
             this.GroupName = "";
-
 
             this.ActionEditor.AddControl(
                 new ActionEditorListbox(name: ToggleActionSelector, labelText: "OBS toggle:"));
             
             this.ActionEditor.AddControl(
-                new ActionEditorListbox(name: ToggleStateSelector, labelText: "Force to state:"));
+                new ActionEditorListbox(name: ToggleStateSelector, labelText: "Set to state:"));
             this.ActionEditor.ListboxItemsRequested += this.OnActionEditorListboxItemsRequested;
             this.ActionEditor.ControlValueChanged += this.OnActionEditorControlValueChanged;
         }
