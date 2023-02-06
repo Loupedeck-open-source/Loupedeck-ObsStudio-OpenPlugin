@@ -29,6 +29,10 @@
 
                 this.AppEvtSceneCollectionsChanged?.Invoke(sender, args);
             }
+            else
+            {
+                this.Plugin.Log.Warning($"Cannot handle SceneCollectionList change");
+            }
         }
 
         private void OnObsSceneCollectionChanged(Object sender, EventArgs e)
