@@ -66,7 +66,8 @@
             {
                 this.SceneListChanged -= this.OnObsSceneListChanged;
                 this.SceneChanged -= this.OnObsSceneChanged;
-
+                this.PreviewSceneChanged -= this.OnObsPreviewSceneChanged;
+        
                 this.SceneItemVisibilityChanged -= this.OnObsSceneItemVisibilityChanged;
                 this.SceneItemAdded -= this.OnObsSceneItemAdded;
                 this.SceneItemRemoved -= this.OnObsSceneItemRemoved;
@@ -89,6 +90,7 @@
             {
                 this.SceneListChanged += this.OnObsSceneListChanged;
                 this.SceneChanged += this.OnObsSceneChanged;
+                this.PreviewSceneChanged += this.OnObsPreviewSceneChanged;
 
                 this.SceneItemVisibilityChanged += this.OnObsSceneItemVisibilityChanged;
                 this.SceneItemAdded += this.OnObsSceneItemAdded;

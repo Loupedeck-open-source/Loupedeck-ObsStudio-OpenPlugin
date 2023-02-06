@@ -69,18 +69,54 @@
             return scene != null;
         }
 
-        private void OnObsSceneChanged(Object sender, String newScene)
+        private void OnSceneChanged(String newScene)
         {
-            if( this.TryGetSceneByName(newScene, out var scene)  && this.CurrentScene != scene)
+            if (this.TryGetSceneByName(newScene, out var scene) && this.CurrentScene != scene)
             {
                 this.Plugin.Log.Info($"OBS - Current scene changed from {this.CurrentScene?.Name} to {newScene}");
                 var args = new OldNewStringChangeEventArgs(this.CurrentScene?.Name, scene.Name);
                 this.CurrentScene = scene;
-                this.AppEvtCurrentSceneChanged?.Invoke(sender,args);
+                this.AppEvtCurrentSceneChanged?.Invoke(this, args);
             }
             else
             {
                 this.Plugin.Log.Warning($"Cannot find scene {newScene} in current collection {this.CurrentSceneCollection}");
+            }
+        }
+
+        private void OnObsPreviewSceneChanged(Object sender, String newScene)
+        {
+            //Scenes and preview: When in the Studio mode
+            // Scene A: Preview scene
+            // Scene B: Program scene
+            // Scene C: Some other scene
+            //  On the device, scene B is scene. Scenes A and C are not selected
+            //  If Scene C is pressed, it becomes new Preview scene but REMAINS UNSELECTED
+            //  if Scene B is pressed, nothing happens 
+            //  if Scene A is pressed, nothing happens
+
+            // This the same as onObsSceneChanged but in previewmode
+            // For Studio mode, OBS plugin will set / monitor Preview scenes, not main scene
+            //  NB: the SceneChange command changes program scene, not a preview one
+            if(this._studioMode)
+            {
+                //this.OnSceneChanged(newScene);
+            }
+            else
+            {
+                this.Plugin.Log.Info($"PreviewSceneChange to {newScene} but not in Studio mode, igrnoring");
+            }
+        }
+
+        private void OnObsSceneChanged(Object sender, String newScene)
+        {
+            if (!this._studioMode)
+            {
+                this.OnSceneChanged(newScene);
+            }
+            else
+            {
+                this.Plugin.Log.Info($"OnObsSceneChanged to {newScene} ignoring in Studio mode");
             }
         }
 
@@ -90,7 +126,17 @@
             {
                 this.Plugin.Log.Info($"Switching to scene {newScene}");
 
-                Helpers.TryExecuteSafe(() => this.SetCurrentScene(newScene));
+                Helpers.TryExecuteSafe(() =>
+                {
+                    if (this._studioMode)
+                    {
+                        this.SetPreviewScene(newScene);
+                    }
+                    else
+                    {
+                        this.SetCurrentScene(newScene);
+                    }
+                });
             }
         }
     }
