@@ -107,6 +107,15 @@
                 this.Plugin.Log.Info($"PreviewSceneChange to {newScene} but not in Studio mode, igrnoring");
             }
         }
+        private void OnObsTransitionEnd(OBSWebsocket sender, String transitionName, String transitionType, Int32 duration, String toScene)
+        {
+            this.Plugin.Log.Info($"Transition {transitionName} to scene {toScene} ended");
+            if (this._studioMode)
+            {
+                //In studio mode (see above), the selected scene == Program scene
+                this.OnSceneChanged(toScene);
+            }
+        }
 
         private void OnObsSceneChanged(Object sender, String newScene)
         {
@@ -116,6 +125,7 @@
             }
             else
             {
+                //This is handled in OnObsTransitionEnd
                 this.Plugin.Log.Info($"OnObsSceneChanged to {newScene} ignoring in Studio mode");
             }
         }

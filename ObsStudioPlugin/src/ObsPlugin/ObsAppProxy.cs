@@ -158,6 +158,8 @@
             this.SceneCollectionListChanged += this.OnObsSceneCollectionListChanged;
             this.SceneCollectionChanged += this.OnObsSceneCollectionChanged;
 
+            this.TransitionEnd += this.OnObsTransitionEnd;
+
             this.AppConnected?.Invoke(sender, e);
 
             this.Plugin.Log.Info("AppConnected: Initializing data");
@@ -187,6 +189,8 @@
 
             this.SceneCollectionListChanged -= this.OnObsSceneCollectionListChanged;
             this.SceneCollectionChanged -= this.OnObsSceneCollectionChanged;
+
+            this.TransitionEnd -= this.OnObsTransitionEnd;
 
             // Unsubscribing from all the events that are depenendent on Scene Collection change
             this._scene_collection_events_subscribed = false;
