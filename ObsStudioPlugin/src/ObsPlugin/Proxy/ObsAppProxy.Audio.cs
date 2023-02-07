@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Data.SqlTypes;
 
     using OBSWebsocketDotNet;
 
@@ -163,15 +164,17 @@
         private void OnAppConnected_RetreiveSourceTypes()
         {
             this._audioSourceTypes.Clear();
-
+            var audioTypes = "";
             foreach (var type in this.GetSourceTypesList())
             {
                 if (type.Capabilities.HasAudio)
                 {
                     this._audioSourceTypes.Add(type.TypeID);
-                    this.Plugin.Log.Info($"Type {type.TypeID} will be handled as audio type");
+                    audioTypes += $"{type.TypeID}, ";
                 }
             }
+
+            this.Plugin.Log.Info($"Source Audio Types: {audioTypes}");
         }
 
         // Retreive audio sources from current collection
@@ -180,6 +183,7 @@
             this.CurrentAudioSources.Clear();
             try
             {
+                var sources = "";
                 foreach (var source in this.GetSourcesList())
                 {
                     // NOTE: Special sources are seen as in GetSourcesList too! (they're present as 'value' specSource.Value)
@@ -190,9 +194,11 @@
                         // Adding audio source and populating initial values
                         this.CurrentAudioSources[source.Name] = new AudioSourceDescriptor(source.Name, this);
 
-                        this.Plugin.Log.Info($"Adding audio source {source.Name}");
+                        sources += $"\"{source.Name}\",";
                     }
                 }
+
+                this.Plugin.Log.Info($"Added audio sources: {sources}");
             }
             catch (Exception ex)
             {
