@@ -135,8 +135,14 @@
 
             this.OnObsStudioModeStateChange(sender, studioModeStatus);
 
+            this.Plugin.Log.Info("Init: OnObsSceneCollectionListChanged");
+
             this.OnObsSceneCollectionListChanged(sender, new OldNewStringChangeEventArgs("",""));
-            this.OnObsSceneCollectionChanged(sender, e);
+
+            this.Plugin.Log.Info("Init: OnObsSceneCollectionChanged");
+            // This should initiate retreiving of all data
+            // to indicate that we need to force rescan of all scenes and all first parameter is null 
+            this.OnObsSceneCollectionChanged(null , e);
         }
 
         private void OnAppConnected(Object sender, EventArgs e)
@@ -157,6 +163,8 @@
 
             this.SceneCollectionListChanged += this.OnObsSceneCollectionListChanged;
             this.SceneCollectionChanged += this.OnObsSceneCollectionChanged;
+
+            this.TransitionEnd += this.OnObsTransitionEnd;
 
             this.AppConnected?.Invoke(sender, e);
 
@@ -187,6 +195,8 @@
 
             this.SceneCollectionListChanged -= this.OnObsSceneCollectionListChanged;
             this.SceneCollectionChanged -= this.OnObsSceneCollectionChanged;
+
+            this.TransitionEnd -= this.OnObsTransitionEnd;
 
             // Unsubscribing from all the events that are depenendent on Scene Collection change
             this._scene_collection_events_subscribed = false;

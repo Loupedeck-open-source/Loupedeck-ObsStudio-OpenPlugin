@@ -27,14 +27,14 @@
             {
                 this.Scenes = (listInfo as GetSceneListInfo).Scenes;
 
-                this.Plugin.Log.Info($"OBS Rescanned scene list. Currently {this.Scenes.Count} scenes in collection {this.CurrentSceneCollection} ");
+                this.Plugin.Log.Info($"OBS Rescanned scene list. Currently {this.Scenes?.Count} scenes in collection {this.CurrentSceneCollection} ");
 
                 // Retreiving properties for all scenes
                 this.OnObsSceneCollectionChange_FetchSceneItems();
 
                 if (Helpers.TryExecuteFunc(() => this.GetCurrentScene(), out var scene))
                 {
-                    if (!scene.Name.Equals(this.CurrentScene?.Name))
+                    if (!String.IsNullOrEmpty(scene.Name) && !scene.Name.Equals(this.CurrentScene?.Name))
                     {
                         this.OnObsSceneChanged(e, scene.Name);
                     }
@@ -107,6 +107,15 @@
                 this.Plugin.Log.Info($"PreviewSceneChange to {newScene} but not in Studio mode, igrnoring");
             }
         }
+        private void OnObsTransitionEnd(OBSWebsocket sender, String transitionName, String transitionType, Int32 duration, String toScene)
+        {
+            this.Plugin.Log.Info($"Transition {transitionName} to scene {toScene} ended");
+            if (this._studioMode)
+            {
+                //In studio mode (see above), the selected scene == Program scene
+                this.OnSceneChanged(toScene);
+            }
+        }
 
         private void OnObsSceneChanged(Object sender, String newScene)
         {
@@ -116,6 +125,7 @@
             }
             else
             {
+                //This is handled in OnObsTransitionEnd
                 this.Plugin.Log.Info($"OnObsSceneChanged to {newScene} ignoring in Studio mode");
             }
         }
