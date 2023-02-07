@@ -37,22 +37,36 @@
 
         private void OnObsSceneCollectionChanged(Object sender, EventArgs e)
         {
-            if (Helpers.TryExecuteFunc(()=> this.GetCurrentSceneCollection(),out var newSceneCollection) && newSceneCollection != this.CurrentSceneCollection)
+            //If sender == null, we came from initialization routine
+            try
             {
-                var args = new OldNewStringChangeEventArgs(this.CurrentSceneCollection, newSceneCollection);
-                this.Plugin.Log.Info($"OBS Current Scene collection changing from {args.Old} to {args.New}");
-                this.CurrentSceneCollection = newSceneCollection;
+                this.Plugin.Log.Info($"OnObsSceneCollectionChanged: Fetching current collection");
+                var newSceneCollection = this.GetCurrentSceneCollection();
+                if( sender == null || newSceneCollection != this.CurrentSceneCollection )
+                { 
+                    var args = new OldNewStringChangeEventArgs(sender == null ? null : this.CurrentSceneCollection, newSceneCollection);
+                    this.Plugin.Log.Info($"OBS Current Scene collection changing from {args.Old} to {args.New}");
+                    this.CurrentSceneCollection = newSceneCollection;
 
-                // Regenerating all internal structures
-                this.OnObsSceneListChanged(sender, e);
-                this.AppEvtCurrentSceneCollectionChanged?.Invoke(sender, args);
+                    // Regenerating all internal structures
+                    this.OnObsSceneListChanged(sender, e);
+                    this.AppEvtCurrentSceneCollectionChanged?.Invoke(sender, args);
 
-                // SEE THE AppSwitchToSceneCollection
-                this.SubscribeToSceneCollectionEvents();
-            }
-            else
+                    // SEE THE AppSwitchToSceneCollection
+                    this.SubscribeToSceneCollectionEvents();
+                }
+                else
+                {
+                    this.Plugin.Log.Info($"OBS Current Collection not changed!");
+                }
+            } 
+            catch (Exception ex)
             {
-                this.Plugin.Log.Warning($"Cannot handle Collection Changed");
+                this.Plugin.Log.Error(ex, "Exception retreiving GetCurrentSceneCollection");
+                if(ex.InnerException!=null)
+                {
+                    this.Plugin.Log.Error(ex.InnerException, "Inner exception retreiving GetCurrentSceneCollection");
+                }
             }
         }
 
@@ -90,11 +104,11 @@
 
                 foreach (var item in sceneDetailsList)
                 {
-                    var sceneItem = scene.Items.Find(x => x.SourceName == item.SourceName);
+                    var sceneItem = scene?.Items?.Find(x => x.SourceName == item.SourceName) ?? null;
                     if (sceneItem != null)
                     {
-                        var sourceDictItem = SceneItemDescriptor.CreateSourceDictItem(this.CurrentSceneCollection, scene.Name, sceneItem, this, item);
-                        if (sourceDictItem != null)
+                        if(Helpers.TryExecuteFunc(()=> { return SceneItemDescriptor.CreateSourceDictItem(this.CurrentSceneCollection, scene.Name, sceneItem, this, item); }, out var sourceDictItem) 
+                            && sourceDictItem != null)
                         {
                             this.AllSceneItems[SceneItemKey.Encode(this.CurrentSceneCollection, scene.Name, item.SourceName)] = sourceDictItem;
                         }
