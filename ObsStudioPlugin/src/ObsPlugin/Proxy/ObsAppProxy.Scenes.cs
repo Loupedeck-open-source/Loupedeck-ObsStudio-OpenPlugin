@@ -27,14 +27,14 @@
             {
                 this.Scenes = (listInfo as GetSceneListInfo).Scenes;
 
-                this.Plugin.Log.Info($"OBS Rescanned scene list. Currently {this.Scenes.Count} scenes in collection {this.CurrentSceneCollection} ");
+                this.Plugin.Log.Info($"OBS Rescanned scene list. Currently {this.Scenes?.Count} scenes in collection {this.CurrentSceneCollection} ");
 
                 // Retreiving properties for all scenes
                 this.OnObsSceneCollectionChange_FetchSceneItems();
 
                 if (Helpers.TryExecuteFunc(() => this.GetCurrentScene(), out var scene))
                 {
-                    if (!scene.Name.Equals(this.CurrentScene?.Name))
+                    if (!String.IsNullOrEmpty(scene.Name) && !scene.Name.Equals(this.CurrentScene?.Name))
                     {
                         this.OnObsSceneChanged(e, scene.Name);
                     }
