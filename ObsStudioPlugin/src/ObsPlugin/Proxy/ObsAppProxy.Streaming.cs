@@ -16,9 +16,15 @@
 
         public event EventHandler<EventArgs> AppEvtStreamingOff;
 
+        private OBSWebsocketDotNet.Types.OutputState _currentStreamingState = OBSWebsocketDotNet.Types.OutputState.Stopped;
+        private Boolean StreamingStateChangeIsInProgress() => this._currentStreamingState == OBSWebsocketDotNet.Types.OutputState.Starting || this._currentStreamingState == OBSWebsocketDotNet.Types.OutputState.Stopping;
+
+
         private void OnObsStreamingStateChange(OBSWebsocket sender, OBSWebsocketDotNet.Types.OutputState newState)
         {
             this.Plugin.Log.Info($"OBS StreamingStateChange, new state {newState}");
+            
+            this._currentStreamingState = newState;
 
             if ((newState == OBSWebsocketDotNet.Types.OutputState.Started) || (newState == OBSWebsocketDotNet.Types.OutputState.Starting))
             {
@@ -30,11 +36,30 @@
             }
         }
 
-        public void AppToggleStreaming() => this.SafeRunConnected(() => this.ToggleStreaming(), "Cannot toggle streaming");
 
-        public void AppStartStreaming() => this.SafeRunConnected(() => this.StartStreaming(), "Cannot start streaming");
+        public void AppToggleStreaming()
+        { 
+            if (!this.StreamingStateChangeIsInProgress())
+            {
+                this.SafeRunConnected(() => this.ToggleStreaming(), "Cannot toggle streaming");
+            }
+        }
 
-        public void AppStopStreaming() => this.SafeRunConnected(() => this.StopStreaming(), "Cannot stop streaming");
+        public void AppStartStreaming() 
+        { 
+            if (!this.StreamingStateChangeIsInProgress())
+            {
+                this.SafeRunConnected(() => this.StartStreaming(), "Cannot start streaming");
+            }
+        }
+
+        public void AppStopStreaming()
+        {
+            if (!this.StreamingStateChangeIsInProgress())
+            {
+                this.SafeRunConnected(() => this.StopStreaming(), "Cannot stop streaming");
+            }
+        }
 
     }
 }
