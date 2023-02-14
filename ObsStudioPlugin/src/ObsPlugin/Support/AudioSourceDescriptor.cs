@@ -16,8 +16,8 @@
             this.SpecialSource = isSpecSource;
 
             try
-            {
-                var v = that.GetVolume(name);
+            {   /*NB. All volume in decibels!*/
+                var v = that.GetVolume(name,true);
                 this.Muted = v.Muted;
                 this.Volume = v.Volume;
             }

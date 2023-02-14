@@ -50,15 +50,11 @@
 
         protected override String GetAdjustmentValue(String actionParameter)
         {
-            var volume = "N/A";
 
-            if (ObsStudioPlugin.Proxy.TryConvertLegacyActionParamToKey(actionParameter, out var key) && ObsStudioPlugin.Proxy.CurrentAudioSources.ContainsKey(key.Source))
-            {
-                var number = ObsStudioPlugin.Proxy.AppGetVolume(key.Source) * 100.0F;
-                volume = number.ToString("0.");
-            }
-
-            return volume;
+            return ObsStudioPlugin.Proxy.AppGetVolumeLabel(
+                ObsStudioPlugin.Proxy.TryConvertLegacyActionParamToKey(actionParameter, out var key)
+                && ObsStudioPlugin.Proxy.CurrentAudioSources.ContainsKey(key.Source)
+                ? key.Source : "");
         }
     }
 }
