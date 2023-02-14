@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Data.SqlTypes;
+    using System.Runtime.Remoting.Messaging;
     using System.Web;
 
     using OBSWebsocketDotNet;
@@ -135,8 +136,15 @@
             }
         }
 
-        private static readonly Double MinVolumeDB = -96.1;
+        private static readonly Double MinVolumeDB = -96.2;
         private static readonly Double MaxVolumeDB = 0.0;
+        private static readonly Double MinVolumeStep = 0.5;
+        private static readonly Double MaxVolumeStep = 3;
+        private Single GetVolumePercent(String sourceName) => (Single)(100.0 * (this.CurrentAudioSources[sourceName].Volume - MinVolumeDB) / (MaxVolumeDB - MinVolumeDB));
+
+        private Double CalculateVolumeStep(Double volume /*Note volme here is 0..1 */) 
+            => MinVolumeStep + (MaxVolumeStep - MinVolumeStep) * Math.Log(Math.Exp(1.0) - volume * (Math.Exp(1.0) - 1.0));
+
         internal void AppSetVolume(String sourceName, Int32 diff_ticks)
         {
             if (!this.IsAppConnected && !this.CurrentAudioSources.ContainsKey(sourceName))
@@ -147,9 +155,12 @@
 
             try
             {
-                //We will change volume in .1 DB steps. 
-                var current = this.CurrentAudioSources[sourceName].Volume  + diff_ticks * 0.1F;
+                var scaledVol = (this.CurrentAudioSources[sourceName].Volume - MinVolumeDB) / (MaxVolumeDB - MinVolumeDB);
+                var step = this.CalculateVolumeStep(scaledVol);
+                var current = this.CurrentAudioSources[sourceName].Volume +  (Single) (diff_ticks * step);
+               
                 current = (Single)(current < MinVolumeDB ? MinVolumeDB : (current > MaxVolumeDB ? MaxVolumeDB : current));
+
                 this.SetVolume(sourceName, current, true);
             }
             catch (Exception ex)
@@ -158,20 +169,14 @@
             }
         }
 
+        
 
         public String AppGetVolumeLabel(String sourceName)
         {
             //We will return volume as % of MAX(!)
-            var vol = "N/A";
-            if(this.IsAppConnected && !String.IsNullOrEmpty(sourceName) && this.CurrentAudioSources.ContainsKey(sourceName))
-            {
-                var v = 100.0 * (this.CurrentAudioSources[sourceName].Volume - MinVolumeDB)/ (MaxVolumeDB - MinVolumeDB);
-                vol = v.ToString("0.");
-            }
-            /*(this.IsAppConnected && !String.IsNullOrEmpty(sourceName) && this.CurrentAudioSources.ContainsKey(sourceName)
-               ? this.CurrentAudioSources[sourceName].Volume.ToString("00.0")
-               : "N/A")*/
-            return vol;
+            return (this.IsAppConnected && !String.IsNullOrEmpty(sourceName) && this.CurrentAudioSources.ContainsKey(sourceName)) 
+                  ? this.GetVolumePercent(sourceName).ToString("0.")
+                  : "N/A";
         }
 
 
