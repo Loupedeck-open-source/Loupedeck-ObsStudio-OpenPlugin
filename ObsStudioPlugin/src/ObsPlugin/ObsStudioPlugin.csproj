@@ -65,6 +65,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Actions\RecordingPauseToggleCommand.cs" />
+    <Compile Include="Actions\SourceVisibilitySwitch.cs" />
     <Compile Include="Actions\UniversalStateSwitch.cs" />
     <Compile Include="Actions\ScreenshotCommand.cs" />
     <Compile Include="Actions\TransitionCommand.cs" />
