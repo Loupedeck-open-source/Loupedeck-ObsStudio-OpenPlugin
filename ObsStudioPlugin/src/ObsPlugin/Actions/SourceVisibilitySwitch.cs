@@ -30,7 +30,6 @@
             
             this.ActionEditor.ListboxItemsRequested += this.OnActionEditorListboxItemsRequested;
             this.ActionEditor.ControlValueChanged += this.OnActionEditorControlValueChanged;
-            this.ActionEditor.ControlsStateRequested += this.OnActionEditorControlsStateRequested;
         }
 
         protected override Boolean OnLoad()
@@ -52,14 +51,7 @@
         }
 
         private void OnSceneListChanged(Object sender, EventArgs e) => this.ActionEditor.ListboxItemsChanged(ControlSceneSelector);
-
-        private void OnActionEditorControlsStateRequested(Object sender, ActionEditorControlsStateRequestedEventArgs e)
-        {
-/*            var notValid = e.ActionEditorState.GetControlValue(ControlSceneSelector).IsNullOrEmpty() || e.ActionEditorState.GetControlValue(ControlSourceSelector).IsNullOrEmpty();
-            e.ActionEditorState.SetValidity(ControlSourceSelector, !notValid, notValid ? "Source cannot be empty" : null);
-*/
-        }
-
+      
         private void OnActionEditorControlValueChanged(Object sender, ActionEditorControlValueChangedEventArgs e)
         {
             /*ControlSceneSelector 
@@ -143,9 +135,9 @@
                         e.AddItem(item.Key, item.Value.SourceName, $"Source {item.Value.SourceName}");
                     }
                 }
-               
-                e.ActionEditorState.SetValue(ControlSourceSelector, firstKey);
-                //e.ActionEditorState.SetDisplayName( ObsStudioPlugin.Proxy.AllSceneItems[firstKey].SceneItemName);
+
+               //e.ActionEditorState.SetValue(ControlSourceSelector, firstKey);
+               //e.ActionEditorState.SetDisplayName( ObsStudioPlugin.Proxy.AllSceneItems[firstKey].SceneItemName);
             }
             else
             {
