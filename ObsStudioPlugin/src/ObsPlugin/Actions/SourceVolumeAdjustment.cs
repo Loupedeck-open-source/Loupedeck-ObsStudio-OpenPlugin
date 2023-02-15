@@ -83,16 +83,9 @@
             }
         }
 
-        protected override String GetAdjustmentValue(String actionParameter)
+        protected override String GetAdjustmentValue(String actionParameter) 
         {
-            var volume = "N/A";
-            if (SceneKey.TryParse(actionParameter, out var key))
-            {
-                var number = ObsStudioPlugin.Proxy.AppGetVolume(key.Source) * 100.0F;
-                volume = number.ToString("0.");
-            }
-
-            return volume;
+            return ObsStudioPlugin.Proxy.AppGetVolumeLabel(SceneKey.TryParse(actionParameter, out var key) ? key.Source : "N/A");
         }
         private void OnSourceMuteStateChanged(Object sender, MuteEventArgs args)
         {
