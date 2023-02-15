@@ -52,7 +52,7 @@
             return true;
         }
 
-        protected override void RunCommand(String actionParameter) => ObsStudioPlugin.Proxy.AppToggleSceneItemVisibility(actionParameter);
+        protected override void RunCommand(String actionParameter) => ObsStudioPlugin.Proxy.AppSceneItemVisibilityToggle(actionParameter);
 
         private void OnSceneListChanged(Object sender, EventArgs e) => this.ResetParameters(true);
 

@@ -12,17 +12,17 @@
         private const String ControlSceneSelector = "sceneSelector";
         private const String ControlSourceSelector = "sourceSelector";
         private const String ControlIsSourceVisible  = "switchDirection";
-        
+        private readonly String Visibility_Show = "Show";
+        private readonly String Visibility_Hide = "Hide";
 
         public SourceVisibilitySwitch()
         {
             this.DisplayName = "OBS Source Visibility ";
             this.Description = "Ensures specific source is visible or hidden. This is particularly useful to ensure that source is on or off in custom Multi-Action.";
             this.GroupName = "";
-            this.ActionEditor.AddControl(
-                        new ActionEditorCheckbox(name: ControlIsSourceVisible, labelText: "Show", description: "Checked = ensure source visible, unchecked=ensure source hidden")
-                .SetDefaultValue(true));
 
+            this.ActionEditor.AddControl(
+                new ActionEditorListbox(name: ControlIsSourceVisible, labelText: "Visibility:", "Controls, what state source needs to be in"));
             this.ActionEditor.AddControl(
                 new ActionEditorListbox(name: ControlSceneSelector, labelText: "Scene:","Select Scene name"));
             this.ActionEditor.AddControl(
@@ -36,7 +36,7 @@
         {
             ObsStudioPlugin.Proxy.AppConnected += this.OnAppConnected;
             ObsStudioPlugin.Proxy.AppDisconnected += this.OnAppDisconnected;
-            ObsStudioPlugin.Proxy.AppEvtSceneListChanged += this.OnSceneListChanged;
+            //ObsStudioPlugin.Proxy.AppEvtSceneListChanged += this.OnSceneListChanged;
 
             return true;
         }
@@ -45,19 +45,15 @@
         {
             ObsStudioPlugin.Proxy.AppConnected -= this.OnAppConnected;
             ObsStudioPlugin.Proxy.AppDisconnected -= this.OnAppDisconnected;
-            ObsStudioPlugin.Proxy.AppEvtSceneListChanged -= this.OnSceneListChanged;
+            //ObsStudioPlugin.Proxy.AppEvtSceneListChanged -= this.OnSceneListChanged;
 
             return true;
         }
 
         private void OnSceneListChanged(Object sender, EventArgs e) => this.ActionEditor.ListboxItemsChanged(ControlSceneSelector);
-      
+
         private void OnActionEditorControlValueChanged(Object sender, ActionEditorControlValueChangedEventArgs e)
         {
-            /*ControlSceneSelector 
-            ControlSourceSelector
-            ControlIsSourceVisible
-            */
 
             if (e.ControlName.EqualsNoCase(ControlSceneSelector))
             {
@@ -72,8 +68,7 @@
                    || e.ActionEditorState.GetControlValue(ControlSourceSelector).IsNullOrEmpty()))
                    )
             {
-                var visible =(Boolean.TryParse(e.ActionEditorState.GetControlValue(ControlIsSourceVisible), out var chkboxchecked) && chkboxchecked )
-                             ? "Show" : "Hide";
+                var visible = e.ActionEditorState.GetControlValue(ControlIsSourceVisible) == this.Visibility_Show ? "Show" : "Hide";
                 var sourceName = "Unknown";
                 var sceneName = "Unknown"; 
                 if (SceneItemKey.TryParse(e.ActionEditorState.GetControlValue(ControlSourceSelector), out var parsed))
@@ -82,23 +77,27 @@
                     sceneName = parsed.Scene;
                 }
                   
-                e.ActionEditorState.SetDisplayName($"{visible} {sourceName} (scene {sceneName})");
+                e.ActionEditorState.SetDisplayName($"{visible} {sourceName} ({sceneName})");
             }
         }
 
         private void OnActionEditorListboxItemsRequested(Object sender, ActionEditorListboxItemsRequestedEventArgs e)
         {
-            /*ControlSceneSelector
-            ControlSourceSelector
-            ControlIsSourceVisible*/
-            
-            if(!ObsStudioPlugin.Proxy.IsAppConnected && e.ControlName.EqualsNoCase(ControlSceneSelector) )
-            {
-                e.AddItem("N/A", "No data","Not connected to OBS");
-                e.ActionEditorState.SetValue(ControlSourceSelector, e.Items[0].Name);
-            }
+            //FIXMEFIXME:  Check how to prevent this from failing when scene collection updates!
 
-            if (e.ControlName.EqualsNoCase(ControlSceneSelector))
+            if (e.ControlName.EqualsNoCase(ControlIsSourceVisible))
+            {
+                e.AddItem(this.Visibility_Show, this.Visibility_Show, $"Ensures source is visible");
+                e.AddItem(this.Visibility_Hide, this.Visibility_Hide, $"Ensures source is hidden");
+                
+            } 
+            else if ( !ObsStudioPlugin.Proxy.IsAppConnected )
+            {
+                //Both scenes and sources drop down
+                e.AddItem("N/A", "No data","Not connected to OBS");
+                return;
+            }
+            else if (e.ControlName.EqualsNoCase(ControlSceneSelector))
             {
                 var scenes = new HashSet<String>();
 
@@ -116,7 +115,7 @@
                 e.ActionEditorState.SetValue(ControlSceneSelector, e.Items[0].Name);
                 this.ActionEditor.ListboxItemsChanged(ControlSourceSelector);
             }
-            else if (e.ControlName.EqualsNoCase(ControlSourceSelector) && ObsStudioPlugin.Proxy.IsAppConnected)
+            else if (e.ControlName.EqualsNoCase(ControlSourceSelector))
             {
                 var selectedScene = e.ActionEditorState.GetControlValue(ControlSceneSelector);
 
@@ -135,9 +134,6 @@
                         e.AddItem(item.Key, item.Value.SourceName, $"Source {item.Value.SourceName}");
                     }
                 }
-
-               //e.ActionEditorState.SetValue(ControlSourceSelector, firstKey);
-               //e.ActionEditorState.SetDisplayName( ObsStudioPlugin.Proxy.AllSceneItems[firstKey].SceneItemName);
             }
             else
             {
@@ -161,15 +157,11 @@
             if (actionParameters.TryGetString(ControlSourceSelector, out var key) && SceneItemKey.TryParse(key, out var parsed))
             {
                 sourceName = parsed.Source;
-                var sceneSelected = false;
-                if (actionParameters.TryGetBoolean(ControlIsSourceVisible, out var sceneSelParam))
-                {
-                    sceneSelected = sceneSelParam;
-                }
+                var sourceVisible = actionParameters.TryGetString(ControlIsSourceVisible, out var vis) && vis == this.Visibility_Show;
 
                 imageName = parsed.Collection != ObsStudioPlugin.Proxy.CurrentSceneCollection
                     ? SourceVisibilityCommand.IMGSceneInaccessible
-                    : sceneSelected ? SourceVisibilityCommand.IMGSceneSelected : SourceVisibilityCommand.IMGSceneUnselected;
+                    : sourceVisible ? SourceVisibilityCommand.IMGSceneSelected : SourceVisibilityCommand.IMGSceneUnselected;
             }
             else
             {
@@ -181,9 +173,12 @@
 
         protected override Boolean RunCommand(ActionEditorActionParameters actionParameters)
         {
-            if(actionParameters.TryGetString(ControlSourceSelector, out var key))
+            if (actionParameters.TryGetString(ControlSourceSelector, out var key))
             {
-                ObsStudioPlugin.Proxy.AppToggleSceneItemVisibility(key);
+                var setVisible = actionParameters.TryGetString(ControlIsSourceVisible, out var vis) && vis == this.Visibility_Show;
+
+                ObsStudioPlugin.Proxy.AppSceneItemVisibilityToggle(key, true, setVisible);
+
                 return true;
             }
             else

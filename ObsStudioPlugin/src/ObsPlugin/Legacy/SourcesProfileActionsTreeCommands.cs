@@ -59,7 +59,7 @@
         {
             if (ObsStudioPlugin.Proxy.TryConvertLegacyActionParamToKey(actionParameter, out var key_struct))
             {
-                ObsStudioPlugin.Proxy.AppToggleSceneItemVisibility(key_struct.Stringize());
+                ObsStudioPlugin.Proxy.AppSceneItemVisibilityToggle(key_struct.Stringize());
             }
         }
     }
