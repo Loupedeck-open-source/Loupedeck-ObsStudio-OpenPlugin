@@ -138,7 +138,7 @@
 
         private static readonly Double MinVolumeDB = -96.2;
         private static readonly Double MaxVolumeDB = 0.0;
-        private static readonly Double MinVolumeStep = 0.2;
+        private static readonly Double MinVolumeStep = 0.1;
         private static readonly Double MaxVolumeStep = 3;
         private Single GetVolumePercent(String sourceName) => (Single)(100.0 * (this.CurrentAudioSources[sourceName].Volume - MinVolumeDB) / (MaxVolumeDB - MinVolumeDB));
 
