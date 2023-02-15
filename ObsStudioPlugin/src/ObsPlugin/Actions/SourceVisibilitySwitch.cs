@@ -85,53 +85,50 @@
         {
             //FIXMEFIXME:  Check how to prevent this from failing when scene collection updates!
 
+            /*
+             * This does not work (yet)
+             * e.ActionEditorState.SetEnabled(ControlSceneSelector, ObsStudioPlugin.Proxy.IsAppConnected);
+             * e.ActionEditorState.SetEnabled(ControlSourceSelector, ObsStudioPlugin.Proxy.IsAppConnected);
+             * e.ActionEditorState.SetEnabled(ControlIsSourceVisible, ObsStudioPlugin.Proxy.IsAppConnected);
+            */
+
             if (e.ControlName.EqualsNoCase(ControlIsSourceVisible))
             {
                 e.AddItem(this.Visibility_Show, this.Visibility_Show, $"Ensures source is visible");
                 e.AddItem(this.Visibility_Hide, this.Visibility_Hide, $"Ensures source is hidden");
-                
-            } 
-            else if ( !ObsStudioPlugin.Proxy.IsAppConnected )
+            }
+            else if (!ObsStudioPlugin.Proxy.IsAppConnected)
             {
                 //Both scenes and sources drop down
-                e.AddItem("N/A", "No data","Not connected to OBS");
+                e.AddItem("N/A", "No data", "Not connected to OBS");
                 return;
             }
             else if (e.ControlName.EqualsNoCase(ControlSceneSelector))
             {
-                var scenes = new HashSet<String>();
-
+                this.Plugin.Log.Info($"SVS: Adding scenes to {ControlSceneSelector} control");
                 //Unique scenes (those that have sources)
-                foreach (var item in ObsStudioPlugin.Proxy.AllSceneItems)
+                foreach (var item in ObsStudioPlugin.Proxy.ScenesWithItems)
                 {
-                    scenes.Add(item.Value.SceneName);
+                    e.AddItem(item.Key, item.Key, $"Scene {item.Key}");
                 }
-
-                foreach (var scene in scenes)
-                {
-                    e.AddItem(scene, scene, $"Scene {scene}");
-                }
-
-                e.ActionEditorState.SetValue(ControlSceneSelector, e.Items[0].Name);
-                this.ActionEditor.ListboxItemsChanged(ControlSourceSelector);
             }
             else if (e.ControlName.EqualsNoCase(ControlSourceSelector))
             {
                 var selectedScene = e.ActionEditorState.GetControlValue(ControlSceneSelector);
 
-                var firstKey = "";
+                this.Plugin.Log.Info($"SVS: Adding sources for {selectedScene}");
 
-                foreach (var item in ObsStudioPlugin.Proxy.AllSceneItems)
+                if ( ObsStudioPlugin.Proxy.ScenesWithItems.TryGetValue(selectedScene,out var sceneItemList))
                 {
-                    if(firstKey.IsNullOrEmpty())
+                    var firstKey = "";
+                    foreach (var item in sceneItemList)
                     {
-                        firstKey = item.Key;
-                    }
-
-                    if(item.Value.SceneName == selectedScene )
-                    {
+                        if (firstKey.IsNullOrEmpty())
+                        {
+                            firstKey = item.Item1;
+                        }
                         //The 'Value' for sources drop down is the same Key (collection-scene-item) we are using in SourceVisibilityCommand
-                        e.AddItem(item.Key, item.Value.SourceName, $"Source {item.Value.SourceName}");
+                        e.AddItem(item.Item1, item.Item2, $"Source {item.Item2}");
                     }
                 }
             }
