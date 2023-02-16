@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Web.UI.WebControls;
 
     using OBSWebsocketDotNet;
 
@@ -86,10 +87,15 @@
             }
         }
 
+        //While AllSceneItems is a flat list indexed y string key, this one is the list of lists for scene, 
+        //To be used in the SourceVisibility processing 
+        public Dictionary<String, List<Tuple<String, String>>> ScenesWithItems { get; private set; } = new Dictionary<String, List<Tuple<String, String>>>();
+
         // Retreives all scene items for all scenes in current collection
         private void OnObsSceneCollectionChange_FetchSceneItems()
         {
             this.AllSceneItems.Clear();
+            this.ScenesWithItems.Clear();
 
             this.Plugin.Log.Info("Adding scene items");
 
@@ -102,6 +108,8 @@
                     continue;
                 }
 
+                var itemsList = new List<Tuple<String,String>>();
+
                 foreach (var item in sceneDetailsList)
                 {
                     var sceneItem = scene?.Items?.Find(x => x.SourceName == item.SourceName) ?? null;
@@ -110,7 +118,9 @@
                         if(Helpers.TryExecuteFunc(()=> { return SceneItemDescriptor.CreateSourceDictItem(this.CurrentSceneCollection, scene.Name, sceneItem, this, item); }, out var sourceDictItem) 
                             && sourceDictItem != null)
                         {
-                            this.AllSceneItems[SceneItemKey.Encode(this.CurrentSceneCollection, scene.Name, item.SourceName)] = sourceDictItem;
+                            var key = SceneItemKey.Encode(this.CurrentSceneCollection, scene.Name, item.SourceName);
+                            this.AllSceneItems[key] = sourceDictItem;
+                            itemsList.Add(Tuple.Create(key, item.SourceName));
                         }
                         else
                         {
@@ -122,6 +132,12 @@
                         this.Plugin.Log.Warning($"Cannot get SceneItemList for scene {scene.Name}");
                     }
                 }
+
+                if(itemsList.Count > 0)
+                {
+                    this.ScenesWithItems.Add(scene.Name, itemsList);
+                }
+
             }
         }
     }

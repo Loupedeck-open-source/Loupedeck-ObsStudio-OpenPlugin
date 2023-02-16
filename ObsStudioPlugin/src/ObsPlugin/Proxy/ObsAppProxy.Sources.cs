@@ -105,14 +105,20 @@
             }
         }
 
-        public void AppToggleSceneItemVisibility(String key)
+        /// <summary>
+        ///  Controls scene item visibilty. 
+        /// </summary>
+        /// <param name="key">Key for scene item</param>
+        /// <param name="forceState">if True, force specific state to the scene item, otherwise toggle. </param>
+        /// <param name="newState">state to force</param>
+        public void AppSceneItemVisibilityToggle(String key, Boolean forceState = false, Boolean newState = false)
         {
             if (this.IsAppConnected && this.AllSceneItems.ContainsKey(key))
             {
                 try
                 {
                     var item = this.AllSceneItems[key];
-                    this.SetSourceRender(item.SourceName, !item.Visible, item.SceneName);
+                    this.SetSourceRender(item.SourceName, forceState ? newState : !item.Visible, item.SceneName);
                 }
                 catch (Exception ex)
                 {
@@ -120,5 +126,6 @@
                 }
             }
         }
+
     }
 }

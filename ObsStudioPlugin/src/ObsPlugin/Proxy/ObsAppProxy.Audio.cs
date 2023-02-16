@@ -3,6 +3,8 @@
     using System;
     using System.Collections.Generic;
     using System.Data.SqlTypes;
+    using System.Runtime.Remoting.Messaging;
+    using System.Web;
 
     using OBSWebsocketDotNet;
 
@@ -85,7 +87,7 @@
         {
             if (this.CurrentAudioSources.ContainsKey(volDesc.SourceName))
             {
-                this.CurrentAudioSources[volDesc.SourceName].Volume = volDesc.Volume;
+                this.CurrentAudioSources[volDesc.SourceName].Volume = volDesc.VolumeDb;
                 this.AppEvtSourceVolumeChanged?.Invoke(sender, new VolumeEventArgs(volDesc.SourceName, volDesc.Volume, volDesc.VolumeDb));
             }
             else
@@ -110,10 +112,7 @@
 
         // NOTE: We are NOT going to OBS for mute and volume, using cached value instead -- This is for LD UI
         internal Boolean AppGetMute(String sourceName) =>
-            this.IsAppConnected & this.CurrentAudioSources.ContainsKey(sourceName) && this.CurrentAudioSources[sourceName].Muted;
-
-        internal Single AppGetVolume(String sourceName) =>
-            this.IsAppConnected & this.CurrentAudioSources.ContainsKey(sourceName) ? this.CurrentAudioSources[sourceName].Volume : (Single)0.0;
+            this.IsAppConnected && this.CurrentAudioSources.ContainsKey(sourceName) && this.CurrentAudioSources[sourceName].Muted;
 
         // Toggles mute on the source, returns current state of the mute.
         internal void AppToggleMute(String sourceName)
@@ -137,28 +136,49 @@
             }
         }
 
+        private static readonly Double MinVolumeDB = -96.2;
+        private static readonly Double MaxVolumeDB = 0.0;
+        private static readonly Double MinVolumeStep = 0.1;
+        private static readonly Double MaxVolumeStep = 3;
+        private Single GetVolumePercent(String sourceName) => (Single)(100.0 * (this.CurrentAudioSources[sourceName].Volume - MinVolumeDB) / (MaxVolumeDB - MinVolumeDB));
+
+        private Double CalculateVolumeStep(Double volume /*Note volme here is 0..1 */) 
+            => MinVolumeStep + (MaxVolumeStep - MinVolumeStep) * Math.Log(Math.Exp(1.0) - volume * (Math.Exp(1.0) - 1.0));
+
         internal void AppSetVolume(String sourceName, Int32 diff_ticks)
         {
-            if (this.IsAppConnected && this.CurrentAudioSources.ContainsKey(sourceName))
-            {
-                try
-                {
-                    var current = this.AppGetVolume(sourceName) + (diff_ticks / 100.0F);
-
-                    current = (Single)(current < 0.0 ? 0.0 : (current > 1.0 ? 1.0 : current));
-
-                    this.SetVolume(sourceName, current);
-                }
-                catch (Exception ex)
-                {
-                    this.Plugin.Log.Error($"Exception {ex.InnerException.Message} -- Cannot set volume for source {sourceName}");
-                }
-            }
-            else
+            if (!this.IsAppConnected && !this.CurrentAudioSources.ContainsKey(sourceName))
             {
                 this.Plugin.Log.Warning($"AppSetVolume: Source {sourceName} not found in current sources, ignoring");
+                return;
+            }
+
+            try
+            {
+                var scaledVol = (this.CurrentAudioSources[sourceName].Volume - MinVolumeDB) / (MaxVolumeDB - MinVolumeDB);
+                var step = this.CalculateVolumeStep(scaledVol);
+                var current = this.CurrentAudioSources[sourceName].Volume +  (Single) (diff_ticks * step);
+               
+                current = (Single)(current < MinVolumeDB ? MinVolumeDB : (current > MaxVolumeDB ? MaxVolumeDB : current));
+
+                this.SetVolume(sourceName, current, true);
+            }
+            catch (Exception ex)
+            {
+                this.Plugin.Log.Error($"Exception {ex.InnerException.Message} -- Cannot set volume for source {sourceName}");
             }
         }
+
+        
+
+        public String AppGetVolumeLabel(String sourceName)
+        {
+            //We will return volume as % of MAX(!)
+            return (this.IsAppConnected && !String.IsNullOrEmpty(sourceName) && this.CurrentAudioSources.ContainsKey(sourceName)) 
+                  ? this.GetVolumePercent(sourceName).ToString("0.")
+                  : "N/A";
+        }
+
 
         // Executed once, upon connection. Note, throws!!
         private void OnAppConnected_RetreiveSourceTypes()

@@ -15,13 +15,13 @@ displayName: OBS Studio
 pluginFileName: ObsStudioPlugin.dll 
 
 # Plugin version.
-version: 5.4.2.20006
+version: 5.4.2.20010
 
 # Author of the plugin. The author can be a company or an individual developer.
 author: Andrei Laperie, Loupedeck
 
 # Copyright information.
-copyright: Copyright © 2022 Loupedeck. All rights reserved.
+copyright: Copyright © 2023 Loupedeck. All rights reserved.
 
 # Minimal Loupedeck Version to be used
 minimumLoupedeckVersion: 5.4.0
