@@ -22,11 +22,17 @@
             this.GroupName = "";
 
             this.ActionEditor.AddControl(
-                new ActionEditorListbox(name: ControlSceneSelector, labelText: "Scene:"/*,"Select Scene name"*/));
+                new ActionEditorListbox(name: ControlSceneSelector, labelText: "Scene:"/*,"Select Scene name"*/)
+                    .SetRequired()
+                );
             this.ActionEditor.AddControl(
-                new ActionEditorListbox(name: ControlSourceSelector, labelText: "Source:"/*, "Select Source name"*/));
+                new ActionEditorListbox(name: ControlSourceSelector, labelText: "Source:"/*, "Select Source name"*/)
+                .SetRequired()
+                );
             this.ActionEditor.AddControl(
-                new ActionEditorListbox(name: ControlIsSourceVisible, labelText: "Visibility:"/*, "Controls, what state source needs to be in"*/));
+                new ActionEditorListbox(name: ControlIsSourceVisible, labelText: "Visibility:"/*, "Controls, what state source needs to be in"*/)
+                .SetRequired()
+                );
 
             this.ActionEditor.ListboxItemsRequested += this.OnActionEditorListboxItemsRequested;
             this.ActionEditor.ControlValueChanged += this.OnActionEditorControlValueChanged;
@@ -95,23 +101,31 @@
                 e.AddItem(this.Visibility_Show, this.Visibility_Show, $"Ensures source is visible");
                 e.AddItem(this.Visibility_Hide, this.Visibility_Hide, $"Ensures source is hidden");
             }
-            else if (!ObsStudioPlugin.Proxy.IsAppConnected)
-            {
-                //Both scenes and sources drop down
-                e.AddItem("N/A", "No data", "Not connected to OBS");
-                return;
-            }
             else if (e.ControlName.EqualsNoCase(ControlSceneSelector))
             {
-                this.Plugin.Log.Info($"SVS: Adding scenes to {ControlSceneSelector} control");
-                //Unique scenes (those that have sources)
-                foreach (var item in ObsStudioPlugin.Proxy.ScenesWithItems)
+                if (!ObsStudioPlugin.Proxy.IsAppConnected)
                 {
-                    e.AddItem(item.Key, item.Key, $"Scene {item.Key}");
+                    e.AddItem("N/A", "No data", "Not connected to OBS");
+                }
+                else
+                {
+                    this.Plugin.Log.Info($"SVS: Adding scenes to {ControlSceneSelector} control");
+                    //Unique scenes (those that have sources)
+                    foreach (var item in ObsStudioPlugin.Proxy.ScenesWithItems)
+                    {
+                        e.AddItem(item.Key, item.Key, $"Scene {item.Key}");
+                    }
                 }
             }
             else if (e.ControlName.EqualsNoCase(ControlSourceSelector))
             {
+
+                if (!ObsStudioPlugin.Proxy.IsAppConnected)
+                {
+                    //To ensure sources list is empty so that control cannot be saved.
+                    return; 
+                }
+
                 var selectedScene = e.ActionEditorState.GetControlValue(ControlSceneSelector);
 
                 if (!String.IsNullOrEmpty(selectedScene))
