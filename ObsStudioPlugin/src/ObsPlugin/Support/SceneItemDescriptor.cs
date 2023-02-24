@@ -2,24 +2,14 @@
 {
     using System;
 
-    using OBSWebsocketDotNet.Types;
-
     internal class SceneItemDescriptor
     {
         public String CollectionName;
-
         public String SceneName;
 
-        public String SceneItemName => this._sceneItemProps != null ? this._sceneItemProps.ItemName : "Invalid_Item_Name";
+        public String SourceName { get; private set; }
 
-        public String SourceName => this._sceneItemDetails != null ? this._sceneItemDetails.SourceName : "Invalid_Source_Name";
-
-        public Boolean Visible { get => this._sceneItemProps.Visible; set => this._sceneItemProps.Visible = value; }
-
-        // private readonly volumeinfo;
-        // private readonly OBSWebsocketDotNet.Types.SceneItem _sceneItem;
-        private readonly SceneItemDetails _sceneItemDetails;
-        private readonly SceneItemProperties _sceneItemProps;
+        public Boolean Visible { get; private set; } 
 
         /// <summary>
         /// Creates a single Source Dictionary item, optionally feching SceneItemProperties  and SceneItemDetails
@@ -31,12 +21,11 @@
         /// <param name="in_props">properties</param>
         /// <param name="in_details">details</param>
         /// <returns></returns>
-        public static SceneItemDescriptor CreateSourceDictItem(String in_collection, String in_sceneName, SceneItem in_sceneItem, OBSWebsocketDotNet.OBSWebsocket obs, SceneItemDetails in_details = null)
+        public static SceneItemDescriptor CreateSourceDictItem(String in_collection, String in_sceneName, OBSWebsocketDotNet.Types.SceneItem in_sceneItem, OBSWebsocketDotNet.OBSWebsocket obs, OBSWebsocketDotNet.Types.SceneItemDetails in_details = null)
         {
             try
             {
                 var props = obs.GetSceneItemProperties(in_sceneItem.SourceName, in_sceneName);
-
                 var details = in_details;
 
                 if (details == null)
@@ -59,7 +48,9 @@
                     throw new Exception("Cannot find details for source");
                 }
 
-                var source = new SceneItemDescriptor(in_collection, in_sceneName, in_sceneItem, details, props);
+                var source = new SceneItemDescriptor(in_collection, in_sceneName, 
+                                        details != null ? details.SourceName : "Invalid_Source_Name", 
+                                        props != null && props.Visible);
 
                 return source;
             }
@@ -71,12 +62,12 @@
             return null;
         }
 
-        protected SceneItemDescriptor(String coll, String scene, SceneItem item, SceneItemDetails details, SceneItemProperties props)
+        protected SceneItemDescriptor(String coll, String scene, String sourceName, Boolean visible)
         {
             this.CollectionName = coll;
             this.SceneName = scene;
-            this._sceneItemDetails = details;
-            this._sceneItemProps = props;
+            this.SourceName = sourceName;
+            this.Visible = visible; 
         }
     }
 
