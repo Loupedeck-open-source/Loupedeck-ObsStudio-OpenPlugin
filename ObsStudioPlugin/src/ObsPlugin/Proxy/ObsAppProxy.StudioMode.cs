@@ -16,24 +16,6 @@
 
         public event EventHandler<EventArgs> AppEvtStudioModeOff;
 
-        // Caching studio mode
-        private Boolean _studioMode = false;
-
-        private void OnObsStudioModeStateChange(Object sender, Boolean enabled)
-        {
-            this.Plugin.Log.Info($"OBS StudioMode State change, enabled={enabled}");
-            this._studioMode = enabled;
-            if (enabled)
-            {
-                this.AppEvtStudioModeOn?.Invoke(this, new EventArgs());
-            }
-            else
-            {
-                this.AppEvtStudioModeOff?.Invoke(this, new EventArgs());
-            }
-        }
-
-  
         public void AppRunTransition()
         {
             if (this.IsAppConnected && this._studioMode)
@@ -54,6 +36,23 @@
         public void AppStartStudioMode() => this.SafeRunConnected(() => this.EnableStudioMode(), "Cannot start studio mode");
 
         public void AppStopStudioMode() => this.SafeRunConnected(() => this.DisableStudioMode(), "Cannot stop studio mode");
+        // Caching studio mode
+        private Boolean _studioMode = false;
+
+        private void OnObsStudioModeStateChange(Object sender, Boolean enabled)
+        {
+            this.Plugin.Log.Info($"OBS StudioMode State change, enabled={enabled}");
+            this._studioMode = enabled;
+            if (enabled)
+            {
+                this.AppEvtStudioModeOn?.Invoke(this, new EventArgs());
+            }
+            else
+            {
+                this.AppEvtStudioModeOff?.Invoke(this, new EventArgs());
+            }
+        }
+
 
     }
 }

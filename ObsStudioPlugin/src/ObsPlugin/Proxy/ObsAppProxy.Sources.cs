@@ -25,6 +25,28 @@
         // Dictionary
         public Dictionary<String, SceneItemDescriptor> AllSceneItems = new Dictionary<String, SceneItemDescriptor>();
 
+
+        /// <summary>
+        ///  Controls scene item visibilty. 
+        /// </summary>
+        /// <param name="key">Key for scene item</param>
+        /// <param name="forceState">if True, force specific state to the scene item, otherwise toggle. </param>
+        /// <param name="newState">state to force</param>
+        public void AppSceneItemVisibilityToggle(String key, Boolean forceState = false, Boolean newState = false)
+        {
+            if (this.IsAppConnected && this.AllSceneItems.ContainsKey(key))
+            {
+                try
+                {
+                    var item = this.AllSceneItems[key];
+                    this.SetSourceRender(item.SourceName, forceState ? newState : !item.Visible, item.SceneName);
+                }
+                catch (Exception ex)
+                {
+                    this.Plugin.Log.Error($"Exception {ex.Message} when toggling visibility to {key}");
+                }
+            }
+        }
         private void OnObsSceneItemVisibilityChanged(OBSWebsocket sender, String sceneName, String itemName, Boolean isVisible)
         {
             var key = SceneItemKey.Encode(this.CurrentSceneCollection, sceneName, itemName);
@@ -44,29 +66,29 @@
         {
             this.Plugin.Log.Info($"OBS: OnObsSceneItemAdded: Item '{itemName}' scene '{sceneName}'");
 
-            if ( sceneName!= this.CurrentScene.Name ) 
+            if (sceneName != this.CurrentScene.Name)
             {
                 this.Plugin.Log.Warning($"OnObsSceneItemAdded received non-current scene '{sceneName}'. Current is '{this.CurrentScene.Name}'. Ignoring");
                 return;
             }
 
             // Re-reading current scene, since this.CurrentScene does not contain the item
-            if(!Helpers.TryExecuteFunc(() => this.GetCurrentScene(), out var obsCurrentScene))
+            if (!Helpers.TryExecuteFunc(() => this.GetCurrentScene(), out var obsCurrentScene))
             {
                 this.Plugin.Log.Warning($"Cannot get current scene from OBS");
                 return;
             }
 
-            if( obsCurrentScene.Name != this.CurrentScene.Name )
+            if (obsCurrentScene.Name != this.CurrentScene.Name)
             {
                 this.Plugin.Log.Warning($"Current scene changed to '{obsCurrentScene}' mid-way.");
                 return;
             }
 
-            this.CurrentScene = (Scene) obsCurrentScene;
+            this.CurrentScene = (Scene)obsCurrentScene;
 
             var itemIndex = this.CurrentScene.Items.FindIndex(x => x.SourceName == itemName);
-            
+
             if (itemIndex == -1)
             {
                 this.Plugin.Log.Warning($"Cannot find item '{itemName}' among current scene items.");
@@ -76,7 +98,7 @@
             var item = this.CurrentScene.Items[itemIndex];
 
             //Creating item and fetching all missing data for it from OBS
-            var sourceDictItem = SceneItemDescriptor.CreateSourceDictItem(this.CurrentSceneCollection, sceneName, item, this,null);
+            var sourceDictItem = SceneItemDescriptor.CreateSourceDictItem(this.CurrentSceneCollection, sceneName, item, this, null);
 
             if (sourceDictItem == null)
             {
@@ -103,28 +125,6 @@
             else
             {
                 this.Plugin.Log.Warning($"Cannot find item {itemName} in scene {sceneName}");
-            }
-        }
-
-        /// <summary>
-        ///  Controls scene item visibilty. 
-        /// </summary>
-        /// <param name="key">Key for scene item</param>
-        /// <param name="forceState">if True, force specific state to the scene item, otherwise toggle. </param>
-        /// <param name="newState">state to force</param>
-        public void AppSceneItemVisibilityToggle(String key, Boolean forceState = false, Boolean newState = false)
-        {
-            if (this.IsAppConnected && this.AllSceneItems.ContainsKey(key))
-            {
-                try
-                {
-                    var item = this.AllSceneItems[key];
-                    this.SetSourceRender(item.SourceName, forceState ? newState : !item.Visible, item.SceneName);
-                }
-                catch (Exception ex)
-                {
-                    this.Plugin.Log.Error($"Exception {ex.Message} when toggling visibility to {key}");
-                }
             }
         }
 

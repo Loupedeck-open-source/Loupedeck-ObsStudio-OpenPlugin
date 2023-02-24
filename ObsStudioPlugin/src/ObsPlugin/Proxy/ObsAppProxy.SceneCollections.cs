@@ -15,11 +15,28 @@
         public event EventHandler<EventArgs> AppEvtSceneCollectionsChanged;
 
         public event EventHandler<OldNewStringChangeEventArgs> AppEvtCurrentSceneCollectionChanged;
-
         public List<String> SceneCollections { get; private set; } = new List<String>();
-
         public String CurrentSceneCollection { get; private set; } = "";
 
+        public void AppSwitchToSceneCollection(String newCollection)
+        {
+            if (this.IsAppConnected && this.SceneCollections.Contains(newCollection) && this.CurrentSceneCollection != newCollection)
+            {
+                // NOTE NOTE: After we issue Switch Scene Collection command, there will be lots of events coming from OBS
+                // BEFORE we get SceneCollectionChanged event
+                //  SINCE OUR INTERNAL DATA STRUCTURES ARE REGENERATED FROM THE LATTER, we temporarily set the 'suspend events' flag
+
+                this.Plugin.Log.Info($"Switching to Scene Collection {newCollection}");
+
+                this.UnsubscribeFromSceneCollectionEvents();
+
+                Helpers.TryExecuteSafe(() => this.SetCurrentSceneCollection(newCollection));
+            }
+        }
+
+        //While AllSceneItems is a flat list indexed y string key, this one is the list of lists for scene, 
+        //To be used in the SourceVisibility processing 
+        public Dictionary<String, List<Tuple<String, String>>> ScenesWithItems { get; private set; } = new Dictionary<String, List<Tuple<String, String>>>();
         private void OnObsSceneCollectionListChanged(Object sender, EventArgs args)
         {
             this.Plugin.Log.Info("OBS SceneCollectionList changed");
@@ -43,8 +60,8 @@
             {
                 this.Plugin.Log.Info($"OnObsSceneCollectionChanged: Fetching current collection");
                 var newSceneCollection = this.GetCurrentSceneCollection();
-                if( sender == null || newSceneCollection != this.CurrentSceneCollection )
-                { 
+                if (sender == null || newSceneCollection != this.CurrentSceneCollection)
+                {
                     var args = new OldNewStringChangeEventArgs(sender == null ? null : this.CurrentSceneCollection, newSceneCollection);
                     this.Plugin.Log.Info($"OBS Current Scene collection changing from {args.Old} to {args.New}");
                     this.CurrentSceneCollection = newSceneCollection;
@@ -60,36 +77,16 @@
                 {
                     this.Plugin.Log.Info($"OBS Current Collection not changed!");
                 }
-            } 
+            }
             catch (Exception ex)
             {
                 this.Plugin.Log.Error(ex, "Exception retreiving GetCurrentSceneCollection");
-                if(ex.InnerException!=null)
+                if (ex.InnerException != null)
                 {
                     this.Plugin.Log.Error(ex.InnerException, "Inner exception retreiving GetCurrentSceneCollection");
                 }
             }
         }
-
-        public void AppSwitchToSceneCollection(String newCollection)
-        {
-            if (this.IsAppConnected && this.SceneCollections.Contains(newCollection) && this.CurrentSceneCollection != newCollection)
-            {
-                // NOTE NOTE: After we issue Switch Scene Collection command, there will be lots of events coming from OBS
-                // BEFORE we get SceneCollectionChanged event
-                //  SINCE OUR INTERNAL DATA STRUCTURES ARE REGENERATED FROM THE LATTER, we temporarily set the 'suspend events' flag
-
-                this.Plugin.Log.Info($"Switching to Scene Collection {newCollection}");
-
-                this.UnsubscribeFromSceneCollectionEvents();
-
-                Helpers.TryExecuteSafe(() => this.SetCurrentSceneCollection(newCollection));
-            }
-        }
-
-        //While AllSceneItems is a flat list indexed y string key, this one is the list of lists for scene, 
-        //To be used in the SourceVisibility processing 
-        public Dictionary<String, List<Tuple<String, String>>> ScenesWithItems { get; private set; } = new Dictionary<String, List<Tuple<String, String>>>();
 
         // Retreives all scene items for all scenes in current collection
         private void OnObsSceneCollectionChange_FetchSceneItems()

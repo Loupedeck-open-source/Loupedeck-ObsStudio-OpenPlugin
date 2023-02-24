@@ -12,6 +12,12 @@
 
         public event EventHandler<EventArgs> AppEvtVirtualCamOff;
 
+        public void AppToggleVirtualCam() => this.SafeRunConnected(() => this.ToggleVirtualCam(), "Cannot toggle virtual cam");
+
+        public void AppStartVirtualCam() => this.SafeRunConnected(() => this.StartVirtualCam(), "Cannot start virtual cam");
+
+        public void AppStopVirtualCam() => this.SafeRunConnected(() => this.StopVirtualCam(), "Cannot stop virtual cam");
+
         private void OnObsVirtualCameraStarted(Object sender, EventArgs e)
         {
             this.Plugin.Log.Info("Obs Virtual camera started");
@@ -23,12 +29,6 @@
             this.Plugin.Log.Info("Obs Virtual camera stopped");
             this.AppEvtVirtualCamOff?.Invoke(this, new EventArgs());
         }
-
-        public void AppToggleVirtualCam() => this.SafeRunConnected(() => this.ToggleVirtualCam(), "Cannot toggle virtual cam");
-
-        public void AppStartVirtualCam() => this.SafeRunConnected(() => this.StartVirtualCam(), "Cannot start virtual cam");
-
-        public void AppStopVirtualCam() => this.SafeRunConnected(() => this.StopVirtualCam(), "Cannot stop virtual cam");
 
     }
 }

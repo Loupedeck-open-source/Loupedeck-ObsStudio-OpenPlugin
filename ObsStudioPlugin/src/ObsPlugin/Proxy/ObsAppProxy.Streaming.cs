@@ -16,27 +16,6 @@
 
         public event EventHandler<EventArgs> AppEvtStreamingOff;
 
-        private OBSWebsocketDotNet.Types.OutputState _currentStreamingState = OBSWebsocketDotNet.Types.OutputState.Stopped;
-        private Boolean StreamingStateChangeIsInProgress() => this._currentStreamingState == OBSWebsocketDotNet.Types.OutputState.Starting || this._currentStreamingState == OBSWebsocketDotNet.Types.OutputState.Stopping;
-
-
-        private void OnObsStreamingStateChange(OBSWebsocket sender, OBSWebsocketDotNet.Types.OutputState newState)
-        {
-            this.Plugin.Log.Info($"OBS StreamingStateChange, new state {newState}");
-            
-            this._currentStreamingState = newState;
-
-            if ((newState == OBSWebsocketDotNet.Types.OutputState.Started) || (newState == OBSWebsocketDotNet.Types.OutputState.Starting))
-            {
-                this.AppEvtStreamingOn?.Invoke(this, new EventArgs());
-            }
-            else
-            {
-                this.AppEvtStreamingOff?.Invoke(this, new EventArgs());
-            }
-        }
-
-
         public void AppToggleStreaming()
         { 
             if (!this.StreamingStateChangeIsInProgress())
@@ -58,6 +37,24 @@
             if (!this.StreamingStateChangeIsInProgress())
             {
                 this.SafeRunConnected(() => this.StopStreaming(), "Cannot stop streaming");
+            }
+        }
+        private OBSWebsocketDotNet.Types.OutputState _currentStreamingState = OBSWebsocketDotNet.Types.OutputState.Stopped;
+        private Boolean StreamingStateChangeIsInProgress() => this._currentStreamingState == OBSWebsocketDotNet.Types.OutputState.Starting || this._currentStreamingState == OBSWebsocketDotNet.Types.OutputState.Stopping;
+
+        private void OnObsStreamingStateChange(OBSWebsocket sender, OBSWebsocketDotNet.Types.OutputState newState)
+        {
+            this.Plugin.Log.Info($"OBS StreamingStateChange, new state {newState}");
+
+            this._currentStreamingState = newState;
+
+            if ((newState == OBSWebsocketDotNet.Types.OutputState.Started) || (newState == OBSWebsocketDotNet.Types.OutputState.Starting))
+            {
+                this.AppEvtStreamingOn?.Invoke(this, new EventArgs());
+            }
+            else
+            {
+                this.AppEvtStreamingOff?.Invoke(this, new EventArgs());
             }
         }
 

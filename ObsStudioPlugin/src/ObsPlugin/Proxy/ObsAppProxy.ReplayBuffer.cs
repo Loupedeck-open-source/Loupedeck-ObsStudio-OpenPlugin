@@ -15,20 +15,7 @@
 
         public event EventHandler<EventArgs> AppEvtReplayBufferOff;
 
-        private void OnObsReplayBufferStateChange(OBSWebsocket sender, OBSWebsocketDotNet.Types.OutputState newState)
-        {
-            this.Plugin.Log.Info($"OBS Replay buffer state change, new state {newState}");
-
-            if ((newState == OBSWebsocketDotNet.Types.OutputState.Started) || (newState == OBSWebsocketDotNet.Types.OutputState.Starting))
-            {
-                this.AppEvtReplayBufferOn?.Invoke(this, new EventArgs());
-            }
-            else
-            {
-                this.AppEvtReplayBufferOff?.Invoke(this, new EventArgs());
-            }
-        }
-
+        
         public void AppToggleReplayBuffer() => this.SafeRunConnected(() => this.ToggleReplayBuffer(), "Cannot toggle Replay Buffer");
 
         public void AppStartReplayBuffer() => this.SafeRunConnected(() => this.StartReplayBuffer(), "Cannot start Replay Buffer");
@@ -45,5 +32,19 @@
                 }
             }
         }
+        private void OnObsReplayBufferStateChange(OBSWebsocket sender, OBSWebsocketDotNet.Types.OutputState newState)
+        {
+            this.Plugin.Log.Info($"OBS Replay buffer state change, new state {newState}");
+
+            if ((newState == OBSWebsocketDotNet.Types.OutputState.Started) || (newState == OBSWebsocketDotNet.Types.OutputState.Starting))
+            {
+                this.AppEvtReplayBufferOn?.Invoke(this, new EventArgs());
+            }
+            else
+            {
+                this.AppEvtReplayBufferOff?.Invoke(this, new EventArgs());
+            }
+        }
+
     }
 }
