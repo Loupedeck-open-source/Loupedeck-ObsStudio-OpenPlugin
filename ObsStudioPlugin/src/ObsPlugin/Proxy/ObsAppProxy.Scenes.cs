@@ -6,6 +6,11 @@
     using OBSWebsocketDotNet;
     using OBSWebsocketDotNet.Types;
 
+    internal class Scene: OBSScene
+    {
+
+    };
+
     /// <summary>
     /// Proxy to OBS websocket server, for API reference see
     /// https://github.com/obsproject/obs-websocket/blob/4.x-compat/docs/generated/protocol.md
@@ -16,16 +21,16 @@
 
         public event EventHandler<OldNewStringChangeEventArgs> AppEvtCurrentSceneChanged;
 
-        public OBSScene CurrentScene { get; private set; } = new OBSScene();
+        public Scene CurrentScene { get; private set; } = new Scene();
 
-        public List<OBSScene> Scenes { get; private set; } = new List<OBSScene>();
+        public List<Scene> Scenes { get; private set; } = new List<Scene>();
 
         private void OnObsSceneListChanged(Object sender, EventArgs e)
         {
             // Rescan the scene list
             if (this.IsAppConnected && Helpers.TryExecuteFunc(() => this.GetSceneList(), out var listInfo))
             {
-                this.Scenes = (listInfo as GetSceneListInfo).Scenes;
+                this.Scenes = listInfo.Scenes.ConvertAll(x => (Scene)x );
 
                 this.Plugin.Log.Info($"OBS Rescanned scene list. Currently {this.Scenes?.Count} scenes in collection {this.CurrentSceneCollection} ");
 
@@ -59,7 +64,7 @@
         /// <param name="sceneName">Name of scene</param>
         /// <param name="scene">scene object</param>
         /// <returns>true if scene retreived</returns>
-        public Boolean TryGetSceneByName(String sceneName, out OBSScene scene)
+        public Boolean TryGetSceneByName(String sceneName, out Scene scene)
         {
             scene = null;
             if(!String.IsNullOrEmpty(sceneName))
