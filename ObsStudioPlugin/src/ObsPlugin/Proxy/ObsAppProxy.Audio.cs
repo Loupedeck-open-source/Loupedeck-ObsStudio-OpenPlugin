@@ -169,8 +169,6 @@
             }
         }
 
-        
-
         public String AppGetVolumeLabel(String sourceName)
         {
             //We will return volume as % of MAX(!)

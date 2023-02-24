@@ -9,7 +9,8 @@
 
         public String SourceName { get; private set; }
 
-        public Boolean Visible { get; private set; } 
+        //It's not "private set" because the visibility will be triggered by an event handler
+        public Boolean Visible { get; set; } 
 
         /// <summary>
         /// Creates a single Source Dictionary item, optionally feching SceneItemProperties  and SceneItemDetails
