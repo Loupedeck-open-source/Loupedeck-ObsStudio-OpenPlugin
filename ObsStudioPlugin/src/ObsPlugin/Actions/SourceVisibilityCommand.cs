@@ -58,15 +58,15 @@
 
         private void OnCurrentSceneChanged(Object sender, EventArgs e) => this.ActionImageChanged();
 
-        private void OnSceneItemAdded(OBSWebsocketDotNet.OBSWebsocket sender, String sceneName, String itemName)
+        private void OnSceneItemAdded(Object sender, TwoStringArgs arg)
         {
-            this.AddSceneItemParameter(sceneName, itemName);
+            this.AddSceneItemParameter(arg.Item1, arg.Item2);
             this.ParametersChanged();
         }
 
-        private void OnSceneItemRemoved(OBSWebsocketDotNet.OBSWebsocket sender, String sceneName, String itemName)
+        private void OnSceneItemRemoved(Object sender, TwoStringArgs arg)
         {
-            this.RemoveParameter(SceneItemKey.Encode(ObsStudioPlugin.Proxy.CurrentSceneCollection, sceneName, itemName));
+            this.RemoveParameter(SceneItemKey.Encode(ObsStudioPlugin.Proxy.CurrentSceneCollection, arg.Item1, arg.Item2));
             this.ParametersChanged();
         }
 
@@ -80,10 +80,10 @@
             this.ActionImageChanged();
         }
 
-        protected void OnSceneItemVisibilityChanged(OBSWebsocketDotNet.OBSWebsocket sender, String sceneName, String itemName, Boolean isVisible)
+        protected void OnSceneItemVisibilityChanged(Object sender, SceneItemVisibilityChangedArgs arg)
         {
-            var actionParameter = SceneItemKey.Encode(ObsStudioPlugin.Proxy.CurrentSceneCollection, sceneName, itemName);
-            _ = this.SetCurrentState(actionParameter, isVisible ? 1 : 0);
+            var actionParameter = SceneItemKey.Encode(ObsStudioPlugin.Proxy.CurrentSceneCollection, arg.SceneName, arg.ItemName);
+            _ = this.SetCurrentState(actionParameter, arg.Visible ? 1 : 0);
             this.ActionImageChanged(actionParameter);
         }
 

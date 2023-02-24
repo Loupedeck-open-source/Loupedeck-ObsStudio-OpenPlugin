@@ -2,7 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
-
+    
     using OBSWebsocketDotNet;
 
     /// <summary>
@@ -11,9 +11,9 @@
     /// </summary>
     internal partial class ObsAppProxy
     {
-        public SceneItemUpdateCallback AppEvtSceneItemAdded;
-        public SceneItemUpdateCallback AppEvtSceneItemRemoved;
-        public SceneItemVisibilityChangedCallback AppEvtSceneItemVisibilityChanged;
+        public event EventHandler<TwoStringArgs> AppEvtSceneItemAdded;
+        public event EventHandler<TwoStringArgs> AppEvtSceneItemRemoved;
+        public event EventHandler<SceneItemVisibilityChangedArgs> AppEvtSceneItemVisibilityChanged;
 
         /// <summary>
         /// Our own dictionary of scene items of all scenes in current collection, with all properties
@@ -37,7 +37,7 @@
                 this.Plugin.Log.Warning($"Cannot update visiblity: item {itemName} scene {sceneName} not in dictionary");
             }
 
-            this.AppEvtSceneItemVisibilityChanged?.Invoke(sender, sceneName, itemName, isVisible);
+            this.AppEvtSceneItemVisibilityChanged?.Invoke(sender, new SceneItemVisibilityChangedArgs(sceneName, itemName, isVisible));
         }
 
         private void OnObsSceneItemAdded(OBSWebsocket sender, String sceneName, String itemName)
@@ -86,7 +86,7 @@
 
             this.AllSceneItems[SceneItemKey.Encode(this.CurrentSceneCollection, sceneName, item.SourceName)] = sourceDictItem;
 
-            this.AppEvtSceneItemAdded?.Invoke(this, sceneName, itemName);
+            this.AppEvtSceneItemAdded?.Invoke(this, new TwoStringArgs(sceneName, itemName));
         }
 
         private void OnObsSceneItemRemoved(OBSWebsocket sender, String sceneName, String itemName)
@@ -97,7 +97,8 @@
             if (this.AllSceneItems.ContainsKey(key))
             {
                 this.AllSceneItems.Remove(key);
-                this.AppEvtSceneItemRemoved?.Invoke(this, sceneName, itemName);
+
+                this.AppEvtSceneItemRemoved?.Invoke(this, new TwoStringArgs(sceneName, itemName));
             }
             else
             {
