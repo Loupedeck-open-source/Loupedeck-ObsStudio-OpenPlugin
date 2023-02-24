@@ -30,8 +30,6 @@
 
         public ObsAppProxy(Plugin _plugin)
         {
-            this.CurrentScene = new OBSWebsocketDotNet.Types.OBSScene();
-            this.Scenes = new List<OBSWebsocketDotNet.Types.OBSScene>();
             this.Plugin = _plugin;
 
             // Trying to set screenshot save-to path
