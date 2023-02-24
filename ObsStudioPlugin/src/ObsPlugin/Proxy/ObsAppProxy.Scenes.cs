@@ -1,4 +1,7 @@
-﻿namespace Loupedeck.ObsStudioPlugin
+﻿using Loupedeck.ObsStudioPlugin;
+using System.Collections.Generic;
+
+namespace Loupedeck.ObsStudioPlugin
 {
     using System;
     using System.Collections.Generic;
@@ -6,10 +9,28 @@
     using OBSWebsocketDotNet;
     using OBSWebsocketDotNet.Types;
 
-    internal class Scene: OBSScene
+    internal class LDSceneItem
     {
+        public String SourceName { get; private set; }
+        public LDSceneItem(String sourceName) => this.SourceName = sourceName; 
+    }
 
-    };
+    internal class Scene
+    {
+        public String Name { get; private set; }
+        public  List<LDSceneItem> Items { get; private set; } 
+        public Scene(OBSScene scene)
+        {
+            this.Name = scene.Name;
+            this.Items = scene.Items.ConvertAll(x => new LDSceneItem(x.SourceName));
+        }
+
+        public Scene()
+        {
+            this.Name = "";
+            this.Items = new List<LDSceneItem>();
+        }
+    }
 
     /// <summary>
     /// Proxy to OBS websocket server, for API reference see
@@ -66,7 +87,7 @@
             // Rescan the scene list
             if (this.IsAppConnected && Helpers.TryExecuteFunc(() => this.GetSceneList(), out var listInfo))
             {
-                this.Scenes = listInfo.Scenes.ConvertAll(x => (Scene)x);
+                this.Scenes = listInfo.Scenes.ConvertAll(x => new Scene(x));
 
                 this.Plugin.Log.Info($"OBS Rescanned scene list. Currently {this.Scenes?.Count} scenes in collection {this.CurrentSceneCollection} ");
 

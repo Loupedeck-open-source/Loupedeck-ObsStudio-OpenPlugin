@@ -85,7 +85,7 @@
                 return;
             }
 
-            this.CurrentScene = (Scene)obsCurrentScene;
+            this.CurrentScene = new Scene(obsCurrentScene);
 
             var itemIndex = this.CurrentScene.Items.FindIndex(x => x.SourceName == itemName);
 

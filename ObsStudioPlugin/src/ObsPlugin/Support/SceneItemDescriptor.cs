@@ -22,7 +22,7 @@
         /// <param name="in_props">properties</param>
         /// <param name="in_details">details</param>
         /// <returns></returns>
-        public static SceneItemDescriptor CreateSourceDictItem(String in_collection, String in_sceneName, OBSWebsocketDotNet.Types.SceneItem in_sceneItem, OBSWebsocketDotNet.OBSWebsocket obs, OBSWebsocketDotNet.Types.SceneItemDetails in_details = null)
+        public static SceneItemDescriptor CreateSourceDictItem(String in_collection, String in_sceneName, LDSceneItem in_sceneItem, OBSWebsocketDotNet.OBSWebsocket obs, OBSWebsocketDotNet.Types.SceneItemDetails in_details = null)
         {
             try
             {
