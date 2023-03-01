@@ -205,21 +205,6 @@
             this.AppDisconnected?.Invoke(sender, e);
         }
 
-        internal Boolean TryConvertLegacyActionParamToKey(String actionParameter, out SceneItemKey key)
-        {
-            //Sample action parameter: 9|Background|BRB
-            //TODO: Find right variable for the separator
-            var FieldSeparator = "|";
-            key = Helpers.TryExecuteFunc(
-                () =>
-                {
-                    var parts = actionParameter.Split(FieldSeparator, StringSplitOptions.RemoveEmptyEntries);
-                    return (parts as String[])?.Length > 2 ? new SceneItemKey(this.CurrentSceneCollection, parts[2], parts[1]) : null;
-                }, out var x) ? x : null;
-
-            return key != null;
-        }
-
         private void SafeRunConnected(Action action, String warning) 
         {
             if (this.IsAppConnected)

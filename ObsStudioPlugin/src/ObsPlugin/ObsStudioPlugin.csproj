@@ -78,12 +78,6 @@
     <Compile Include="Actions\SceneCollectionSelectCommand.cs" />
     <Compile Include="Actions\RecordingToggleCommand.cs" />
     <Compile Include="Actions\ReplayBufferToggleCommand.cs" />
-    <Compile Include="Legacy\AudioProfileActionsTreeAdj.cs" />
-    <Compile Include="Legacy\DynamicSceneCols.cs" />
-    <Compile Include="Legacy\DynamicScenes.cs" />
-    <Compile Include="Legacy\MuteAudioProfileActions.cs" />
-    <Compile Include="Legacy\DynamicSpecialSources.cs" />
-    <Compile Include="Legacy\SourcesProfileActionsTreeCommands.cs" />
     <Compile Include="ObsAppProxy.cs" />
     <Compile Include="ObsConnector.cs" />
     <Compile Include="ObsStudioPlugin.Install.cs" />

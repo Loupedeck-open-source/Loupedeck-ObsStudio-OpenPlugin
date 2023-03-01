@@ -68,8 +68,6 @@ namespace Loupedeck.ObsStudioPlugin
             ObsStudioPlugin.Proxy.AppConnected -= this.OnAppConnStatusChange;
             ObsStudioPlugin.Proxy.AppDisconnected -= this.OnAppConnStatusChange;
 
-
-            // this.Proxy = null;
         }
 
         private void OnAppConnStatusChange(Object sender, EventArgs e) => this.Update_PluginStatus();
@@ -145,28 +143,5 @@ namespace Loupedeck.ObsStudioPlugin
             this.BuildImage(imageSize, ImageResPrefix + imagePath, text, textSelected).ToImage();
 
         public static void Trace(String line) => Tracer.Trace("GSP:" + line); /*System.Diagnostics.Debug.WriteLine(*/
-
-#if FALSE
-        public override void RunCommand(String commandName, String actionParameter)
-        {
-            Trace($"Plugin.RunCommand: act {commandName} para {actionParameter}");
-
-        }
-
-        protected override Boolean TryGetActionImage(String actionName, String actionParameter, PluginImageSize imageSize, out BitmapImage image)
-        {
-            Trace($"Plugin.TryGetActionImage: act {actionName} para {actionParameter}");
-            image = null;
-            return false;
-        }
-#endif
-
-        /// <summary>
-        /// Parses Legacy action parameter string (id|source|scene) into a SceneItemKey (with current Scene collection)
-        /// </summary>
-        /// <param name="actionParameter">actionParameter from legacy actions</param>
-        /// <param name="key">key or null if failure parsing</param>
-        /// <returns>true if parsed successfully</returns>
-
     }
 }

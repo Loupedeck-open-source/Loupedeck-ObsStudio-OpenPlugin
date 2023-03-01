@@ -80,58 +80,25 @@
 
         private void OnAppDisconnected(Object sender, EventArgs e) => this.IsEnabled = false;
 
-        private Boolean _legacyActionDetected = false; 
 
         private void AppEvtTurnedOff(Object sender, EventArgs e)
         {
             this.Plugin.Log.Info($"Action {this.Name}: Setting state to OFF");
             this.TurnOff();
-            if(this._legacyActionDetected)
-            {  
-                //If there were legacy calls we'll update all images
-                this.ActionImageChanged();
-            }
         }
 
         private void AppEvtTurnedOn(Object sender, EventArgs e)
         {
             this.Plugin.Log.Info($"Action {this.Name}: Setting state to ON");
             this.TurnOn();
-            if (this._legacyActionDetected)
-            {
-                //If there were legacy calls we'll update all images
-                this.ActionImageChanged();
-            }
         }
 
         protected override void RunCommand(String actionParameter)
         {
-            if (String.IsNullOrEmpty(actionParameter))
-            {
-                this._legacyActionDetected = true;
-                // Handling legacy (old OBS plugin) actions
-                this.Plugin.Log.Info($"Legacy run for {this.Name}");
-                this.RunCommand(TwoStateCommand.Toggle);
-            }
-            else
+            //To ensure legacy commands are not executed
+            if (actionParameter != null)
             {
                 base.RunCommand(actionParameter);
-            }
-        }
-
-        protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
-        {
-            if (String.IsNullOrEmpty(actionParameter))
-            {
-                // Handling legacy (old OBS plugin) actions. For some strange reason TryGetStateIndex is not working...
-                var stateIndex = this.IsTurnedOn ? 1 : 0;
-                this._legacyActionDetected = true;
-                this.Plugin.Log.Info($"Legacy GCM for {this.Name}, state index {stateIndex}");
-                return this.GetCommandImage($"{(Int32)TwoStateCommand.Toggle}", stateIndex, imageSize);
-            }
-            else
-            {
-                return base.GetCommandImage(actionParameter, imageSize);
             }
         }
     }
