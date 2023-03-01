@@ -93,5 +93,13 @@
             this.TurnOn();
         }
 
+        protected override void RunCommand(String actionParameter)
+        {
+            //To ensure legacy commands are not executed
+            if (actionParameter != null)
+            {
+                base.RunCommand(actionParameter);
+            }
+        }
     }
 }
