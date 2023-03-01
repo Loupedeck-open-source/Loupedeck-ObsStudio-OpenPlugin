@@ -9,7 +9,7 @@
         public TransitionCommand()
             : base(displayName: "Studio Mode Transition",
                    description: "Changes your preview in Studio Mode to the active program scene",
-                   groupName: "") => this.Name = "Transition";
+                   groupName: "") => this.Name = "TransitionCommand";
 
         protected override Boolean OnLoad()
         {
