@@ -118,14 +118,14 @@ namespace Loupedeck.ObsStudioPlugin
         {
             if (this.TryGetSceneByName(newScene, out var scene) && this.CurrentScene != scene)
             {
-                this.Plugin.Log.Info($"OBS - Current scene changed from {this.CurrentScene?.Name} to {newScene}");
+                this.Plugin.Log.Info($"OBS - Current scene changed from \"{this.CurrentScene?.Name}\" to \"{newScene}\"");
                 var args = new OldNewStringChangeEventArgs(this.CurrentScene?.Name, scene.Name);
                 this.CurrentScene = scene;
                 this.AppEvtCurrentSceneChanged?.Invoke(this, args);
             }
             else
             {
-                this.Plugin.Log.Warning($"Cannot find scene {newScene} in current collection {this.CurrentSceneCollection}");
+                this.Plugin.Log.Warning($"Cannot find scene \"{newScene}\" in current collection {this.CurrentSceneCollection}");
             }
         }
 
