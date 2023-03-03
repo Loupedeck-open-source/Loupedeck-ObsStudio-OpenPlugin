@@ -44,8 +44,8 @@
 
     internal class OldNewStringChangeEventArgs: TwoStringArgs
     {
-        public String New => this.Item1;
-        public String Old => this.Item2;
+        public String Old => this.Item1;
+        public String New => this.Item2;
         public OldNewStringChangeEventArgs(String old, String _new) : base(old, _new)
         {
         }
