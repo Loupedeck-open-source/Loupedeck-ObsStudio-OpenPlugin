@@ -8,6 +8,8 @@
         public const String IMGSceneUnselected = "SceneOff.png";
         public const String IMGSceneInaccessible = "SceneInaccessible.png";
         public const String SceneNameUnknown = "Offline";
+        private const Int16 SCENE_UNSELECTED = 0;
+        private const Int16 SCENE_SELECTED = 1;
 
         public SceneSelectCommand()
         {
@@ -62,7 +64,7 @@
                 {
                     var key = SceneKey.Encode(ObsStudioPlugin.Proxy.CurrentSceneCollection, scene.Name);
                     this.AddParameter(key, scene.Name, this.GroupName).Description=$"Switch to scene \"{scene.Name}\"";
-                    this.SetCurrentState(key, scene.Name.Equals(ObsStudioPlugin.Proxy.CurrentScene?.Name) ? 1 : 0);
+                    this.SetCurrentState(key, scene.Name.Equals(ObsStudioPlugin.Proxy.CurrentScene?.Name) ? SCENE_SELECTED : SCENE_UNSELECTED);
                 }
             }
 
@@ -78,13 +80,8 @@
             var newPar = SceneKey.Encode(ObsStudioPlugin.Proxy.CurrentSceneCollection, arg.New);
 
             //unselecting old and selecting new
-            this.SetCurrentState(oldPar, 0);
-            this.SetCurrentState(newPar, 1);
-
-            this.ActionImageChanged(oldPar);
-            this.ActionImageChanged(newPar);
-
-            this.ParametersChanged();
+            this.SetCurrentState(oldPar, SCENE_UNSELECTED);
+            this.SetCurrentState(newPar, SCENE_SELECTED);
         }
 
         private void OnAppConnected(Object sender, EventArgs e) => this.IsEnabled = true;
@@ -107,7 +104,7 @@
 
                 if( ObsStudioPlugin.Proxy.TryGetSceneByName(parsed.Scene, out var _) )
                 {
-                    imageName = stateIndex == 1 ? IMGSceneSelected : IMGSceneUnselected;
+                    imageName = stateIndex == SCENE_SELECTED ? IMGSceneSelected : IMGSceneUnselected;
                 }
             }            
             return (this.Plugin as ObsStudioPlugin).GetPluginCommandImage(imageSize, imageName, sceneName, imageName == IMGSceneSelected);

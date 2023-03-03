@@ -9,6 +9,9 @@
         public const String IMGSceneInaccessible = "SourceInaccessible.png";
         public const String SourceNameUnknown = "Offline";
 
+        private const Int16 SOURCE_UNSELECTED = 0;
+        private const Int16 SOURCE_SELECTED = 1;
+
         public SourceVisibilityCommand()
         {
             this.Description = "Shows/Hides a Source";
@@ -83,8 +86,8 @@
         protected void OnSceneItemVisibilityChanged(Object sender, SceneItemVisibilityChangedArgs arg)
         {
             var actionParameter = SceneItemKey.Encode(ObsStudioPlugin.Proxy.CurrentSceneCollection, arg.SceneName, arg.ItemName);
-            _ = this.SetCurrentState(actionParameter, arg.Visible ? 1 : 0);
-            this.ActionImageChanged(actionParameter);
+            _ = this.SetCurrentState(actionParameter, arg.Visible ? SOURCE_SELECTED : SOURCE_UNSELECTED);
+            //this.ActionImageChanged(actionParameter);
         }
 
         protected override BitmapImage GetCommandImage(String actionParameter, Int32 stateIndex, PluginImageSize imageSize)
@@ -96,7 +99,7 @@
                 sourceName = parsed.Source;
                 imageName = parsed.Collection != ObsStudioPlugin.Proxy.CurrentSceneCollection
                     ? IMGSceneInaccessible
-                    : stateIndex == 1 ? IMGSceneSelected : IMGSceneUnselected;
+                    : stateIndex == SOURCE_SELECTED ? IMGSceneSelected : IMGSceneUnselected;
             }
 
             return (this.Plugin as ObsStudioPlugin).GetPluginCommandImage(imageSize, imageName, sourceName, imageName == IMGSceneSelected);
@@ -107,7 +110,7 @@
             var key = SceneItemKey.Encode(ObsStudioPlugin.Proxy.CurrentSceneCollection, sceneName, itemName);
             this.AddParameter(key, $"{itemName}", $"{this.GroupName}{CommonStrings.SubgroupSeparator}{sceneName}").Description = 
                         ObsStudioPlugin.Proxy.AllSceneItems[key].Visible ? "Hide" : "Show" + $" source \"{itemName}\" of scene \"{sceneName}\"";
-            this.SetCurrentState(key, ObsStudioPlugin.Proxy.AllSceneItems[key].Visible ? 1 : 0);
+            this.SetCurrentState(key, ObsStudioPlugin.Proxy.AllSceneItems[key].Visible ? SOURCE_SELECTED : SOURCE_UNSELECTED);
         }
 
         private void ResetParameters(Boolean readContent)
