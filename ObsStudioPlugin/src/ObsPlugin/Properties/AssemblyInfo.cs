@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("OBS Studio Plugin for Loupedeck")]
+[assembly: AssemblyTitle("OBS Studio")]
 [assembly: AssemblyDescription("Plugin allowing to control OBS Studio application with Loupedeck software")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("LoupeDeck Ltd.")]
