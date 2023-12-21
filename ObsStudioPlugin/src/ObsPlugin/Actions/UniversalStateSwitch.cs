@@ -23,7 +23,7 @@
         {
 
             this.DisplayName = "Set OBS Toggle On/Off";
-            this.Description = "Sets a specific action toggle to go to a pre-defined state. This is particularly useful to ensure that a Toggle is set on or off in custom Multi-Action.";
+            this.Description = "Sets a toggle action to the ON or OFF state. This is particularly useful when creating Multi-Actions (can be found in Custom category) and trying to target a specific toggle state.";
             this.GroupName = "";
 
             this.ActionEditor.AddControl(

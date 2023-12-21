@@ -18,7 +18,7 @@
         public SourceVisibilitySwitch()
         {
             this.DisplayName = "Source Visibility ";
-            this.Description = "Ensures specific source is visible or hidden. This is particularly useful to ensure that source is on or off in custom Multi-Action.";
+            this.Description = "Sets the visibility of a specific source to the ON or OFF state. This is particularly useful when creating Multi-Actions (can be found in Custom category) and trying to target a specific state of visibility.";
             this.GroupName = "";
 
             this.ActionEditor.AddControl(
