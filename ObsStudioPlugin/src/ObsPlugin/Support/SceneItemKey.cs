@@ -37,6 +37,7 @@
         }
 
         public static String Encode(String coll, String scene, String source) => new SceneItemKey(coll, scene, source).Stringize();
+        public static String Encode(String coll, String scene, Int32 source) => new SceneItemKey(coll, scene, source.ToString()).Stringize();
     }
 
 }

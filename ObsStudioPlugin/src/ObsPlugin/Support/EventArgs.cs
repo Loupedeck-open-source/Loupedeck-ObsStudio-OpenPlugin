@@ -55,7 +55,7 @@
         public Boolean Visible { get; private set; }
         public String SceneName => this.Item1;
         public String ItemName=> this.Item2;
-        public SceneItemVisibilityChangedArgs(String scene, String item, Boolean isVisible) : base(scene, item) => this.Visible = isVisible;
+        public SceneItemVisibilityChangedArgs(String scene, Int32 item, Boolean isVisible) : base(scene, item.ToString()) => this.Visible = isVisible;
     }
 
     internal class SourceNameEventArgs: EventArgs

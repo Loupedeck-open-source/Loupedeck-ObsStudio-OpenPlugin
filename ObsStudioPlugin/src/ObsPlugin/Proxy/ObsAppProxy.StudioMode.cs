@@ -4,6 +4,7 @@
     using System.Collections.Generic;
 
     using OBSWebsocketDotNet;
+    using OBSWebsocketDotNet.Types.Events;
 
     /// <summary>
     /// Proxy to OBS websocket server, for API reference see
@@ -39,11 +40,13 @@
         // Caching studio mode
         private Boolean _studioMode = false;
 
-        private void OnObsStudioModeStateChange(Object sender, Boolean enabled)
+        private void OnObsStudioModeStateChanged(Object _, StudioModeStateChangedEventArgs args)
+            => this.OnObsStudioModeStateChanged(_, args.StudioModeEnabled);
+        private void OnObsStudioModeStateChanged(Object _, Boolean Enabled)
         {
-            this.Plugin.Log.Info($"OBS StudioMode State change, enabled={enabled}");
-            this._studioMode = enabled;
-            if (enabled)
+            this.Plugin.Log.Info($"OBS StudioMode State change, enabled={Enabled}");
+            this._studioMode = Enabled;
+            if(Enabled)
             {
                 this.AppEvtStudioModeOn?.Invoke(this, new EventArgs());
             }

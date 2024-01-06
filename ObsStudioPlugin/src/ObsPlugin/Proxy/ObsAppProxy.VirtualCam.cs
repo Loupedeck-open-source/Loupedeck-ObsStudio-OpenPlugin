@@ -2,6 +2,8 @@
 {
     using System;
 
+    using OBSWebsocketDotNet.Types.Events;
+
     /// <summary>
     /// Proxy to OBS websocket server, for API reference see
     /// https://github.com/obsproject/obs-websocket/blob/4.x-compat/docs/generated/protocol.md
@@ -18,17 +20,19 @@
 
         public void AppStopVirtualCam() => this.SafeRunConnected(() => this.StopVirtualCam(), "Cannot stop virtual cam");
 
-        private void OnObsVirtualCameraStarted(Object sender, EventArgs e)
+        private void OnObsVirtualCameraStateChanged(Object _, VirtualcamStateChangedEventArgs args)
         {
-            this.Plugin.Log.Info("Obs Virtual camera started");
-            this.AppEvtVirtualCamOn?.Invoke(this, new EventArgs());
-        }
+            this.Plugin.Log.Info($"OBS VirtualCam state change, new state is {args.OutputState.IsActive}");
 
-        private void OnObsVirtualCameraStopped(Object sender, EventArgs e)
-        {
-            this.Plugin.Log.Info("Obs Virtual camera stopped");
-            this.AppEvtVirtualCamOff?.Invoke(this, new EventArgs());
+            switch (args.OutputState.IsActive)
+            {
+                case true:
+                    this.AppEvtVirtualCamOn?.Invoke(this, new EventArgs());
+                    break;
+                case false:
+                    this.AppEvtVirtualCamOff?.Invoke(this, new EventArgs());
+                    break;
+            }
         }
-
     }
 }

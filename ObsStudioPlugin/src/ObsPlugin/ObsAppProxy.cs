@@ -4,6 +4,8 @@
     using System.Collections.Generic;
     using System.IO;
 
+    using OBSWebsocketDotNet.Communication;
+
     /// <summary>
     /// Proxy to OBS websocket server, for API reference see
     /// https://github.com/obsproject/obs-websocket/blob/4.x-compat/docs/generated/protocol.md
@@ -63,10 +65,10 @@
             if (!this._scene_collection_events_subscribed)
             {
                 this.SceneListChanged -= this.OnObsSceneListChanged;
-                this.SceneChanged -= this.OnObsSceneChanged;
-                this.PreviewSceneChanged -= this.OnObsPreviewSceneChanged;
+                this.CurrentProgramSceneChanged -= this.OnObsSceneChanged;
+                this.CurrentPreviewSceneChanged -= this.OnObsPreviewSceneChanged;
         
-                this.SceneItemVisibilityChanged -= this.OnObsSceneItemVisibilityChanged;
+                this.SceneItemEnableStateChanged  -= this.OnObsSceneItemVisibilityChanged;
                 this.SceneItemAdded -= this.OnObsSceneItemAdded;
                 this.SceneItemRemoved -= this.OnObsSceneItemRemoved;
 
@@ -87,10 +89,10 @@
             if (this._scene_collection_events_subscribed)
             {
                 this.SceneListChanged += this.OnObsSceneListChanged;
-                this.SceneChanged += this.OnObsSceneChanged;
-                this.PreviewSceneChanged += this.OnObsPreviewSceneChanged;
+                this.CurrentProgramSceneChanged += this.OnObsSceneChanged;
+                this.CurrentPreviewSceneChanged += this.OnObsPreviewSceneChanged;
 
-                this.SceneItemVisibilityChanged += this.OnObsSceneItemVisibilityChanged;
+                this.SceneItemEnableStateChanged += this.OnObsSceneItemVisibilityChanged;
                 this.SceneItemAdded += this.OnObsSceneItemAdded;
                 this.SceneItemRemoved += this.OnObsSceneItemRemoved;
 
@@ -109,31 +111,37 @@
         internal void InitializeObsData(Object sender, EventArgs e)
         {
             // NOTE: This can throw! Exception handling is done OUTSIDE of this method
-            var streamingStatus = this.GetStreamingStatus();
+            var streamingStatus = this.GetStreamStatus();
+            var recordStatus = this.GetRecordStatus();
             var vcamstatus = this.GetVirtualCamStatus();
-            var studioModeStatus = this.StudioModeEnabled();
+            var studioModeStatus = this.GetStudioModeEnabled();
 
             // Retreiving Audio types.
             this.OnAppConnected_RetreiveSourceTypes();
 
             if (streamingStatus != null)
             {
-                this._currentStreamingState = streamingStatus.IsStreaming ? OBSWebsocketDotNet.Types.OutputState.Started : OBSWebsocketDotNet.Types.OutputState.Stopped;
+                this._currentStreamingState = streamingStatus.IsActive
+                    ? OBSWebsocketDotNet.Types.OutputState.OBS_WEBSOCKET_OUTPUT_STARTED
+                    : OBSWebsocketDotNet.Types.OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED;
 
-                this.OnObsRecordingStateChange(this, streamingStatus.IsRecording ? OBSWebsocketDotNet.Types.OutputState.Started : OBSWebsocketDotNet.Types.OutputState.Stopped);
-                this.OnObsStreamingStateChange(this, streamingStatus.IsStreaming ? OBSWebsocketDotNet.Types.OutputState.Started : OBSWebsocketDotNet.Types.OutputState.Stopped);
+                this.OnObsRecordingStateChange(this, recordStatus.IsRecording 
+                    ? OBSWebsocketDotNet.Types.OutputState.OBS_WEBSOCKET_OUTPUT_STARTED
+                    : OBSWebsocketDotNet.Types.OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED);
+
+                this.OnObsStreamingStateChange(this, streamingStatus.IsActive
+                    ? OBSWebsocketDotNet.Types.OutputState.OBS_WEBSOCKET_OUTPUT_STARTED
+                    : OBSWebsocketDotNet.Types.OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED);
             }
 
-            if (vcamstatus != null && vcamstatus.IsActive)
+            if (vcamstatus != null)
             {
-                this.OnObsVirtualCameraStarted(sender, e);
-            }
-            else
-            {
-                this.OnObsVirtualCameraStopped(sender, e);
+                var arg = new OBSWebsocketDotNet.Types.Events.VirtualcamStateChangedEventArgs(new OBSWebsocketDotNet.Types.OutputStateChanged());
+                arg.OutputState.IsActive = vcamstatus.IsActive;
+                this.OnObsVirtualCameraStateChanged(sender, arg);
             }
 
-            this.OnObsStudioModeStateChange(sender, studioModeStatus);
+            this.OnObsStudioModeStateChanged(sender, studioModeStatus);
 
             this.Plugin.Log.Info("Init: OnObsSceneCollectionListChanged");
 
@@ -152,19 +160,16 @@
             // Subscribing to App events
             // Notifying all subscribers on App Connected
             // Fetching initial states for controls
-            this.RecordingStateChanged += this.OnObsRecordingStateChange;
-            this.RecordingPaused += this.OnObsRecordPaused;
-            this.RecordingResumed += this.OnObsRecordResumed;
-            this.StreamingStateChanged += this.OnObsStreamingStateChange;
-            this.VirtualCameraStarted += this.OnObsVirtualCameraStarted;
-            this.VirtualCameraStopped += this.OnObsVirtualCameraStopped;
-            this.StudioModeSwitched += this.OnObsStudioModeStateChange;
+            this.RecordStateChanged += this.OnObsRecordingStateChange;
+            this.StreamStateChanged += this.OnObsStreamingStateChange;
+            this.VirtualcamStateChanged += this.OnObsVirtualCameraStateChanged;
+            this.StudioModeStateChanged += this.OnObsStudioModeStateChanged;
             this.ReplayBufferStateChanged += this.OnObsReplayBufferStateChange;
 
             this.SceneCollectionListChanged += this.OnObsSceneCollectionListChanged;
-            this.SceneCollectionChanged += this.OnObsSceneCollectionChanged;
+            this.CurrentSceneCollectionChanged += this.OnObsSceneCollectionChanged;
 
-            this.TransitionEnd += this.OnObsTransitionEnd;
+            //this.SceneTransitionEnded += this.OnObsTransitionEnd;
 
             this.AppConnected?.Invoke(sender, e);
 
@@ -179,30 +184,26 @@
             this.SubscribeToSceneCollectionEvents();
         }
 
-        private void OnAppDisconnected(Object sender, EventArgs e)
+        private void OnAppDisconnected(Object sender, ObsDisconnectionInfo arg)
         {
-            this.Plugin.Log.Info("Entering AppDisconnected");
+            this.Plugin.Log.Info($"Entering AppDisconnected. Disconnect reason:\"{arg.DisconnectReason}\"");
 
             // Unsubscribing from App events here
-            this.RecordingStateChanged -= this.OnObsRecordingStateChange;
-            this.RecordingPaused -= this.OnObsRecordPaused;
-            this.RecordingResumed -= this.OnObsRecordResumed;
+            this.RecordStateChanged -= this.OnObsRecordingStateChange;
 
-            this.StreamingStateChanged -= this.OnObsStreamingStateChange;
-            this.VirtualCameraStarted -= this.OnObsVirtualCameraStarted;
-            this.VirtualCameraStopped -= this.OnObsVirtualCameraStopped;
-            this.StudioModeSwitched -= this.OnObsStudioModeStateChange;
+            this.StreamStateChanged -= this.OnObsStreamingStateChange;
+            this.StudioModeStateChanged -= this.OnObsStudioModeStateChanged;
 
             this.SceneCollectionListChanged -= this.OnObsSceneCollectionListChanged;
-            this.SceneCollectionChanged -= this.OnObsSceneCollectionChanged;
+            this.CurrentSceneCollectionChanged -= this.OnObsSceneCollectionChanged;
 
-            this.TransitionEnd -= this.OnObsTransitionEnd;
+            //this.TransitionEnd -= this.OnObsTransitionEnd;
 
             // Unsubscribing from all the events that are depenendent on Scene Collection change
             this._scene_collection_events_subscribed = false;
             this.UnsubscribeFromSceneCollectionEvents();
 
-            this.AppDisconnected?.Invoke(sender, e);
+            this.AppDisconnected?.Invoke(sender, new System.EventArgs() );
         }
 
         private void SafeRunConnected(Action action, String warning) 

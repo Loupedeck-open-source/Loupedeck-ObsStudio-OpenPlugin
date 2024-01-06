@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     
     using OBSWebsocketDotNet;
+    using OBSWebsocketDotNet.Types.Events;
 
     /// <summary>
     /// Proxy to OBS websocket server, for API reference see
@@ -39,7 +40,8 @@
                 try
                 {
                     var item = this.AllSceneItems[key];
-                    this.SetSourceRender(item.SourceName, forceState ? newState : !item.Visible, item.SceneName);
+                    this.SetSceneItemEnabled(item.SceneName, item.SourceId, forceState ? newState : !item.Visible);
+                   //.SetSourceRender(item.SourceName, forceState ? newState : !item.Visible, item.SceneName);
                 }
                 catch (Exception ex)
                 {
@@ -47,19 +49,22 @@
                 }
             }
         }
-        private void OnObsSceneItemVisibilityChanged(OBSWebsocket sender, String sceneName, String itemName, Boolean isVisible)
+        
+        private void OnObsSceneItemVisibilityChanged(Object sender, SceneItemEnableStateChangedEventArgs arg)
         {
-            var key = SceneItemKey.Encode(this.CurrentSceneCollection, sceneName, itemName);
+
+            var key = SceneItemKey.Encode(this.CurrentSceneCollection, arg.SceneName, arg.SceneItemId);
+
             if (this.AllSceneItems.ContainsKey(key))
             {
-                this.AllSceneItems[key].Visible = isVisible;
+                this.AllSceneItems[key].Visible = arg.SceneItemEnabled;
             }
             else
             {
-                this.Plugin.Log.Warning($"Cannot update visiblity: item {itemName} scene {sceneName} not in dictionary");
+                this.Plugin.Log.Warning($"Cannot update visiblity: item {arg.SceneItemId} scene {arg.SceneName} not in dictionary");
             }
 
-            this.AppEvtSceneItemVisibilityChanged?.Invoke(sender, new SceneItemVisibilityChangedArgs(sceneName, itemName, isVisible));
+            this.AppEvtSceneItemVisibilityChanged?.Invoke(sender, new SceneItemVisibilityChangedArgs(arg.SceneName, arg.SceneItemId, arg.SceneItemEnabled));
         }
 
         private void OnObsSceneItemAdded(OBSWebsocket sender, String sceneName, String itemName)
@@ -73,7 +78,7 @@
             }
 
             // Re-reading current scene, since this.CurrentScene does not contain the item
-            if (!Helpers.TryExecuteFunc(() => this.GetCurrentScene(), out var obsCurrentScene))
+            if (!Helpers.TryExecuteFunc(() => this.GetCurrentProgramScene(), out var obsCurrentScene))
             {
                 this.Plugin.Log.Warning($"Cannot get current scene from OBS");
                 return;

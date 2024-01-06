@@ -4,6 +4,7 @@
     using System.Collections.Generic;
 
     using OBSWebsocketDotNet;
+    using OBSWebsocketDotNet.Types.Events;
 
     /// <summary>
     /// Proxy to OBS websocket server, for API reference see
@@ -32,11 +33,12 @@
                 }
             }
         }
-        private void OnObsReplayBufferStateChange(OBSWebsocket sender, OBSWebsocketDotNet.Types.OutputState newState)
+        private void OnObsReplayBufferStateChange(Object _, ReplayBufferStateChangedEventArgs args)
         {
-            this.Plugin.Log.Info($"OBS Replay buffer state change, new state {newState}");
-
-            if ((newState == OBSWebsocketDotNet.Types.OutputState.Started) || (newState == OBSWebsocketDotNet.Types.OutputState.Starting))
+            
+            this.Plugin.Log.Info($"OBS Replay buffer state change, new state active {args.OutputState.IsActive}");
+            
+            if (args.OutputState.IsActive)
             {
                 this.AppEvtReplayBufferOn?.Invoke(this, new EventArgs());
             }

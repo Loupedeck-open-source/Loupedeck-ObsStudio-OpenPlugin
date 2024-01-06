@@ -8,6 +8,7 @@ namespace Loupedeck.ObsStudioPlugin
 
     using OBSWebsocketDotNet;
     using OBSWebsocketDotNet.Types;
+    using OBSWebsocketDotNet.Types.Events;
 
     internal class LDSceneItem
     {
@@ -94,7 +95,7 @@ namespace Loupedeck.ObsStudioPlugin
                 // Retreiving properties for all scenes
                 this.OnObsSceneCollectionChange_FetchSceneItems();
 
-                if (Helpers.TryExecuteFunc(() => this.GetCurrentScene(), out var scene))
+                if (Helpers.TryExecuteFunc(() => this.GetCurrentProgramScene(), out var scene))
                 {
                     if (!String.IsNullOrEmpty(scene.Name) && !scene.Name.Equals(this.CurrentScene?.Name))
                     {
@@ -129,8 +130,9 @@ namespace Loupedeck.ObsStudioPlugin
             }
         }
 
-        private void OnObsPreviewSceneChanged(Object sender, String newScene)
+        private void OnObsPreviewSceneChanged(Object sender, CurrentPreviewSceneChangedEventArgs args)
         {
+            var newScene = args.SceneName;
             //Scenes and preview: When in the Studio mode
             // Scene A: Preview scene
             // Scene B: Program scene
@@ -152,18 +154,20 @@ namespace Loupedeck.ObsStudioPlugin
                 this.Plugin.Log.Info($"PreviewSceneChange to {newScene} but not in Studio mode, igrnoring");
             }
         }
-        private void OnObsTransitionEnd(OBSWebsocket sender, String transitionName, String transitionType, Int32 duration, String toScene)
+        private void OnObsTransitionEnd(Object _ , SceneTransitionEndedEventArgs args)
         {
-            this.Plugin.Log.Info($"Transition {transitionName} to scene {toScene} ended");
+            // String transitionName, String transitionType, Int32 duration, String toScene)
+            this.Plugin.Log.Info($"Transition {args.TransitionName} ended");
             if (this._studioMode)
             {
+                //In new OBS the ProgramSceneChanged Event should fire normally
                 //In studio mode (see above), the selected scene == Program scene
-                this.OnSceneChanged(toScene);
+                //this.OnSceneChanged(toScene);
             }
         }
-
-        private void OnObsSceneChanged(Object sender, String newScene)
+        private void OnObsSceneChanged(Object sender, ProgramSceneChangedEventArgs args)
         {
+            var newScene = args.SceneName;
             if (!this._studioMode)
             {
                 this.OnSceneChanged(newScene);
