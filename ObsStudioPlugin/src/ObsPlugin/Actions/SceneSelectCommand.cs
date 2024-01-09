@@ -64,7 +64,7 @@
                 {
                     var key = SceneKey.Encode(ObsStudioPlugin.Proxy.CurrentSceneCollection, scene.Name);
                     this.AddParameter(key, scene.Name, this.GroupName).Description=$"Switch to scene \"{scene.Name}\"";
-                    this.SetCurrentState(key, scene.Name.Equals(ObsStudioPlugin.Proxy.CurrentScene?.Name) ? SCENE_SELECTED : SCENE_UNSELECTED);
+                    this.SetCurrentState(key, scene.Name.Equals(ObsStudioPlugin.Proxy.CurrentSceneName) ? SCENE_SELECTED : SCENE_UNSELECTED);
                 }
             }
 

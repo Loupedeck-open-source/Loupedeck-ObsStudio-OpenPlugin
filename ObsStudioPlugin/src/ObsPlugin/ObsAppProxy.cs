@@ -69,6 +69,8 @@
                 this.CurrentPreviewSceneChanged -= this.OnObsPreviewSceneChanged;
         
                 this.SceneItemEnableStateChanged  -= this.OnObsSceneItemVisibilityChanged;
+#warning "Scene item events disabled"
+#if false
                 this.SceneItemAdded -= this.OnObsSceneItemAdded;
                 this.SceneItemRemoved -= this.OnObsSceneItemRemoved;
 
@@ -80,6 +82,7 @@
 
                 this.SourceAudioActivated -= this.OnObsSourceAudioActivated;
                 this.SourceAudioDeactivated -= this.OnObsSourceAudioDeactivated;
+#endif
                 this._scene_collection_events_subscribed = true;
             }
         }
@@ -93,6 +96,8 @@
                 this.CurrentPreviewSceneChanged += this.OnObsPreviewSceneChanged;
 
                 this.SceneItemEnableStateChanged += this.OnObsSceneItemVisibilityChanged;
+#warning "Scene item events disabled"
+#if false
                 this.SceneItemAdded += this.OnObsSceneItemAdded;
                 this.SceneItemRemoved += this.OnObsSceneItemRemoved;
 
@@ -104,6 +109,7 @@
 
                 this.SourceAudioActivated += this.OnObsSourceAudioActivated;
                 this.SourceAudioDeactivated += this.OnObsSourceAudioDeactivated;
+#endif
                 this._scene_collection_events_subscribed = false;
             }
         }
@@ -116,8 +122,11 @@
             var vcamstatus = this.GetVirtualCamStatus();
             var studioModeStatus = this.GetStudioModeEnabled();
 
-            // Retreiving Audio types.
+#warning "Retreiving audio types -- check if needed"
+#if false 
+// Retreiving Audio types.
             this.OnAppConnected_RetreiveSourceTypes();
+#endif
 
             if (streamingStatus != null)
             {

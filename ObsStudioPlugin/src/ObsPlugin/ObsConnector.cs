@@ -100,7 +100,8 @@ namespace Loupedeck.ObsStudioPlugin
             this._fs_watcher.EnableRaisingEvents = true;
 
             // Attempting to connect right away
-            _ = Task.Run(() => Helpers.TryExecuteSafe(() => this.Connect()));
+            //_ = Task.Run(() => Helpers.TryExecuteSafe(() => this.Connect()));
+            _ = Task.Run(() => Helpers.TryExecuteSafe(() => this.ConnectSim()));
         }
 
         public void Stop() =>
@@ -120,6 +121,17 @@ namespace Loupedeck.ObsStudioPlugin
             // Starting the timer
             this._connect_retry_timer.Enabled = true;
             Tracer.Trace($"OBS: Re-trying connection in {this._connect_retry_timer.Interval} ms ");
+        }
+
+
+        private void ConnectSim()
+        {
+            var obs_ws_conn = "ws://localhost:4455";
+            var password = "4tVNVL7T4hACKY4Q";
+            if (!Helpers.TryExecuteAction(() => this._obs.ConnectAsync(obs_ws_conn, password)))
+            {
+                Tracer.Error("OBS: Error connecting to OBS");
+            }
         }
 
         private void Connect()
@@ -166,7 +178,9 @@ namespace Loupedeck.ObsStudioPlugin
 
                 var password = Loupedeck.AesString.Decrypt("EAAAAOVpn/mqFwbWixg6hzsxeBiUjf+BBZTmfrYzLFgUWMV0", "FourtyTwo");
 
-                if (!Helpers.TryExecuteAction(() => this._obs.Connect(obs_ws_conn, password)))
+                obs_ws_conn = "ws://localhost:4455";
+                password = "4tVNVL7T4hACKY4Q";
+                if (!Helpers.TryExecuteAction(() => this._obs.ConnectAsync(obs_ws_conn, password)))
                 {
                     Tracer.Error("OBS: Error connecting to OBS");
                 }

@@ -41,7 +41,7 @@
         {
             this.Plugin.Log.Info("OBS SceneCollectionList changed");
 
-            if (Helpers.TryExecuteSafe(() => this.SceneCollections = this.ListSceneCollections()))
+            if (Helpers.TryExecuteSafe(() => this.SceneCollections = this.GetSceneCollectionList()))
             {
                 this.Plugin.Log.Info($"Retreived list of {this.SceneCollections.Count} collections");
 
@@ -109,24 +109,16 @@
 
                 foreach (var item in sceneDetailsList)
                 {
-                    var sceneItem = scene?.Items?.Find(x => x.SourceName == item.SourceName) ?? null;
-                    if (sceneItem != null)
+                    if(Helpers.TryExecuteFunc(()=> { return SceneItemDescriptor.CreateSourceDictItem(this.CurrentSceneCollection, scene.Name, item, this); }, out var sourceDictItem) 
+                        && sourceDictItem != null)
                     {
-                        if(Helpers.TryExecuteFunc(()=> { return SceneItemDescriptor.CreateSourceDictItem(this.CurrentSceneCollection, scene.Name, sceneItem, this, item); }, out var sourceDictItem) 
-                            && sourceDictItem != null)
-                        {
-                            var key = SceneItemKey.Encode(this.CurrentSceneCollection, scene.Name, item.SourceName);
-                            this.AllSceneItems[key] = sourceDictItem;
-                            itemsList.Add(Tuple.Create(key, item.SourceName));
-                        }
-                        else
-                        {
-                            this.Plugin.Log.Warning($"Cannot get CreateSourceDictItem for scene {scene.Name}, item {sceneItem.SourceName}");
-                        }
+                        var key = SceneItemKey.Encode(this.CurrentSceneCollection, scene.Name, item.ItemId);
+                        this.AllSceneItems[key] = sourceDictItem;
+                        itemsList.Add(Tuple.Create(key, item.SourceName));
                     }
                     else
                     {
-                        this.Plugin.Log.Warning($"Cannot get SceneItemList for scene {scene.Name}");
+                        this.Plugin.Log.Warning($"Cannot get CreateSourceDictItem for scene {scene.Name}, item {item.SourceName}");
                     }
                 }
 

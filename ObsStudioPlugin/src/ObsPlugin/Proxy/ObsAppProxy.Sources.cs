@@ -71,28 +71,29 @@
         {
             this.Plugin.Log.Info($"OBS: OnObsSceneItemAdded: Item '{itemName}' scene '{sceneName}'");
 
-            if (sceneName != this.CurrentScene.Name)
+            if (sceneName != this.CurrentSceneName)
             {
-                this.Plugin.Log.Warning($"OnObsSceneItemAdded received non-current scene '{sceneName}'. Current is '{this.CurrentScene.Name}'. Ignoring");
+                this.Plugin.Log.Warning($"OnObsSceneItemAdded received non-current scene '{sceneName}'. Current is '{this.CurrentSceneName}'. Ignoring");
                 return;
             }
 
-            // Re-reading current scene, since this.CurrentScene does not contain the item
+            // Re-reading current scene, since this.CurrentSceneName does not contain the item
             if (!Helpers.TryExecuteFunc(() => this.GetCurrentProgramScene(), out var obsCurrentScene))
             {
                 this.Plugin.Log.Warning($"Cannot get current scene from OBS");
                 return;
             }
 
-            if (obsCurrentScene.Name != this.CurrentScene.Name)
+            if (obsCurrentScene != this.CurrentSceneName )
             {
                 this.Plugin.Log.Warning($"Current scene changed to '{obsCurrentScene}' mid-way.");
                 return;
             }
+#warning "Commented piece of code"
+#if false
+            this.CurrentSceneName = new Scene(obsCurrentScene);
 
-            this.CurrentScene = new Scene(obsCurrentScene);
-
-            var itemIndex = this.CurrentScene.Items.FindIndex(x => x.SourceName == itemName);
+            var itemIndex = this.CurrentSceneName.Items.FindIndex(x => x.SourceName == itemName);
 
             if (itemIndex == -1)
             {
@@ -100,7 +101,7 @@
                 return;
             }
 
-            var item = this.CurrentScene.Items[itemIndex];
+            var item = this.CurrentSceneName.Items[itemIndex];
 
             //Creating item and fetching all missing data for it from OBS
             var sourceDictItem = SceneItemDescriptor.CreateSourceDictItem(this.CurrentSceneCollection, sceneName, item, this, null);
@@ -112,7 +113,7 @@
             }
 
             this.AllSceneItems[SceneItemKey.Encode(this.CurrentSceneCollection, sceneName, item.SourceName)] = sourceDictItem;
-
+#endif
             this.AppEvtSceneItemAdded?.Invoke(this, new TwoStringArgs(sceneName, itemName));
         }
 

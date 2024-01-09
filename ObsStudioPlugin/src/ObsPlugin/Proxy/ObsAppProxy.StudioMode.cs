@@ -21,7 +21,7 @@
         {
             if (this.IsAppConnected && this._studioMode)
             {
-                if (Helpers.TryExecuteSafe(() => this.TransitionToProgram()))
+                if (Helpers.TryExecuteSafe(() => this.TriggerStudioModeTransition()))
                 {
                     this.Plugin.Log.Info("Transition executed successfully");
                 }
@@ -32,11 +32,11 @@
             }
         }
 
-        public void AppToggleStudioMode() => this.SafeRunConnected(() => this.ToggleStudioMode(), "Cannot toggle studio mode");
+        public void AppToggleStudioMode() => this.SafeRunConnected(() => this.SetStudioModeEnabled(!this.GetStudioModeEnabled()), "Cannot toggle studio mode");
 
-        public void AppStartStudioMode() => this.SafeRunConnected(() => this.EnableStudioMode(), "Cannot start studio mode");
+        public void AppStartStudioMode() => this.SafeRunConnected(() => this.SetStudioModeEnabled(true), "Cannot start studio mode");
 
-        public void AppStopStudioMode() => this.SafeRunConnected(() => this.DisableStudioMode(), "Cannot stop studio mode");
+        public void AppStopStudioMode() => this.SafeRunConnected(() => this.SetStudioModeEnabled(false), "Cannot stop studio mode");
         // Caching studio mode
         private Boolean _studioMode = false;
 

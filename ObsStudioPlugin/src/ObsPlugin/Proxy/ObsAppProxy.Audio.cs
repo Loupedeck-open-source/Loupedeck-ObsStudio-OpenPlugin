@@ -39,6 +39,13 @@
         // NOTE: See if we need to do anything regarding
         private void OnObsSourceAudioDeactivated(OBSWebsocket sender, String sourceName) => this.OnObsSourceDestroyed(sender, sourceName, "", "");
 
+        private Boolean IsAudioSourceType(String sourceName)
+        {
+            var x = this.GetInputSettings(sourceName);
+            x.InputKind
+            //=> this.IsAudioSourceType(this.GetSourceSettings(sourceName));
+        }
+        
         /// <summary>
         /// Adds a source to CurrentAudioSources list
         /// </summary>
