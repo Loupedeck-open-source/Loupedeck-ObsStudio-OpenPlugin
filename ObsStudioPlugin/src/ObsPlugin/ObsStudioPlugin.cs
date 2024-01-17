@@ -18,18 +18,22 @@ namespace Loupedeck.ObsStudioPlugin
         // Gets a value indicating whether this is an API-only plugin.
         public override Boolean HasNoApplication => true;
 
-        private readonly ObsConnector _connector;
+        //private readonly ObsConnector _connector;
 
         public ObsStudioPlugin()
         {
             ObsStudioPlugin.Proxy = new ObsAppProxy(this);
-            this._connector = new ObsConnector(ObsStudioPlugin.Proxy, this.GetPluginDataDirectory(),
-                                (Object sender, EventArgs e) => this.OnPluginStatusChanged(Loupedeck.PluginStatus.Warning, this.Localization.GetString("Connecting to OBS"), "https://support.loupedeck.com/obs-guide", ""));
+            this._iniFile = new ObsIniFile(this);   
+
+            //this._connector = new ObsConnector(ObsStudioPlugin.Proxy, this.GetPluginDataDirectory(),
+            //                    (Object sender, EventArgs e) => this.OnPluginStatusChanged(Loupedeck.PluginStatus.Warning, this.Localization.GetString("Connecting to OBS"), "https://support.loupedeck.com/obs-guide", ""));
         }
 
         // Load is called once as plugin is being initialized during service start.
         public override void Load()
         {
+            this.Log.Info($"Load. ClientAppActive = {this.ClientApplication.IsActive()}" );
+
             this.Info.Icon16x16 = EmbeddedResources.ReadImage("Loupedeck.ObsStudioPlugin.metadata.Icon16x16.png");
             this.Info.Icon32x32 = EmbeddedResources.ReadImage("Loupedeck.ObsStudioPlugin.metadata.Icon32x32.png");
             this.Info.Icon48x48 = EmbeddedResources.ReadImage("Loupedeck.ObsStudioPlugin.metadata.Icon48x48.png");
@@ -41,12 +45,16 @@ namespace Loupedeck.ObsStudioPlugin
             this.ClientApplication.ApplicationInstanceStarted += this.OnApplicationStarted;
             this.ClientApplication.ApplicationInstanceStopped += this.OnApplicationStopped;
 
+        
             ObsStudioPlugin.Proxy.AppConnected += this.OnAppConnStatusChange;
             ObsStudioPlugin.Proxy.AppDisconnected += this.OnAppConnStatusChange;
 
-            ObsStudioPlugin.Proxy.RegisterAppEvents(); 
+            ObsStudioPlugin.Proxy.RegisterAppEvents();
 
-            this._connector.Start();
+            if (this.ClientApplication.IsActive())
+            {
+                this.OnApplicationStarted(this, null);
+            }
 
             this.Update_PluginStatus();
         }
@@ -54,7 +62,6 @@ namespace Loupedeck.ObsStudioPlugin
         // Unload is called once when plugin is being unloaded.
         public override void Unload()
         {
-            this._connector.Stop();
             ObsStudioPlugin.Proxy.UnregisterAppEvents();
 
             this.OnApplicationStopped(this, null);
@@ -72,17 +79,34 @@ namespace Loupedeck.ObsStudioPlugin
 
         private void OnAppConnStatusChange(Object sender, EventArgs e) => this.Update_PluginStatus();
 
+
+        private readonly ObsIniFile _iniFile;
         private void OnApplicationStarted(Object sender, EventArgs e)
         {
+            //Main entry point for the plugin's connectivity
+
+            this.Log.Info("OnApplicationStarted");
+            var status = this.ClientApplication.GetApplicationStatus();
+
+            if (this._iniFile.iniFileGood)
+            {
+                this.Log.Info("Connecting using the data from IniFile");
+                if (!Helpers.TryExecuteAction(() => Proxy.ConnectAsync($"ws://127.0.0.1:{this._iniFile.ServerPort}", this._iniFile.ServerPassword)))
+                {
+                    Tracer.Error("OBS: Error connecting to OBS");
+                }
+            }
+
         }
 
         private void OnApplicationStopped(Object sender, EventArgs e)
         {
+            this.Log.Info("OnApplicationStopped");
         }
 
         private void Update_PluginStatus()
         {
-            if (!this.IsApplicationInstalled())
+            if (!this.IsApplicationInstalled() && !this.ClientApplication.IsRunning())
             {
                 this.OnPluginStatusChanged(Loupedeck.PluginStatus.Error, "OBS Studio is not installed", "https://support.loupedeck.com/obs-guide", "more details");
             }
@@ -92,6 +116,7 @@ namespace Loupedeck.ObsStudioPlugin
             }
             else
             {
+// FIXME: We need more elaborate explanation here. 
                 this.OnPluginStatusChanged(Loupedeck.PluginStatus.Warning, "Not connected to OBS", "https://support.loupedeck.com/obs-guide", "more details");
             }
         }

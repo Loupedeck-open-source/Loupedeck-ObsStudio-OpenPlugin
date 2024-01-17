@@ -54,9 +54,11 @@
                     throw new Exception("Cannot find details for source");
                 }
 #endif
+                var isVisible = obs.GetSceneItemEnabled(in_sceneName, in_details.ItemId);
+
                 var source = new SceneItemDescriptor(in_collection, in_sceneName,
                                        in_details.SourceName, in_details.ItemId,
-                                        obs.GetSceneItemEnabled(in_details.SourceName, in_details.ItemId));
+                                        isVisible);
 
                 return source;
             }

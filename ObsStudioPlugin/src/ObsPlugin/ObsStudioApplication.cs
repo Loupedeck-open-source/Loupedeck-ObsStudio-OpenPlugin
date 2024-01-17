@@ -48,6 +48,7 @@
             }
         }
 
+#pragma warning ("Add portable mode support")
         // For OBS Studio we can tell for sure, is it installed or not
         public override ClientApplicationStatus GetApplicationStatus()
         {

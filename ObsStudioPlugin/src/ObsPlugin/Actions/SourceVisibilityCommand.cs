@@ -61,15 +61,15 @@
 
         private void OnCurrentSceneChanged(Object sender, EventArgs e) => this.ActionImageChanged();
 
-        private void OnSceneItemAdded(Object sender, TwoStringArgs arg)
+        private void OnSceneItemAdded(Object sender, SceneItemArgs arg)
         {
-            this.AddSceneItemParameter(arg.Item1, arg.Item2);
+            this.AddSceneItemParameter(arg.SceneName, arg.ItemName, arg.ItemId);
             this.ParametersChanged();
         }
 
-        private void OnSceneItemRemoved(Object sender, TwoStringArgs arg)
+        private void OnSceneItemRemoved(Object sender, SceneItemArgs arg)
         {
-            this.RemoveParameter(SceneItemKey.Encode(ObsStudioPlugin.Proxy.CurrentSceneCollection, arg.Item1, arg.Item2));
+            this.RemoveParameter(SceneItemKey.Encode(ObsStudioPlugin.Proxy.CurrentSceneCollection, arg.SceneName, arg.ItemId));
             this.ParametersChanged();
         }
 
@@ -105,9 +105,9 @@
             return (this.Plugin as ObsStudioPlugin).GetPluginCommandImage(imageSize, imageName, sourceName, imageName == IMGSceneSelected);
         }
 
-        private void AddSceneItemParameter(String sceneName, String itemName)
+        private void AddSceneItemParameter(String sceneName, String itemName,Int32 itemId)
         {
-            var key = SceneItemKey.Encode(ObsStudioPlugin.Proxy.CurrentSceneCollection, sceneName, itemName);
+            var key = SceneItemKey.Encode(ObsStudioPlugin.Proxy.CurrentSceneCollection, sceneName, itemId);
             this.AddParameter(key, $"{itemName}", $"{this.GroupName}{CommonStrings.SubgroupSeparator}{sceneName}").Description = 
                         ObsStudioPlugin.Proxy.AllSceneItems[key].Visible ? "Hide" : "Show" + $" source \"{itemName}\" of scene \"{sceneName}\"";
             this.SetCurrentState(key, ObsStudioPlugin.Proxy.AllSceneItems[key].Visible ? SOURCE_SELECTED : SOURCE_UNSELECTED);
@@ -123,7 +123,7 @@
 
                 foreach (var item in ObsStudioPlugin.Proxy.AllSceneItems)
                 {
-                    this.AddSceneItemParameter(item.Value.SceneName, item.Value.SourceName);
+                    this.AddSceneItemParameter(item.Value.SceneName, item.Value.SourceName, item.Value.SourceId);
                 }
             }
 

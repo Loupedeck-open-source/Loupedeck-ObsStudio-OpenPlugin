@@ -12,8 +12,8 @@
     /// </summary>
     internal partial class ObsAppProxy
     {
-        public event EventHandler<TwoStringArgs> AppEvtSceneItemAdded;
-        public event EventHandler<TwoStringArgs> AppEvtSceneItemRemoved;
+        public event EventHandler<SceneItemArgs> AppEvtSceneItemAdded;
+        public event EventHandler<SceneItemArgs> AppEvtSceneItemRemoved;
         public event EventHandler<SceneItemVisibilityChangedArgs> AppEvtSceneItemVisibilityChanged;
 
         /// <summary>
@@ -64,7 +64,7 @@
                 this.Plugin.Log.Warning($"Cannot update visiblity: item {arg.SceneItemId} scene {arg.SceneName} not in dictionary");
             }
 
-            this.AppEvtSceneItemVisibilityChanged?.Invoke(sender, new SceneItemVisibilityChangedArgs(arg.SceneName, arg.SceneItemId, arg.SceneItemEnabled));
+            this.AppEvtSceneItemVisibilityChanged?.Invoke(sender, new SceneItemVisibilityChangedArgs(arg.SceneName,"", arg.SceneItemId, arg.SceneItemEnabled));
         }
 
         private void OnObsSceneItemAdded(OBSWebsocket sender, String sceneName, String itemName)
@@ -113,8 +113,10 @@
             }
 
             this.AllSceneItems[SceneItemKey.Encode(this.CurrentSceneCollection, sceneName, item.SourceName)] = sourceDictItem;
-#endif
+            
             this.AppEvtSceneItemAdded?.Invoke(this, new TwoStringArgs(sceneName, itemName));
+#endif
+
         }
 
         private void OnObsSceneItemRemoved(OBSWebsocket sender, String sceneName, String itemName)
@@ -126,7 +128,7 @@
             {
                 this.AllSceneItems.Remove(key);
 
-                this.AppEvtSceneItemRemoved?.Invoke(this, new TwoStringArgs(sceneName, itemName));
+            //    this.AppEvtSceneItemRemoved?.Invoke(this, new TwoStringArgs(sceneName, itemName));
             }
             else
             {
