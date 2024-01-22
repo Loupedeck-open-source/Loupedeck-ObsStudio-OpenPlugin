@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Data.SqlTypes;
+    using System.Runtime;
     using System.Runtime.Remoting.Messaging;
     using System.Web;
 
@@ -86,7 +87,7 @@
                 this.Plugin.Log.Warning($"SourceDestroyed: Source {args.InputName} is not found in audioSources");
             }
         }
-        private void OnObsSourceVolumeChanged(Object sender, OBSWebsocketDotNet.Types.Events.InputVolumeChangedEventArgs args)
+        private void OnObsInputVolumeChanged(Object sender, OBSWebsocketDotNet.Types.Events.InputVolumeChangedEventArgs args)
         {
              
             if (this.CurrentAudioSources.ContainsKey(args.Volume.InputName))
@@ -99,14 +100,14 @@
                 this.Plugin.Log.Warning($"Cannot update volume of {args?.Volume.InputName} --not present in current dbgSrc");
             }
         }
-        private void OnObsSourceMuteStateChanged(Object sender, OBSWebsocketDotNet.Types.Events.InputMuteStateChangedEventArgs args)
+        private void OnObsInputMuteStateChanged(Object sender, OBSWebsocketDotNet.Types.Events.InputMuteStateChangedEventArgs args)
         {
             
             if (this.CurrentAudioSources.ContainsKey(args.InputName))
             {
                 this.CurrentAudioSources[args.InputName].Muted = args.InputMuted;
                 this.AppEvtSourceMuteStateChanged?.Invoke(sender, new MuteEventArgs(args.InputName, args.InputMuted));
-                this.Plugin.Log.Info($"OBS: OnObsSourceMuteStateChanged Source '{args.InputName}' is muted '{args.InputMuted}'");
+                this.Plugin.Log.Info($"OBS: OnObsInputMuteStateChanged Source '{args.InputName}' is muted '{args.InputMuted}'");
             }
             else
             {
@@ -207,16 +208,35 @@
             {
                 var dbgSrc = "";
                 foreach (var input in this.GetInputList())
-                {       
+                {
+                    if (input.InputKind == "browser_source")
+                    {
+                        var skip = true;
+                        var settings = this.GetInputSettings(input.InputName);
+                        //We check if reroute_audio is in settings
+
+
+                        if (settings.Settings.TryGetValue("reroute_audio", out var reroute))
+                        {
+                            skip = (reroute.ToString() == "true");
+                        }
+
+                        this.Plugin.Log.Info($"Input {input.InputName} is of a kind \"{input.InputKind}\" settings \"{settings}\"  skip = {skip} ");
+
+                        if (skip)
+                        {
+                            continue;
+                        }
+                    }
+
                     // Adding audio source and populating initial values
                     this.CurrentAudioSources[input.InputName] = new AudioSourceDescriptor(input.InputName, this);
                     dbgSrc += $"\"{input.InputName}\",";
 
-                    this.Plugin.Log.Info($"Input {input.InputName} is of a kind \"{input.InputKind}\"");
 
-                    var s = this.GetInputSettings(input.InputName);
-                    var v = this.GetInputVolume(input.InputName);
-                    var m = this.GetInputMute(input.InputName);
+                    //this.Plugin.Log.Info($"Input {input.InputName} is of a kind \"{input.InputKind}\" settings \"{s.Settings}\"");
+                    //var v = this.GetInputVolume(input.InputName);
+                    //var m = this.GetInputMute(input.InputName);
 
                 }
 

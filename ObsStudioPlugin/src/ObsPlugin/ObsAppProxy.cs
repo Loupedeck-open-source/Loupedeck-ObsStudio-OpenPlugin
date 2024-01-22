@@ -3,8 +3,10 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Reflection;
 
     using OBSWebsocketDotNet.Communication;
+    using OBSWebsocketDotNet.Types.Events;
 
     /// <summary>
     /// Proxy to OBS websocket server, for API reference see
@@ -75,9 +77,9 @@
                 this.InputCreated -= this.OnObsSourceCreated;
                 this.InputRemoved -= this.OnObsSourceDestroyed;
 
-                this.InputMuteStateChanged -= this.OnObsSourceMuteStateChanged;
-                this.InputVolumeChanged -= this.OnObsSourceVolumeChanged;
-
+                this.InputMuteStateChanged -= this.OnObsInputMuteStateChanged;
+                this.InputVolumeChanged -= this.OnObsInputVolumeChanged;
+                
 #if false
                 this.SourceAudioActivated -= this.OnObsSourceAudioActivated;
                 this.SourceAudioDeactivated -= this.OnObsSourceAudioDeactivated;
@@ -103,8 +105,24 @@
                 this.InputCreated += this.OnObsSourceCreated;
                 this.InputRemoved += this.OnObsSourceDestroyed;
 
-                this.InputMuteStateChanged += this.OnObsSourceMuteStateChanged;
-                this.InputVolumeChanged += this.OnObsSourceVolumeChanged;
+                this.InputMuteStateChanged += this.OnObsInputMuteStateChanged;
+                this.InputVolumeChanged += this.OnObsInputVolumeChanged;
+
+
+
+                this.InputNameChanged += this.OnObsInputNameChanged;
+                //this.InputSettingsChanged += this.OnObsInputSettingsChanged;
+                this.InputActiveStateChanged += this.OnObsInputActiveStateChanged;
+                this.InputShowStateChanged += this.OnObsInputShowStateChanged;
+
+                this.InputAudioBalanceChanged += this.OnObsInputAudioBalanceChanged;
+                this.InputAudioSyncOffsetChanged += this.OnObsinputAudioSyncOffsetChanged;
+                this.InputAudioTracksChanged += this.OnObsInputAudioTracksChanged;
+                this.InputAudioMonitorTypeChanged += this.OnObsInputAudioMonitorTypeChanged;
+                this.InputVolumeMeters += this.OnObsInputVolumeMeters;
+
+
+
 #if false
                 this.SourceAudioActivated += this.OnObsSourceAudioActivated;
                 this.SourceAudioDeactivated += this.OnObsSourceAudioDeactivated;
@@ -112,6 +130,47 @@
                 this._scene_collection_events_subscribed = false;
             }
         }
+        private void OnObsInputNameChanged(object sender, InputNameChangedEventArgs e)
+        {
+            this.Plugin.Log.Info($"Entering {MethodBase.GetCurrentMethod().Name}");
+        }
+
+        private void OnObsInputActiveStateChanged(object sender, InputActiveStateChangedEventArgs e)
+        {
+            this.Plugin.Log.Info($"Entering {MethodBase.GetCurrentMethod().Name}");
+        }
+
+        private void OnObsInputShowStateChanged(object sender, InputShowStateChangedEventArgs e)
+        {
+            this.Plugin.Log.Info($"Entering {MethodBase.GetCurrentMethod().Name}");
+        }
+
+        private void OnObsInputAudioBalanceChanged(object sender, InputAudioBalanceChangedEventArgs e)
+        {
+            this.Plugin.Log.Info($"Entering {MethodBase.GetCurrentMethod().Name}");
+        }
+
+        private void OnObsinputAudioSyncOffsetChanged(object sender, InputAudioSyncOffsetChangedEventArgs e)
+        {
+            this.Plugin.Log.Info($"Entering {MethodBase.GetCurrentMethod().Name}");
+        }
+
+        private void OnObsInputAudioTracksChanged(object sender, InputAudioTracksChangedEventArgs e)
+        {
+            this.Plugin.Log.Info($"Entering {MethodBase.GetCurrentMethod().Name}");
+        }
+
+        private void OnObsInputAudioMonitorTypeChanged(object sender, InputAudioMonitorTypeChangedEventArgs e)
+        {
+
+            this.Plugin.Log.Info($"Entering {MethodBase.GetCurrentMethod().Name}");
+        }
+
+        private void OnObsInputVolumeMeters(object sender, InputVolumeMetersEventArgs e)
+        {
+            this.Plugin.Log.Info($"Entering {MethodBase.GetCurrentMethod().Name}");
+        }
+
 
         internal void InitializeObsData(Object sender, EventArgs e)
         {
