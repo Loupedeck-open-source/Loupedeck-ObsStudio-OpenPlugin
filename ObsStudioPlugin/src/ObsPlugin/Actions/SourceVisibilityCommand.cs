@@ -85,7 +85,7 @@
 
         protected void OnSceneItemVisibilityChanged(Object sender, SceneItemVisibilityChangedArgs arg)
         {
-            var actionParameter = SceneItemKey.Encode(ObsStudioPlugin.Proxy.CurrentSceneCollection, arg.SceneName, arg.ItemName);
+            var actionParameter = SceneItemKey.Encode(ObsStudioPlugin.Proxy.CurrentSceneCollection, arg.SceneName, arg.ItemId);
             _ = this.SetCurrentState(actionParameter, arg.Visible ? SOURCE_SELECTED : SOURCE_UNSELECTED);
             //this.ActionImageChanged(actionParameter);
         }
@@ -96,7 +96,8 @@
             var imageName = IMGSceneInaccessible;
             if (SceneItemKey.TryParse(actionParameter, out var parsed))
             {
-                sourceName = parsed.Source;
+                sourceName = ObsStudioPlugin.Proxy.GetSceneItemName(parsed.Collection, parsed.Scene, parsed.SourceId);
+
                 imageName = parsed.Collection != ObsStudioPlugin.Proxy.CurrentSceneCollection
                     ? IMGSceneInaccessible
                     : stateIndex == SOURCE_SELECTED ? IMGSceneSelected : IMGSceneUnselected;

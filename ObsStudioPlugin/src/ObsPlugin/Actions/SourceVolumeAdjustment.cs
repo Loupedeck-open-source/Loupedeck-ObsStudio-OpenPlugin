@@ -58,7 +58,18 @@
             return true;
         }
 
-        protected override String GetAdjustmentDisplayName(String actionParameter, PluginImageSize imageSize) => SceneItemKey.TryParse(actionParameter, out var key) ? key.Source : SourceNameUnknown;
+        protected override String GetAdjustmentDisplayName(String actionParameter, PluginImageSize imageSize)
+        {
+            if (SceneItemKey.TryParse(actionParameter, out var key))
+            {
+                if (ObsStudioPlugin.Proxy.AllSceneItems.ContainsKey(actionParameter))
+                {
+                    return ObsStudioPlugin.Proxy.AllSceneItems[actionParameter].SourceName;
+                }
+            }
+            return SourceNameUnknown;
+        }
+        
 
         protected override void ApplyAdjustment(String actionParameter, Int32 diff)
         {

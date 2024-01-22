@@ -79,7 +79,7 @@
                 var sceneName = "Unknown"; 
                 if (SceneItemKey.TryParse(e.ActionEditorState.GetControlValue(ControlSourceSelector), out var parsed))
                 {
-                    sourceName = parsed.Source;
+                    sourceName = ObsStudioPlugin.Proxy.GetSceneItemName(parsed.Collection, parsed.Scene, parsed.SourceId);
                     sceneName = parsed.Scene;
                 }
                   
@@ -95,7 +95,7 @@
              * e.ActionEditorState.SetEnabled(ControlSourceSelector, ObsStudioPlugin.Proxy.IsAppConnected);
              * e.ActionEditorState.SetEnabled(ControlIsSourceVisible, ObsStudioPlugin.Proxy.IsAppConnected);
             */
-
+#warning "We need to check if the Switch works" 
             if (e.ControlName.EqualsNoCase(ControlIsSourceVisible))
             {
                 e.AddItem(this.Visibility_Show, this.Visibility_Show, $"Ensures source is visible");
@@ -110,39 +110,39 @@
                 else
                 {
                     this.Plugin.Log.Info($"SVS: Adding scenes to {ControlSceneSelector} control");
+
                     //Unique scenes (those that have sources)
-                    foreach (var item in ObsStudioPlugin.Proxy.ScenesWithItems)
+                    var unique_scenes = new HashSet<String>();
+
+                    foreach (var item in ObsStudioPlugin.Proxy.AllSceneItems)
                     {
-                        e.AddItem(item.Key, item.Key, $"Scene {item.Key}");
+                        var parsed = SceneItemKey.TryParse(item.Key, out var parsedItem);
+                        if (parsedItem.Collection.EqualsNoCase(ObsStudioPlugin.Proxy.CurrentSceneCollection) && !unique_scenes.Contains(parsedItem.Scene))
+                        {
+                            unique_scenes.Add(parsedItem.Scene);
+                            e.AddItem(parsedItem.Scene, parsedItem.Scene, $"Scene {parsedItem.Scene}");
+                        }
                     }
                 }
             }
             else if (e.ControlName.EqualsNoCase(ControlSourceSelector))
             {
-
                 if (!ObsStudioPlugin.Proxy.IsAppConnected)
                 {
                     //To ensure sources list is empty so that control cannot be saved.
                     return; 
                 }
-
                 var selectedScene = e.ActionEditorState.GetControlValue(ControlSceneSelector);
 
                 if (!String.IsNullOrEmpty(selectedScene))
                 {
                     this.Plugin.Log.Info($"SVS: Adding sources for {selectedScene}");
-
-                    if (ObsStudioPlugin.Proxy.ScenesWithItems.TryGetValue(selectedScene, out var sceneItemList))
+                    foreach(var item in ObsStudioPlugin.Proxy.AllSceneItems)
                     {
-                        var firstKey = "";
-                        foreach (var item in sceneItemList)
+                        var parsed  = SceneItemKey.TryParse(item.Key, out var parsedItem);  
+                        if (parsedItem.Collection.EqualsNoCase(ObsStudioPlugin.Proxy.CurrentSceneCollection) && parsedItem.Scene.EqualsNoCase(selectedScene))
                         {
-                            if (firstKey.IsNullOrEmpty())
-                            {
-                                firstKey = item.Item1;
-                            }
-                            //The 'Value' for sources drop down is the same Key (collection-scene-item) we are using in SourceVisibilityCommand
-                            e.AddItem(item.Item1, item.Item2, $"Source {item.Item2}");
+                            e.AddItem( item.Key, item.Value.SourceName, $"Source {item.Value.SourceName}");
                         }
                     }
                 }
@@ -172,7 +172,7 @@
 
             if (actionParameters.TryGetString(ControlSourceSelector, out var key) && SceneItemKey.TryParse(key, out var parsed))
             {
-                sourceName = parsed.Source;
+                sourceName = ObsStudioPlugin.Proxy.GetSceneItemName(parsed.Collection, parsed.Scene, parsed.SourceId);
                 var sourceVisible = actionParameters.TryGetString(ControlIsSourceVisible, out var vis) && vis == this.Visibility_Show;
 
                 imageName = parsed.Collection != ObsStudioPlugin.Proxy.CurrentSceneCollection

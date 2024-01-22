@@ -69,12 +69,12 @@
         public Boolean Visible { get; private set; }
         public SceneItemVisibilityChangedArgs(String scene, String itemName, Int32 itemId, Boolean isVisible) : base(scene, itemName, itemId) => this.Visible = isVisible;
     }
-#if false
+
     internal class SourceNameEventArgs: EventArgs
     {
         public String SourceName;
         public SourceNameEventArgs(String name) => this.SourceName = name;
 
     }
-#endif 
+
 }

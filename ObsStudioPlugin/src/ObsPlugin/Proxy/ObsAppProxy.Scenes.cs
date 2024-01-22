@@ -114,8 +114,8 @@ namespace Loupedeck.ObsStudioPlugin
                     this.Plugin.Log.Warning("SceneListChanged: cannot fetch current scene");
                 }
 
-#warning "TODO: Retreive audio sources for all scenes"
-                //this.OnObsSceneCollectionChanged_RetreiveAudioSources();
+                this.OnObsSceneCollectionChanged_RetreiveAudioSources();
+
                 this.AppEvtSceneListChanged?.Invoke(sender, e);
             }
             else
@@ -153,7 +153,9 @@ namespace Loupedeck.ObsStudioPlugin
             // This the same as onObsSceneChanged but in previewmode
             // For Studio mode, OBS plugin will set / monitor Preview scenes, not main scene
             //  NB: the SceneChange command changes program scene, not a preview one
-            if(this._studioMode)
+            this.Plugin.Log.Info($"PreviewSceneChange to {newScene}");
+
+            if (this._studioMode)
             {
                 //this.OnSceneChanged(newScene);
             }

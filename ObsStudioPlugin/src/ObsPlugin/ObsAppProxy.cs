@@ -69,17 +69,16 @@
                 this.CurrentPreviewSceneChanged -= this.OnObsPreviewSceneChanged;
         
                 this.SceneItemEnableStateChanged  -= this.OnObsSceneItemVisibilityChanged;
-#warning "Scene item events disabled"
-#if false
-                this.SceneItemAdded -= this.OnObsSceneItemAdded;
+                this.SceneItemCreated -= this.OnObsSceneItemAdded;
                 this.SceneItemRemoved -= this.OnObsSceneItemRemoved;
 
-                this.SourceMuteStateChanged -= this.OnObsSourceMuteStateChanged;
-                this.SourceVolumeChanged -= this.OnObsSourceVolumeChanged;
+                this.InputCreated -= this.OnObsSourceCreated;
+                this.InputRemoved -= this.OnObsSourceDestroyed;
 
-                this.SourceCreated -= this.OnObsSourceCreated;
-                this.SourceDestroyed -= this.OnObsSourceDestroyed;
+                this.InputMuteStateChanged -= this.OnObsSourceMuteStateChanged;
+                this.InputVolumeChanged -= this.OnObsSourceVolumeChanged;
 
+#if false
                 this.SourceAudioActivated -= this.OnObsSourceAudioActivated;
                 this.SourceAudioDeactivated -= this.OnObsSourceAudioDeactivated;
 #endif
@@ -96,17 +95,17 @@
                 this.CurrentPreviewSceneChanged += this.OnObsPreviewSceneChanged;
 
                 this.SceneItemEnableStateChanged += this.OnObsSceneItemVisibilityChanged;
-#warning "Scene item events disabled"
-#if false
-                this.SceneItemAdded += this.OnObsSceneItemAdded;
+
+                this.SceneItemCreated += this.OnObsSceneItemAdded;
                 this.SceneItemRemoved += this.OnObsSceneItemRemoved;
 
-                this.SourceMuteStateChanged += this.OnObsSourceMuteStateChanged;
-                this.SourceVolumeChanged += this.OnObsSourceVolumeChanged;
 
-                this.SourceCreated += this.OnObsSourceCreated;
-                this.SourceDestroyed += this.OnObsSourceDestroyed;
+                this.InputCreated += this.OnObsSourceCreated;
+                this.InputRemoved += this.OnObsSourceDestroyed;
 
+                this.InputMuteStateChanged += this.OnObsSourceMuteStateChanged;
+                this.InputVolumeChanged += this.OnObsSourceVolumeChanged;
+#if false
                 this.SourceAudioActivated += this.OnObsSourceAudioActivated;
                 this.SourceAudioDeactivated += this.OnObsSourceAudioDeactivated;
 #endif
@@ -122,11 +121,8 @@
             var vcamstatus = this.GetVirtualCamStatus();
             var studioModeStatus = this.GetStudioModeEnabled();
 
-#warning "Retreiving audio types -- check if needed"
-#if false 
-// Retreiving Audio types.
+            // Retreiving Audio types.
             this.OnAppConnected_RetreiveSourceTypes();
-#endif
 
             if (streamingStatus != null)
             {

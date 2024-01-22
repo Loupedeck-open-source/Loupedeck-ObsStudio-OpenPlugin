@@ -32,7 +32,8 @@ namespace Loupedeck.ObsStudioPlugin
         // Load is called once as plugin is being initialized during service start.
         public override void Load()
         {
-            this.Log.Info($"Load. ClientAppActive = {this.ClientApplication.IsActive()}" );
+            var appActive = this.ClientApplication.IsActive() || this.ClientApplication.IsRunning();
+            this.Log.Info($"Load. ClientAppActive = {appActive}" );
 
             this.Info.Icon16x16 = EmbeddedResources.ReadImage("Loupedeck.ObsStudioPlugin.metadata.Icon16x16.png");
             this.Info.Icon32x32 = EmbeddedResources.ReadImage("Loupedeck.ObsStudioPlugin.metadata.Icon32x32.png");
@@ -46,14 +47,22 @@ namespace Loupedeck.ObsStudioPlugin
             this.ClientApplication.ApplicationInstanceStopped += this.OnApplicationStopped;
 
         
-            ObsStudioPlugin.Proxy.AppConnected += this.OnAppConnStatusChange;
-            ObsStudioPlugin.Proxy.AppDisconnected += this.OnAppConnStatusChange;
+            ObsStudioPlugin.Proxy.AppConnected += this.OnAppConnected;
+            ObsStudioPlugin.Proxy.AppDisconnected += this.OnAppDisconected;
 
             ObsStudioPlugin.Proxy.RegisterAppEvents();
 
-            if (this.ClientApplication.IsActive())
+            if (appActive)
             {
                 this.OnApplicationStarted(this, null);
+            }
+            else if (this.ClientApplication.GetApplicationStatus() == ClientApplicationStatus.Installed
+                && this._iniFile.iniFileExists
+                && !this._iniFile.iniFileGood
+                )
+            {
+                //Attempting to fix ini file if it is not good. Can only be done when app is not running (for Portable app we need to know its location first
+                this._iniFile.FixIniFile();
             }
 
             this.Update_PluginStatus();
@@ -72,36 +81,81 @@ namespace Loupedeck.ObsStudioPlugin
             this.ClientApplication.ApplicationInstanceStarted -= this.OnApplicationStarted;
             this.ClientApplication.ApplicationInstanceStopped -= this.OnApplicationStopped;
 
-            ObsStudioPlugin.Proxy.AppConnected -= this.OnAppConnStatusChange;
-            ObsStudioPlugin.Proxy.AppDisconnected -= this.OnAppConnStatusChange;
+            ObsStudioPlugin.Proxy.AppConnected -= this.OnAppConnected;
+            ObsStudioPlugin.Proxy.AppDisconnected -= this.OnAppDisconected;
 
         }
 
-        private void OnAppConnStatusChange(Object sender, EventArgs e) => this.Update_PluginStatus();
+        private void OnAppConnected(Object sender, EventArgs e)
+        {
+            this.Log.Info("OnAppConnected");
+            this.Update_PluginStatus();
+        }
 
+        private void OnAppDisconected(Object sender, EventArgs e)
+        {
+            this.Log.Info("OnAppDisconnected");
+            this.Update_PluginStatus();
+        }
 
         private readonly ObsIniFile _iniFile;
+
+        
+
         private void OnApplicationStarted(Object sender, EventArgs e)
         {
             //Main entry point for the plugin's connectivity
 
             this.Log.Info("OnApplicationStarted");
+
             var status = this.ClientApplication.GetApplicationStatus();
+
+            if (!this._iniFile.iniFileGood && status != ClientApplicationStatus.Installed)
+            {
+                this.Log.Info("Portable mode detected");
+
+                //FIXME: There needs to be more sophisticated logic
+                this._iniFile.SetPortableIniPath(this.ClientApplication.GetRunningProcessName());
+            }
+
+            //Here we can detect if application is running in the portable mode (runnign but not installed) and adjust ini file accordingly 
 
             if (this._iniFile.iniFileGood)
             {
-                this.Log.Info("Connecting using the data from IniFile");
+                this.Log.Info($"Connecting using the data from IniFile (port {this._iniFile.ServerPort})");
+
+                //Oftentimes we receive 'application started' notification too soon for the target app to be capable of accepting connections
+                // Firstly we need to wait for the port to be listening
+                while( Loupedeck.NetworkHelpers.IsTcpPortFree(this._iniFile.ServerPort) )
+                {
+                    this.Log.Info($"Port is not yet listening, waiting for 1s");
+                    System.Threading.Thread.Sleep(1000);
+                }
+                
+                //And we sleep some more to make sure that the app is ready to accept connections
+                System.Threading.Thread.Sleep(2000);
+
+
                 if (!Helpers.TryExecuteAction(() => Proxy.ConnectAsync($"ws://127.0.0.1:{this._iniFile.ServerPort}", this._iniFile.ServerPassword)))
                 {
-                    Tracer.Error("OBS: Error connecting to OBS");
+                    this.Log.Error("OBS: Error connecting to OBS");
                 }
             }
-
+            else if (this._iniFile.iniFileExists)
+            {
+                //If ini is not good we can set up the 'on app stopped' watch to modify file
+                this.OnPluginStatusChanged(Loupedeck.PluginStatus.Error, "OBS Studio needs to be restarted", "https://support.loupedeck.com/obs-guide", "more details");
+            }
         }
 
         private void OnApplicationStopped(Object sender, EventArgs e)
         {
             this.Log.Info("OnApplicationStopped");
+            if (!this._iniFile.iniFileGood && this._iniFile.iniFileExists)
+            {
+                this.Log.Info("Fixing Ini file");
+                this._iniFile.FixIniFile();
+            }
         }
 
         private void Update_PluginStatus()
@@ -166,7 +220,5 @@ namespace Loupedeck.ObsStudioPlugin
         /// <returns>bitmap with text rendered</returns>
         internal BitmapImage GetPluginCommandImage(PluginImageSize imageSize, String imagePath, String text = null, Boolean textSelected = false) => 
             this.BuildImage(imageSize, ImageResPrefix + imagePath, text, textSelected).ToImage();
-
-        public static void Trace(String line) => Tracer.Trace("GSP:" + line); /*System.Diagnostics.Debug.WriteLine(*/
     }
 }

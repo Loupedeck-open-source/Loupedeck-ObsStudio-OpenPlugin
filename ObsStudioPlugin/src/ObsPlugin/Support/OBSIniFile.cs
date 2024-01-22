@@ -123,10 +123,22 @@ namespace Loupedeck.ObsStudioPlugin
             */
         }
 
-        private void FixIniFile()
-        { 
+        public void FixIniFile()
+        {
+            if (!this.iniFileExists)
+            {
+                this.Plugin.Log.Error($"Cannot fix OBS ini file: File not exist ");
+                return;
+            }
+
             //Here we try fixing the file and write new OBSINIKey section, generate password etc.
-        
+#if false
+            var ini = new IniFile(this._iniFilePath);
+            this.ServerPassword = ini.GetValue(OBSINIKey, "ServerPassword", DEFAULT_PASSWORD);
+            
+            var port_s = $"{DEFAULT_PORT}";
+            this.ServerPort = Int32.TryParse(ini.GetValue(OBSINIKey, "ServerPort", DEFAULT_PORT.ToString()), out var port) ? port : DEFAULT_PORT;
+#endif
         }
 
 

@@ -34,9 +34,6 @@
             }
         }
 
-        //While AllSceneItems is a flat list indexed y string key, this one is the list of lists for scene, 
-        //To be used in the SourceVisibility processing 
-        public Dictionary<String, List<Tuple<String, String>>> ScenesWithItems { get; private set; } = new Dictionary<String, List<Tuple<String, String>>>();
         private void OnObsSceneCollectionListChanged(Object sender, EventArgs args)
         {
             this.Plugin.Log.Info("OBS SceneCollectionList changed");
@@ -92,7 +89,6 @@
         private void OnObsSceneCollectionChange_FetchSceneItems()
         {
             this.AllSceneItems.Clear();
-            this.ScenesWithItems.Clear();
 
             this.Plugin.Log.Info("Adding scene items");
 
@@ -105,28 +101,19 @@
                     continue;
                 }
 
-                var itemsList = new List<Tuple<String,String>>();
-
                 foreach (var item in sceneDetailsList)
                 {
-                    if(Helpers.TryExecuteFunc(()=> { return SceneItemDescriptor.CreateSourceDictItem(this.CurrentSceneCollection, scene.Name, item, this); }, out var sourceDictItem) 
-                        && sourceDictItem != null)
+                    var sourceDictItem = SceneItemDescriptor.CreateSourceDictItem(this.CurrentSceneCollection, scene.Name, item, this);
+                    if ( sourceDictItem != null)
                     {
                         var key = SceneItemKey.Encode(this.CurrentSceneCollection, scene.Name, item.ItemId);
                         this.AllSceneItems[key] = sourceDictItem;
-                        itemsList.Add(Tuple.Create(key, item.SourceName));
                     }
                     else
                     {
                         this.Plugin.Log.Warning($"Cannot get CreateSourceDictItem for scene {scene.Name}, item {item.SourceName}");
                     }
                 }
-
-                if(itemsList.Count > 0)
-                {
-                    this.ScenesWithItems.Add(scene.Name, itemsList);
-                }
-
             }
         }
     }

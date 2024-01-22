@@ -92,8 +92,8 @@
     <Compile Include="Actions\ReplayBufferSaveCommand.cs" />
     <Compile Include="Actions\GenericOnOffSwitch.cs" />
     <Compile Include="Support\OBSIniFile.cs" />
-    <None Include="Actions\SourceVolumeAdjustment.cs" />
-    <None Include="Actions\SourceMuteCommand.cs" />
+    <Compile Include="Actions\SourceVolumeAdjustment.cs" />
+    <Compile Include="Actions\SourceMuteCommand.cs" />
     <Compile Include="Actions\SourceVisibilityCommand.cs" />
     <Compile Include="Actions\SceneSelectCommand.cs" />
     <Compile Include="Actions\SceneCollectionSelectCommand.cs" />
@@ -113,13 +113,13 @@
     <Compile Include="Proxy\ObsAppProxy.SceneCollections.cs" />
     <Compile Include="Proxy\ObsAppProxy.Scenes.cs" />
     <Compile Include="Proxy\ObsAppProxy.Sources.cs" />
-    <None Include="Proxy\ObsAppProxy.Audio.cs" />
+    <Compile Include="Proxy\ObsAppProxy.Audio.cs" />
     <Compile Include="Proxy\ObsAppProxy.Misc.cs" />
     <Compile Include="Proxy\ObsAppProxy.TEMPLATE.cs" />
     <Compile Include="Proxy\ObsAppProxy.VirtualCam.cs" />
     <Compile Include="Proxy\ObsAppProxy.Streaming.cs" />
     <Compile Include="Support\EventArgs.cs" />
-    <None Include="Support\AudioSourceDescriptor.cs" />
+    <Compile Include="Support\AudioSourceDescriptor.cs" />
     <Compile Include="Support\SceneKey.cs" />
     <Compile Include="Support\SceneItemKey.cs" />
     <Compile Include="Support\SceneItemDescriptor.cs" />

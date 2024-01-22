@@ -2,16 +2,16 @@
 {
     using System;
 
-    internal class SceneItemKey : SceneKey
+    internal class SceneItemKey: SceneKey
     {
-        public new String Source;
+        public Int32 SourceId;
 
-        public SceneItemKey(String coll, String scene, String source)
-            : base(coll, scene) => this.Source = source ?? NothingField;
+        public SceneItemKey(String coll, String scene, Int32 sourceId)
+            : base(coll, scene) => this.SourceId = sourceId;
 
         public String Stringize()
         {
-            var a = new String[] { this.Collection, this.Scene, this.Source };
+            var a = new String[] { this.Collection, this.Scene, this.SourceId.ToString() };
             return String.Join(FieldSeparator, a);
         }
 
@@ -27,7 +27,7 @@
                 () =>
                 {
                     var parts = inp.Split(FieldSeparator, StringSplitOptions.RemoveEmptyEntries);
-                    return (parts as String[])?.Length == 3 ? new SceneItemKey(parts[0], parts[1], parts[2]) : null;
+                    return (parts as String[])?.Length == 3 ? new SceneItemKey(parts[0], parts[1], Int32.Parse(parts[2])) : null;
                 }, out var x))
             {
                 return x;
@@ -36,8 +36,7 @@
             return null;
         }
 
-        public static String Encode(String coll, String scene, String source) => new SceneItemKey(coll, scene, source).Stringize();
-        public static String Encode(String coll, String scene, Int32 source) => new SceneItemKey(coll, scene, source.ToString()).Stringize();
+        public static String Encode(String coll, String scene, Int32 sourceId) => new SceneItemKey(coll, scene, sourceId).Stringize();
     }
 
 }
