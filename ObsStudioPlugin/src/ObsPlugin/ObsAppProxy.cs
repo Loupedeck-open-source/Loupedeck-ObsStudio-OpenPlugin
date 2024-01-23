@@ -74,8 +74,8 @@
                 this.SceneItemCreated -= this.OnObsSceneItemAdded;
                 this.SceneItemRemoved -= this.OnObsSceneItemRemoved;
 
-                this.InputCreated -= this.OnObsSourceCreated;
-                this.InputRemoved -= this.OnObsSourceDestroyed;
+                this.InputCreated -= this.OnObsInputCreated;
+                this.InputRemoved -= this.OnObsInputDestroyed;
 
                 this.InputMuteStateChanged -= this.OnObsInputMuteStateChanged;
                 this.InputVolumeChanged -= this.OnObsInputVolumeChanged;
@@ -102,8 +102,8 @@
                 this.SceneItemRemoved += this.OnObsSceneItemRemoved;
 
 
-                this.InputCreated += this.OnObsSourceCreated;
-                this.InputRemoved += this.OnObsSourceDestroyed;
+                this.InputCreated += this.OnObsInputCreated;
+                this.InputRemoved += this.OnObsInputDestroyed;
 
                 this.InputMuteStateChanged += this.OnObsInputMuteStateChanged;
                 this.InputVolumeChanged += this.OnObsInputVolumeChanged;
@@ -112,6 +112,7 @@
 
                 this.InputNameChanged += this.OnObsInputNameChanged;
                 //this.InputSettingsChanged += this.OnObsInputSettingsChanged;
+/*
                 this.InputActiveStateChanged += this.OnObsInputActiveStateChanged;
                 this.InputShowStateChanged += this.OnObsInputShowStateChanged;
 
@@ -120,7 +121,7 @@
                 this.InputAudioTracksChanged += this.OnObsInputAudioTracksChanged;
                 this.InputAudioMonitorTypeChanged += this.OnObsInputAudioMonitorTypeChanged;
                 this.InputVolumeMeters += this.OnObsInputVolumeMeters;
-
+*/
 
 
 #if false
@@ -130,47 +131,58 @@
                 this._scene_collection_events_subscribed = false;
             }
         }
-        private void OnObsInputNameChanged(object sender, InputNameChangedEventArgs e)
+
+#warning "FIXME: WE need to propagate this to all controls so they can rename"
+
+        private void OnObsInputNameChanged(Object _, InputNameChangedEventArgs e)
+        {
+            this.Plugin.Log.Info($"Entering {MethodBase.GetCurrentMethod().Name}. {e.OldInputName} -> {e.InputName}");
+            if(this.CurrentAudioSources.ContainsKey(e.OldInputName))
+            {
+                var source = this.CurrentAudioSources[e.OldInputName];
+                this.CurrentAudioSources.Remove(e.OldInputName);
+                this.CurrentAudioSources.Add(e.InputName, source);
+            }   
+
+        }
+/*
+ 
+        private void OnObsInputActiveStateChanged(Object sender, InputActiveStateChangedEventArgs e)
         {
             this.Plugin.Log.Info($"Entering {MethodBase.GetCurrentMethod().Name}");
         }
 
-        private void OnObsInputActiveStateChanged(object sender, InputActiveStateChangedEventArgs e)
+        private void OnObsInputShowStateChanged(Object sender, InputShowStateChangedEventArgs e)
         {
             this.Plugin.Log.Info($"Entering {MethodBase.GetCurrentMethod().Name}");
         }
 
-        private void OnObsInputShowStateChanged(object sender, InputShowStateChangedEventArgs e)
+        private void OnObsInputAudioBalanceChanged(Object sender, InputAudioBalanceChangedEventArgs e)
         {
             this.Plugin.Log.Info($"Entering {MethodBase.GetCurrentMethod().Name}");
         }
 
-        private void OnObsInputAudioBalanceChanged(object sender, InputAudioBalanceChangedEventArgs e)
+        private void OnObsinputAudioSyncOffsetChanged(Object sender, InputAudioSyncOffsetChangedEventArgs e)
         {
             this.Plugin.Log.Info($"Entering {MethodBase.GetCurrentMethod().Name}");
         }
 
-        private void OnObsinputAudioSyncOffsetChanged(object sender, InputAudioSyncOffsetChangedEventArgs e)
+        private void OnObsInputAudioTracksChanged(Object sender, InputAudioTracksChangedEventArgs e)
         {
             this.Plugin.Log.Info($"Entering {MethodBase.GetCurrentMethod().Name}");
         }
 
-        private void OnObsInputAudioTracksChanged(object sender, InputAudioTracksChangedEventArgs e)
-        {
-            this.Plugin.Log.Info($"Entering {MethodBase.GetCurrentMethod().Name}");
-        }
-
-        private void OnObsInputAudioMonitorTypeChanged(object sender, InputAudioMonitorTypeChangedEventArgs e)
+        private void OnObsInputAudioMonitorTypeChanged(Object sender, InputAudioMonitorTypeChangedEventArgs e)
         {
 
             this.Plugin.Log.Info($"Entering {MethodBase.GetCurrentMethod().Name}");
         }
 
-        private void OnObsInputVolumeMeters(object sender, InputVolumeMetersEventArgs e)
+        private void OnObsInputVolumeMeters(Object sender, InputVolumeMetersEventArgs e)
         {
             this.Plugin.Log.Info($"Entering {MethodBase.GetCurrentMethod().Name}");
         }
-
+*/
 
         internal void InitializeObsData(Object sender, EventArgs e)
         {

@@ -8,6 +8,7 @@
     using System.Web;
 
     using OBSWebsocketDotNet;
+    using OBSWebsocketDotNet.Types;
 
     /// <summary>
     /// Proxy to OBS websocket server, for API reference see
@@ -25,7 +26,8 @@
 
         internal Dictionary<String, AudioSourceDescriptor> CurrentAudioSources { get; private set; }  = new Dictionary<String, AudioSourceDescriptor>();
 
-#if falses
+#if false
+        //NOTE: We might consider using this for browser_source  ONCE bar_raider implements InputSourceSettingsChanged
         private void OnObsSourceAudioActivated(OBSWebsocket sender, String sourceName)
         {
             // NOTE: We do not testSettings (type of the source) -> It's audio for sure!
@@ -39,48 +41,29 @@
         // NOTE: See if we need to do anything regarding
         private void OnObsSourceAudioDeactivated(OBSWebsocket sender, String sourceName) => this.OnObsSourceDestroyed(sender, sourceName, "", "");
 #endif
-        /// <summary>
-        /// Adds a source to CurrentAudioSources list
-        /// </summary>
-        /// <param name="sourceName">Name of the source</param>
-        /// <param name="testAudio">Test if source has audio active</param>
-        /// <returns>True if source is added</returns>
-        private Boolean AddCurrentAudioSource(String sourceName, Boolean testSettings = true, Boolean testAudio = true)
-        {
-#if false
-            if ( Helpers.TryExecuteFunc(
-                        () => (!testSettings)
-                                                 && (!testAudio || this.GetAudioActive(sourceName)), out var good) && good)
-            {
-                this.CurrentAudioSources[sourceName] = new AudioSourceDescriptor(sourceName, this);
-                this.Plugin.Log.Info($"Adding Regular audio source {sourceName}");
-                return true;
-            }
-#endif
-            return false;
 
-        }
-
-
-        private void OnObsSourceCreated(Object _, OBSWebsocketDotNet.Types.Events.InputCreatedEventArgs args)
+        private void OnObsInputCreated(Object _, OBSWebsocketDotNet.Types.Events.InputCreatedEventArgs args)
         {
             // Check if we should care
-            this.Plugin.Log.Info($"OBS: OnObsSourceCreated '{args.InputName}' kind '{args.InputKind}'");
+            this.Plugin.Log.Info($"OBS: OnObsInputCreated '{args.InputName}' kind '{args.InputKind}'");
 
-            /*
-            if (this.AddCurrentAudioSource(settings.SourceName, false, true))
+            //We do not add browser_source that has no "reroute audio" set to true
+            if ((args.InputKind != "browser_source" || (args.InputSettings.ContainsKey("reroute_audio") && args.InputSettings["reroute_audio"].ToString() == "true"))
+                && !this.CurrentAudioSources.ContainsKey(args.InputName))
             {
-                this.AppSourceCreated?.Invoke(this, new SourceNameEventArgs(settings.SourceName));
-            }*/
+                this.CurrentAudioSources[args.InputName] = new AudioSourceDescriptor(args.InputName, this);
+                this.AppSourceCreated?.Invoke(this, new SourceNameEventArgs(args.InputName));
+
+            }
         }
 
-        private void OnObsSourceDestroyed(Object _, OBSWebsocketDotNet.Types.Events.InputRemovedEventArgs args)
-        //private void OnObsSourceDestroyed(OBSWebsocket sender, String sourceName, String sourceType, String sourceKind)
+        private void OnObsInputDestroyed(Object _, OBSWebsocketDotNet.Types.Events.InputRemovedEventArgs args)
+        //private void OnObsInputDestroyed(OBSWebsocket sender, String sourceName, String sourceType, String sourceKind)
         {
             if (this.CurrentAudioSources.ContainsKey(args.InputName))
             {
                 this.CurrentAudioSources.Remove(args.InputName);
-                //this.AppSourceDestroyed?.Invoke(this, new SourceNameEventArgs(sourceName));
+                this.AppSourceDestroyed?.Invoke(this, new SourceNameEventArgs(args.InputName));
             }
             else
             {
@@ -208,31 +191,23 @@
             {
                 var dbgSrc = "";
                 foreach (var input in this.GetInputList())
+
                 {
                     if (input.InputKind == "browser_source")
                     {
-                        var skip = true;
-                        var settings = this.GetInputSettings(input.InputName);
-                        //We check if reroute_audio is in settings
+                        var inputSettings = this.GetInputSettings(input.InputName);
 
-
-                        if (settings.Settings.TryGetValue("reroute_audio", out var reroute))
+                        if (!inputSettings.Settings.ContainsKey("reroute_audio") || inputSettings.Settings["reroute_audio"].ToString() != "true")
                         {
-                            skip = (reroute.ToString() == "true");
-                        }
-
-                        this.Plugin.Log.Info($"Input {input.InputName} is of a kind \"{input.InputKind}\" settings \"{settings}\"  skip = {skip} ");
-
-                        if (skip)
-                        {
+                            this.Plugin.Log.Info($"Input {input.InputName} is of a kind \"{input.InputKind}\" settings \"{inputSettings.Settings}\" -- SKIP");
                             continue;
                         }
                     }
+                    this.Plugin.Log.Info($"Input {input.InputName} is of a kind \"{input.InputKind}\": Adding ");
 
                     // Adding audio source and populating initial values
                     this.CurrentAudioSources[input.InputName] = new AudioSourceDescriptor(input.InputName, this);
                     dbgSrc += $"\"{input.InputName}\",";
-
 
                     //this.Plugin.Log.Info($"Input {input.InputName} is of a kind \"{input.InputKind}\" settings \"{s.Settings}\"");
                     //var v = this.GetInputVolume(input.InputName);
