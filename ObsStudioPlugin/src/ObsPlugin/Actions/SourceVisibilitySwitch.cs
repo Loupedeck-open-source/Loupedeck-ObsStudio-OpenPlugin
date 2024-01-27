@@ -116,11 +116,11 @@
 
                     foreach (var item in ObsStudioPlugin.Proxy.AllSceneItems)
                     {
-                        var parsed = SceneItemKey.TryParse(item.Key, out var parsedItem);
-                        if (parsedItem.Collection.EqualsNoCase(ObsStudioPlugin.Proxy.CurrentSceneCollection) && !unique_scenes.Contains(parsedItem.Scene))
+                        if( ObsStudioPlugin.Proxy.CurrentSceneCollection.EqualsNoCase(item.Value.CollectionName)
+                        && !unique_scenes.Contains(item.Value.SceneName))
                         {
-                            unique_scenes.Add(parsedItem.Scene);
-                            e.AddItem(parsedItem.Scene, parsedItem.Scene, $"Scene {parsedItem.Scene}");
+                            unique_scenes.Add(item.Value.SceneName);
+                            e.AddItem(item.Value.SceneName, item.Value.SceneName, $"Scene {item.Value.SceneName}");
                         }
                     }
                 }
@@ -139,10 +139,10 @@
                     this.Plugin.Log.Info($"SVS: Adding sources for {selectedScene}");
                     foreach(var item in ObsStudioPlugin.Proxy.AllSceneItems)
                     {
-                        var parsed  = SceneItemKey.TryParse(item.Key, out var parsedItem);  
-                        if (parsedItem.Collection.EqualsNoCase(ObsStudioPlugin.Proxy.CurrentSceneCollection) && parsedItem.Scene.EqualsNoCase(selectedScene))
+                        if (ObsStudioPlugin.Proxy.CurrentSceneCollection.EqualsNoCase(item.Value.CollectionName)
+                            && selectedScene.EqualsNoCase(item.Value.SceneName))
                         {
-                            e.AddItem( item.Key, item.Value.SourceName, $"Source {item.Value.SourceName}");
+                            e.AddItem(item.Key, item.Value.SourceName, $"Source {item.Value.SourceName}");
                         }
                     }
                 }
@@ -184,7 +184,7 @@
                 this.Plugin.Log.Warning($"Cannot retreive selected source name from '{actionParameters}'");
             }
 
-            return (this.Plugin as ObsStudioPlugin).GetPluginCommandImage(imageWidth >=80 ? PluginImageSize.Width90: PluginImageSize.Width60, imageName, sourceName, imageName == SourceVisibilityCommand.IMGSceneSelected);
+            return (this.Plugin as ObsStudioPlugin).GetPluginCommandImage(imageWidth >=80 ? PluginImageSize.Width90: PluginImageSize.Width60, imageName, sourceName.Length == 0 ? SourceVisibilityCommand.SourceNameUnknown : sourceName, imageName == SourceVisibilityCommand.IMGSceneSelected);
         }
 
         protected override Boolean RunCommand(ActionEditorActionParameters actionParameters)
