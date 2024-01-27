@@ -7,6 +7,7 @@ namespace Loupedeck.ObsStudioPlugin
     using System.IO;
     using System.Runtime.CompilerServices;
     using System.CodeDom;
+    using System.Text;
 
 
     /*
@@ -31,18 +32,14 @@ namespace Loupedeck.ObsStudioPlugin
 
     if R and U and D -> Portable mode -> Detect INI File location and monitor AppClose. Set appropriate status. 
     if N and U -> EIther not there or portable mode -> Set appropriate status. ("Cannot detect OBS installation")
-             
-     
-     
-     
      */
 
     class ObsIniFile
     {
 
         private const String DEFAULT_PASSWORD = "NeverUseThis";
-        private const Int32 DEFAULT_PORT = 4444;
-        private const String OBSINIKey= "OBSWebSocket";
+        private const Int32 DEFAULT_PORT = 4455;
+        private const String ObsIniServerSection= "OBSWebSocket";
         public ObsStudioPlugin Plugin { get; private set; }
 
         public String ServerPassword { get; private set; } = DEFAULT_PASSWORD;
@@ -95,7 +92,9 @@ namespace Loupedeck.ObsStudioPlugin
 
         }
 
-        private void ReadIniFile()
+        private IniFile m_IniFile = null; 
+
+        public void ReadIniFile()
         {
             this.iniFileGood = false;
             this.iniFileExists = File.Exists(this._iniFilePath);
@@ -104,13 +103,15 @@ namespace Loupedeck.ObsStudioPlugin
                 return;
             }
 
-            var ini = new IniFile(this._iniFilePath);
-            this.ServerPassword = ini.GetValue(OBSINIKey, "ServerPassword", DEFAULT_PASSWORD);
+            this.m_IniFile = new IniFile(this._iniFilePath);
+            this.ServerPassword = this.m_IniFile.GetValue(ObsIniServerSection, "ServerPassword", DEFAULT_PASSWORD);
             var port_s = $"{DEFAULT_PORT}";
-            this.ServerPort = Int32.TryParse(ini.GetValue(OBSINIKey, "ServerPort", DEFAULT_PORT.ToString()), out var port) ? port : DEFAULT_PORT;
+            this.ServerPort = Int32.TryParse(this.m_IniFile.GetValue(ObsIniServerSection, "ServerPort", DEFAULT_PORT.ToString()), out var port) ? port : DEFAULT_PORT;
 
-            var serverEnabled = ini.GetValue(OBSINIKey, "ServerEnabled", "false");
-            var authRequired = ini.GetValue(OBSINIKey, "AuthRequired", "false");
+            var serverEnabled = this.m_IniFile.GetValue(ObsIniServerSection, "ServerEnabled", "false");
+            var authRequired = this.m_IniFile.GetValue(ObsIniServerSection, "AuthRequired", "false");
+
+            this.Plugin.Log.Info($"Read init file: serverEnabled:{serverEnabled}, authRequired:{authRequired}");
 
             this.iniFileGood = serverEnabled.EqualsNoCase("true") && authRequired.EqualsNoCase("true") /*Hypothetically we need to ensure password is non-zero*/;
 
@@ -123,37 +124,89 @@ namespace Loupedeck.ObsStudioPlugin
             */
         }
 
-        public void FixIniFile()
+        private readonly Random random = new Random();
+        //Generated 20 characters long random string
+        private String GenerateServerPassword()
+        {
+            const Int32 length = 20;
+            var s = "";
+
+            for (var i = 0; i < length; i++)
+            {
+                s += (Char)this.random.Next(32, 127);
+            }
+
+            return s;
+        }
+
+        public Boolean FixIniFile()
         {
             if (!this.iniFileExists)
             {
                 this.Plugin.Log.Error($"Cannot fix OBS ini file: File not exist ");
-                return;
+                return false;
             }
 
-            //Here we try fixing the file and write new OBSINIKey section, generate password etc.
-#if false
-            var ini = new IniFile(this._iniFilePath);
-            this.ServerPassword = ini.GetValue(OBSINIKey, "ServerPassword", DEFAULT_PASSWORD);
-            
-            var port_s = $"{DEFAULT_PORT}";
-            this.ServerPort = Int32.TryParse(ini.GetValue(OBSINIKey, "ServerPort", DEFAULT_PORT.ToString()), out var port) ? port : DEFAULT_PORT;
-#endif
+            if (this.iniFileGood)
+            {
+                this.Plugin.Log.Info($"File is already good, no need to fix");
+                return true;
+            }
+
+            this.Plugin.Log.Info($"Fixing ini file");
+
+            var none_val = "NONE";
+
+            if (!this.m_IniFile.SectionExists(ObsIniServerSection))
+            {
+                this.m_IniFile.Add(ObsIniServerSection, new Dictionary<String, String>(StringComparer.InvariantCultureIgnoreCase));
+            }
+
+            var value = this.m_IniFile.GetValue(ObsIniServerSection, "ServerPassword", none_val);
+
+            if( value == none_val || value.Length < 10 )
+            {
+                this.m_IniFile[ObsIniServerSection]["ServerPassword"] = this.GenerateServerPassword();   
+            }
+
+            value = this.m_IniFile.GetValue(ObsIniServerSection, "ServerPort", none_val);
+            if (value == none_val)
+            {
+                this.m_IniFile[ObsIniServerSection]["ServerPort"] = DEFAULT_PORT.ToString();    
+            }
+
+            this.m_IniFile[ObsIniServerSection]["AuthRequired"] = "true";
+            this.m_IniFile[ObsIniServerSection]["ServerEnabled"] = "true";
+
+            if (this.m_IniFile.WriteIniFile(this._iniFilePath))
+            {
+                this.Plugin.Log.Info($"Updated ini file written to {this._iniFilePath}");
+                this.ReadIniFile();
+                return true;
+            }
+            else
+            {
+                this.Plugin.Log.Error($"Cannot write OBS init file to {this._iniFilePath}");
+                return false;
+            }
+                
+
         }
 
 
-        class IniFile
+        class IniFile: Dictionary<String, Dictionary<String, String>>
         {
 
-            private readonly Dictionary<String, Dictionary<String, String>> ini = new Dictionary<String, Dictionary<String, String>>(StringComparer.InvariantCultureIgnoreCase);
+            //private readonly Dictionary<String, Dictionary<String, String>> ini = ;
 
-            public IniFile(String file)
+            public IniFile(String file): base(StringComparer.InvariantCultureIgnoreCase)
             {
+            
                 var txt = File.ReadAllText(file);
 
                 var currentSection = new Dictionary<String, String>(StringComparer.InvariantCultureIgnoreCase);
 
-                this.ini[""] = currentSection;
+                this[""] = currentSection;
 
                 foreach (var l in txt.Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries))
                 {
@@ -166,7 +219,7 @@ namespace Loupedeck.ObsStudioPlugin
                     if (line.StartsWith("[") && line.EndsWith("]"))
                     {
                         currentSection = new Dictionary<String, String>(StringComparer.InvariantCultureIgnoreCase);
-                        this.ini[line.Substring(1, line.LastIndexOf("]") - 1)] = currentSection;
+                        this[line.Substring(1, line.LastIndexOf("]") - 1)] = currentSection;
                         continue;
                     }
 
@@ -179,8 +232,39 @@ namespace Loupedeck.ObsStudioPlugin
                     currentSection[line.Substring(0, idx).Trim()] = line.Substring(idx + 1).Trim();
                 }
             }
+            
+            public String GetValue(String section,  String key = "",  String defaultValue = "") => this.SectionExists(section) && this[section].ContainsKey(key) ? this[section][key] : defaultValue;
+            public Boolean SectionExists(String section) => this.ContainsKey(section);
 
-            public String GetValue(String section,  String key = "",  String defaultValue = "") => this.ini.ContainsKey(section) && this.ini[section].ContainsKey(key) ? this.ini[section][key] : defaultValue;
+            public Boolean WriteIniFile(String filename)
+            {
+                try
+                {
+                    using (var sw = new StreamWriter(filename))
+                    {
+                        foreach (var section in this)
+                        {
+                            if (!String.IsNullOrEmpty(section.Key))
+                            {
+                                sw.WriteLine($"[{section.Key}]");
+                            }
+
+                            foreach (var pair in section.Value)
+                            {
+                                sw.WriteLine($"{pair.Key}={pair.Value}");
+                            }
+
+                            sw.WriteLine();
+                        }
+                    }
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    ObsStudioPlugin.Proxy.Plugin.Log.Error($"Exception {ex.Message} when writing ini file {filename}");
+                    return false;
+                }
+            }
         }
     }
 
