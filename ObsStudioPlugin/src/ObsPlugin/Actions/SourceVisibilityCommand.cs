@@ -7,7 +7,7 @@
         public const String IMGSceneSelected = "SourceOn.png";
         public const String IMGSceneUnselected = "SourceOff.png";
         public const String IMGSceneInaccessible = "SourceInaccessible.png";
-        public const String SourceNameUnknown = "Offline";
+        public const String SourceNameUnknown = "Name Not Available";
 
         private const Int16 SOURCE_UNSELECTED = 0;
         private const Int16 SOURCE_SELECTED = 1;
@@ -97,13 +97,12 @@
             if (SceneItemKey.TryParse(actionParameter, out var parsed))
             {
                 sourceName = ObsStudioPlugin.Proxy.GetSceneItemName(parsed.Collection, parsed.Scene, parsed.SourceId);
-
                 imageName = parsed.Collection != ObsStudioPlugin.Proxy.CurrentSceneCollection
                     ? IMGSceneInaccessible
                     : stateIndex == SOURCE_SELECTED ? IMGSceneSelected : IMGSceneUnselected;
             }
 
-            return (this.Plugin as ObsStudioPlugin).GetPluginCommandImage(imageSize, imageName, sourceName, imageName == IMGSceneSelected);
+            return (this.Plugin as ObsStudioPlugin).GetPluginCommandImage(imageSize, imageName, sourceName.Length == 0 ? SourceNameUnknown : sourceName, imageName == IMGSceneSelected);
         }
 
         private void AddSceneItemParameter(String sceneName, String itemName,Int32 itemId)
