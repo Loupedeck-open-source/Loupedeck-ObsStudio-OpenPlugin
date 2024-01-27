@@ -196,22 +196,21 @@
                     if (input.InputKind == "browser_source")
                     {
                         var inputSettings = this.GetInputSettings(input.InputName);
-
-                        if (!inputSettings.Settings.ContainsKey("reroute_audio") || inputSettings.Settings["reroute_audio"].ToString() != "true")
+                        var shouldSkipInput = inputSettings == null
+                                                || !inputSettings.Settings.ContainsKey("reroute_audio")
+                                                || !String.Equals(inputSettings.Settings["reroute_audio"].ToString(), "True", StringComparison.OrdinalIgnoreCase);
+                        if (shouldSkipInput)
                         {
-                            this.Plugin.Log.Info($"Input {input.InputName} is of a kind \"{input.InputKind}\" settings \"{inputSettings.Settings}\" -- SKIP");
+                            this.Plugin.Log.Info($"Input {input.InputName} is of a kind \"{input.InputKind}\" settings \"{inputSettings.Settings}\" -- SKIPPING");
                             continue;
                         }
                     }
+
                     this.Plugin.Log.Info($"Input {input.InputName} is of a kind \"{input.InputKind}\": Adding ");
 
                     // Adding audio source and populating initial values
                     this.CurrentAudioSources[input.InputName] = new AudioSourceDescriptor(input.InputName, this);
                     dbgSrc += $"\"{input.InputName}\",";
-
-                    //this.Plugin.Log.Info($"Input {input.InputName} is of a kind \"{input.InputKind}\" settings \"{s.Settings}\"");
-                    //var v = this.GetInputVolume(input.InputName);
-                    //var m = this.GetInputMute(input.InputName);
 
                 }
 
