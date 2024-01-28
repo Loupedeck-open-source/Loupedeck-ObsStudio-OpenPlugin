@@ -24,8 +24,9 @@
 
                     //Generate unique filename 
                     var filename = System.IO.Path.Combine(ObsAppProxy.ScreenshotsSavingPath, "Screenshot-" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".png");
-#warning "Test if screenshot functionality works"
-                    this.SaveSourceScreenshot((String)currentScene, null, filename, -1, -1);
+
+                    this.SaveSourceScreenshot((String)currentScene,"png" , filename, -1, -1);
+
                     this.Plugin.Log.Info($"Screenshot taken and saved to {filename}");
                 }
                 catch (Exception ex)
