@@ -95,7 +95,7 @@
              * e.ActionEditorState.SetEnabled(ControlSourceSelector, ObsStudioPlugin.Proxy.IsAppConnected);
              * e.ActionEditorState.SetEnabled(ControlIsSourceVisible, ObsStudioPlugin.Proxy.IsAppConnected);
             */
-#warning "We need to check if the Switch works" 
+
             if (e.ControlName.EqualsNoCase(ControlIsSourceVisible))
             {
                 e.AddItem(this.Visibility_Show, this.Visibility_Show, $"Ensures source is visible");
