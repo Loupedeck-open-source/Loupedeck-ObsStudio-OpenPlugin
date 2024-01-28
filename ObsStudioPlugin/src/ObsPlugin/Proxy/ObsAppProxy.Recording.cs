@@ -64,7 +64,7 @@
                     this.AppEvtRecordingResumed?.Invoke(this, new EventArgs());
                     break;
             }
-#warning  "Check App Event"
+
             this.AppEvtRecordingStateChange?.Invoke(this, new IntParamArgs((Int32)newState));
         }
 

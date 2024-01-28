@@ -83,7 +83,7 @@
                 this.Plugin.Log.Warning($"OnObsSceneItemAdded received non-current scene '{args.SceneName}'. Current is '{this.CurrentSceneName}'. Ignoring");
                 return;
             }
-#warning "Check if in new API we get sceneItemAdded for non-current"
+// "Check if in new API we get sceneItemAdded for non-current"
 #if false
 
             // Re-reading current scene, since this.CurrentSceneName does not contain the item
