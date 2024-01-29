@@ -106,10 +106,9 @@ namespace Loupedeck.ObsStudioPlugin
         private void OnApplicationStarted(Object sender, EventArgs e)
         {
             //Main entry point for the plugin's connectivity
-
-            this.Log.Info("OnApplicationStarted");
-
             var status = this.ClientApplication.GetApplicationStatus();
+
+            this.Log.Info($"OnApplicationStarted. Installation status:{status != ClientApplicationStatus.Installed}, Ini exists/good: {this._iniFile.iniFileExists}/{this._iniFile.iniFileGood}  ");
 
             if (!this._iniFile.iniFileGood && status != ClientApplicationStatus.Installed)
             {
