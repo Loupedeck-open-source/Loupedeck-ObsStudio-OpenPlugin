@@ -5,6 +5,7 @@
     using System.Diagnostics;
     using System.IO;
     using System.Linq;
+    using System.Windows.Interop;
 
     public class ObsStudioApplication : ClientApplication
     {
@@ -18,8 +19,10 @@
 
         protected override Boolean IsProcessNameSupported(String procName)
         {
+            
             if (!procName.EqualsNoCase(Helpers.IsWindows() ? this.GetProcessName() : this.GetBundleName()))
             {
+                
                 return false;
             }
 
@@ -51,26 +54,19 @@
         // For OBS Studio we can tell for sure, is it installed or not
         public override ClientApplicationStatus GetApplicationStatus()
         {
-            if (Helpers.IsWindows())
-            {
-                return File.Exists(this.GetExecutablePath())
-                                        ? ClientApplicationStatus.Installed
-                                        : ClientApplicationStatus.NotInstalled;
-            }
-            else
-            {
-                var allOBSDirs = GetOBSAppDirsForMac();
+            var status = ClientApplicationStatus.NotInstalled;
 
-                return allOBSDirs != null && allOBSDirs.Count > 0
-                                        ? ClientApplicationStatus.Installed
-                                        : ClientApplicationStatus.NotInstalled;
-            }
+            status = (Helpers.IsWindows() && File.Exists(this.GetExecutablePath()))
+                 || (Helpers.IsMacintosh() && GetOBSAppDirsForMac()?.Count() > 0)
+                 ? ClientApplicationStatus.Installed 
+                 : ClientApplicationStatus.NotInstalled;
+            
+            //Tracer.Error($"GetApplicationStatus Installed: {status == ClientApplicationStatus.Installed}");
+            return status;
         }
 
         public static List<String> GetOBSAppDirsForMac()
         {
-            Tracer.Trace($"Getting OBS app dirs for Mac.");
-
             var applicationFolder = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
 
             String[] allApps = null;
@@ -81,12 +77,23 @@
             }
             catch (Exception)
             {
+                Tracer.Error($"GetOBSAppDirsForMac:Cannot get drs for the appfolder {applicationFolder}");
                 return null;
             }
 
             var dirs = allApps?.Where(x => x.Contains("OBS") && !x.ContainsNoCase("Streamlabs "));
 
-            return dirs?.ToList<String>();
+            var dirlist = dirs?.ToList<String>();
+            
+            var msg = "GetOBSAppDirsForMac:: OBS app dirs for Mac:";
+            foreach (var s in dirlist)
+            { 
+                msg += s + ";";
+            }
+
+            Tracer.Trace(msg);
+
+            return dirlist;
         }
     }
 }
