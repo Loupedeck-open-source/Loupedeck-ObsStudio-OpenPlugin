@@ -85,10 +85,12 @@ namespace Loupedeck.ObsStudioPlugin
         public ObsIniFile(ObsStudioPlugin parent)
         {
             this.Plugin = parent;  
-            //Default path.  
-            // WARNINIG: Different for MAC
+            
+            this._iniFilePath = Helpers.IsWindows() 
+                            ? Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\obs-studio\\global.ini"
+                            : Environment.GetEnvironmentVariable("HOME") + "/Library/Application Support/obs-studio/global.ini";
+            this.Plugin.Log.Info($"Will try OBS Ini at {this._iniFilePath}");
 
-            this._iniFilePath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\obs-studio\\global.ini";
 
         }
 
