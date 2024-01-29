@@ -9,7 +9,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Loupedeck.ObsStudioPlugin</RootNamespace>
-    <AssemblyName>ObsStudioPlugin</AssemblyName>
+    <AssemblyName>ObsStudioPluginBare</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>
@@ -40,6 +40,24 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <OutputPath>..\..\bin\win\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug-Mac|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>..\..\..\..\..\Users\Andrei Laperie\AppData\Local\Loupedeck\Plugins\ObsStudioPlugin\mac\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release-Mac|AnyCPU'">
+    <OutputPath>..\..\bin\mac\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="LoupedeckShared">
@@ -82,6 +100,21 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
+    <Reference Include="System.Windows.Forms" Condition=" '$(Configuration)' == 'Debug-Mac' OR  '$(Configuration)' == 'Release-Mac'">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="WindowsBase" Condition=" '$(Configuration)' == 'Debug-Mac' OR  '$(Configuration)' == 'Release-Mac'">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Xaml" Condition=" '$(Configuration)' == 'Debug-Mac' OR  '$(Configuration)' == 'Release-Mac'">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Drawing" Condition=" '$(Configuration)' == 'Debug-Mac' OR  '$(Configuration)' == 'Release-Mac'">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Accessibility" Condition=" '$(Configuration)' == 'Debug-Mac' OR  '$(Configuration)' == 'Release-Mac'">
+      <Private>True</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Actions\RecordingPauseToggleCommand.cs" />
@@ -210,8 +243,12 @@
     <PostBuildEvent Condition="$(OS) == 'Windows_NT'">call "$(ProjectDir)BuildEvents\postbuild.cmd" "$(ProjectDir)" "$(TargetDir)"</PostBuildEvent>
     <PostBuildEvent Condition="$(OS) != 'Windows_NT'">sh "$(ProjectDir)BuildEvents\postbuild" "$(ProjectDir)" "$(TargetDir)"</PostBuildEvent>
   </PropertyGroup>
+  <PropertyGroup>
+    <PostBuildEvent>call "$(ProjectDir)BuildEvents\postbuild.cmd" "$(ProjectDir)" "$(TargetDir)"</PostBuildEvent>
+  </PropertyGroup>
   <!-- ILMerge target. Note, Windows-Only! -->
-  <Target Name="ILMerge" AfterTargets="AfterBuild" Condition="$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))">
+  <Target Name="ILMerge" AfterTargets="AfterBuild" Condition="!$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))">
+    <Message Text="Merging all DLLs into one..." Importance="high" />
     <PropertyGroup>
       <OutputDLL>$(TargetDir)$(ProjectName).dll</OutputDLL>
     </PropertyGroup>
@@ -224,12 +261,13 @@
     <!-- Actually run ILMerge -->
     <Exec Command="&quot;$(ILMergeConsolePath)&quot; /ndebug /lib:&quot;%ProgramFiles(x86)%&quot;\Loupedeck\Loupedeck2\ /out:&quot;$(OutputDLL)&quot; @(AllDlls->'&quot;%(FullPath)&quot;', ' ')" />
     <!-- For release build, remove all but DLL  -->
-    <ItemGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <ItemGroup>
       <AllDlls Include="$(OutputPath)\*.pdb" />
       <AllDlls Include="$(OutputPath)\*.xml" />
       <AllDlls Include="$(OutputPath)\*.config" />
     </ItemGroup>
     <!-- Deleting -->
+    <Message Text="Removing intermediate files...AllDLL = @(AllDlls)" Importance="high" />
     <Delete Files="@(AllDlls)" />
   </Target>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
