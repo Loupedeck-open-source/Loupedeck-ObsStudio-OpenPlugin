@@ -79,7 +79,7 @@
 
         protected override void RunCommand(String actionParameter)
         {
-            if (SceneKey.TryParse(actionParameter, out var key))
+            if (SceneKey.TryParse(actionParameter, out var key) && key.Collection.Equals(ObsStudioPlugin.Proxy.CurrentSceneCollection))
             {
                 // Pressing the button toggles mute
                 ObsStudioPlugin.Proxy.AppToggleMute(key.Source);
