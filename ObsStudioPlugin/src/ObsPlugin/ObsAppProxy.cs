@@ -221,12 +221,35 @@
 
             this.Plugin.Log.Info("Init: OnObsSceneCollectionListChanged");
 
-            this.OnObsSceneCollectionListChanged(sender, new OldNewStringChangeEventArgs("",""));
+            var collections = new List<String>();
+
+            
+            if (Helpers.TryExecuteSafe(() => collections = this.GetSceneCollectionList()))
+            {
+                this.Plugin.Log.Info($"Retreieved { collections?.Count } scenes in SceneCollectionList");
+            }
+            else
+            {
+                this.Plugin.Log.Warning($"Cannot retreive Scene Collections");
+            }
+
+            this.OnObsSceneCollectionListChanged(sender, new SceneCollectionListChangedEventArgs(collections));
+
 
             this.Plugin.Log.Info("Init: OnObsSceneCollectionChanged");
+            var currentCollection = String.Empty;
+            if (Helpers.TryExecuteSafe(() => { currentCollection = this.GetCurrentSceneCollection(); }))
+            {
+                this.Plugin.Log.Info($"Retreieved current scene collection {currentCollection}");
+            }
+            else
+            {
+                this.Plugin.Log.Warning($"Cannot retreive current scene collection");
+            }
+
             // This should initiate retreiving of all data
             // to indicate that we need to force rescan of all scenes and all first parameter is null 
-            this.OnObsSceneCollectionChanged(null , e);
+            this.OnObsSceneCollectionChanged(null , new CurrentSceneCollectionChangedEventArgs(currentCollection));
         }
 
         private void OnAppConnected(Object sender, EventArgs e)
@@ -244,6 +267,7 @@
 
             this.SceneCollectionListChanged += this.OnObsSceneCollectionListChanged;
             this.CurrentSceneCollectionChanged += this.OnObsSceneCollectionChanged;
+            this.CurrentSceneCollectionChanging += this.OnObsSceneCollectionChanging;
 
             //this.SceneTransitionEnded += this.OnObsTransitionEnd;
 
