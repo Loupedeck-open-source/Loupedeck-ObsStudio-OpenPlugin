@@ -8,7 +8,7 @@
         private const String IMGSourceSelected = "AudioOn.png";
         private const String IMGSourceUnselected = "AudioOff.png";
         private const String IMGSourceInaccessible = "AudioInaccessible.png";
-        private const String SourceNameUnknown = "Offline";
+        private const String SourceNameUnknown = "N/A";
 
         // private const String SpecialSourceGroupName = "General Audio";
 
@@ -60,14 +60,11 @@
 
         protected override String GetAdjustmentDisplayName(String actionParameter, PluginImageSize imageSize)
         {
-            if (SceneItemKey.TryParse(actionParameter, out var key))
-            {
-                if (ObsStudioPlugin.Proxy.AllSceneItems.ContainsKey(actionParameter))
-                {
-                    return ObsStudioPlugin.Proxy.AllSceneItems[actionParameter].SourceName;
-                }
-            }
-            return SourceNameUnknown;
+            return (SceneItemKey.TryParse(actionParameter, out var key) 
+                && key.Collection.Equals(ObsStudioPlugin.Proxy.CurrentSceneCollection) 
+                && ObsStudioPlugin.Proxy.AllSceneItems.ContainsKey(actionParameter))
+            ? ObsStudioPlugin.Proxy.AllSceneItems[actionParameter].SourceName
+            : SourceNameUnknown;
         }
         
 
@@ -95,7 +92,9 @@
 
         protected override String GetAdjustmentValue(String actionParameter) 
         {
-            return ObsStudioPlugin.Proxy.AppGetVolumeLabel(SceneKey.TryParse(actionParameter, out var key) ? key.Source : "N/A");
+            return SceneKey.TryParse(actionParameter, out var key) && key.Collection.Equals(ObsStudioPlugin.Proxy.CurrentSceneCollection)
+                    ? ObsStudioPlugin.Proxy.AppGetVolumeLabel(key.Source)
+                    : "N/A";
         }
         private void OnSourceMuteStateChanged(Object sender, MuteEventArgs args)
         {
