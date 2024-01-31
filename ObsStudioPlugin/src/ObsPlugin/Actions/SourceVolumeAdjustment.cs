@@ -73,12 +73,11 @@
 
         protected override void ApplyAdjustment(String actionParameter, Int32 diff)
         {
-            if (SceneKey.TryParse(actionParameter, out var key))
+            if (SceneKey.TryParse(actionParameter, out var key) && key.Collection.Equals(ObsStudioPlugin.Proxy.CurrentSceneCollection))
             {
                 ObsStudioPlugin.Proxy.AppSetVolume(key.Source, diff);
+                this.AdjustmentValueChanged();
             }
-
-            this.AdjustmentValueChanged();
         }
 
         protected override void RunCommand(String actionParameter)
