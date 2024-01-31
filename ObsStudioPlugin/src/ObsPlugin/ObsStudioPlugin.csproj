@@ -252,6 +252,12 @@
     <PropertyGroup>
       <OutputDLL>$(TargetDir)$(ProjectName).dll</OutputDLL>
     </PropertyGroup>
+
+    <!-- For release build, remove debuginfo merging -->
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)' != 'Debug|AnyCPU'">
+      <ILMegeNDebugFlag>/ndebug</ILMegeNDebugFlag>
+    </PropertyGroup>
+
     <!-- Making sure the resulting DLL is not there -->
     <Delete Files="$(OutputDLL)" ContinueOnError="true" />
     <!-- Collect the files to move in the output path -->
@@ -259,15 +265,16 @@
       <AllDlls Include="$(OutputPath)\*.dll" />
     </ItemGroup>
     <!-- Actually run ILMerge -->
-    <Exec Command="&quot;$(ILMergeConsolePath)&quot; /ndebug /lib:&quot;%ProgramFiles(x86)%&quot;\Loupedeck\Loupedeck2\ /out:&quot;$(OutputDLL)&quot; @(AllDlls->'&quot;%(FullPath)&quot;', ' ')" />
+    <Exec Command="&quot;$(ILMergeConsolePath)&quot; $(ILMegeNDebugFlag) /lib:&quot;%ProgramFiles(x86)%&quot;\Loupedeck\Loupedeck2\ /out:&quot;$(OutputDLL)&quot; @(AllDlls->'&quot;%(FullPath)&quot;', ' ')" />
+
     <!-- For release build, remove all but DLL  -->
-    <ItemGroup>
+    <ItemGroup Condition="'$(Configuration)|$(Platform)' != 'Debug|AnyCPU'">
       <AllDlls Include="$(OutputPath)\*.pdb" />
       <AllDlls Include="$(OutputPath)\*.xml" />
       <AllDlls Include="$(OutputPath)\*.config" />
     </ItemGroup>
     <!-- Deleting -->
-    <Message Text="Removing intermediate files...AllDLL = @(AllDlls)" Importance="high" />
+    <Message Text="Removing intermediate files...AllDLL = @(AllDlls),  debugflag = $(ILMegeNDebugFlag)" Importance="high" />
     <Delete Files="@(AllDlls)" />
   </Target>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
