@@ -5,6 +5,7 @@
     using System.Web.UI.WebControls;
 
     using OBSWebsocketDotNet;
+    using OBSWebsocketDotNet.Types.Events;
 
     /// <summary>
     /// Proxy to OBS websocket server, for API reference see
@@ -34,29 +35,30 @@
             }
         }
 
-        private void OnObsSceneCollectionListChanged(Object sender, EventArgs args)
+        private void OnObsSceneCollectionChanging(Object sender, CurrentSceneCollectionChangingEventArgs e)
         {
-            this.Plugin.Log.Info("OBS SceneCollectionList changed");
-
-            if (Helpers.TryExecuteSafe(() => this.SceneCollections = this.GetSceneCollectionList()))
-            {
-                this.Plugin.Log.Info($"Retreived list of {this.SceneCollections.Count} collections");
-
-                this.AppEvtSceneCollectionsChanged?.Invoke(sender, args);
-            }
-            else
-            {
-                this.Plugin.Log.Warning($"Cannot handle SceneCollectionList change");
-            }
+            this.Plugin.Log.Info("OBS OnObsSceneCollectionChanging");
+            //Unsubscribing from the scene collection events 
+            this.UnsubscribeFromSceneCollectionEvents();
         }
 
-        private void OnObsSceneCollectionChanged(Object sender, EventArgs e)
+        private void OnObsSceneCollectionListChanged(Object sender, SceneCollectionListChangedEventArgs args)
+        {
+            this.Plugin.Log.Info("OBS SceneCollectionList changed");
+          
+            this.SceneCollections = args.SceneCollections;
+
+            this.AppEvtSceneCollectionsChanged?.Invoke(sender, args);
+        }
+
+        private void OnObsSceneCollectionChanged(Object sender, CurrentSceneCollectionChangedEventArgs e)
         {
             //If sender == null, we came from initialization routine
             try
-            {
+            {             
                 this.Plugin.Log.Info($"OnObsSceneCollectionChanged: Fetching current collection");
-                var newSceneCollection = this.GetCurrentSceneCollection();
+
+                var newSceneCollection = e.SceneCollectionName;
                 if (sender == null || newSceneCollection != this.CurrentSceneCollection)
                 {
                     var args = new OldNewStringChangeEventArgs(sender == null ? null : this.CurrentSceneCollection, newSceneCollection);
