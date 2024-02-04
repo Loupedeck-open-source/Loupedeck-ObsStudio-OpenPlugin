@@ -6,6 +6,7 @@ namespace Loupedeck.ObsStudioPlugin
     using System;
     using System.Collections.Generic;
     using System.Runtime.CompilerServices;
+    using Newtonsoft.Json.Linq;
 
     using OBSWebsocketDotNet;
     using OBSWebsocketDotNet.Types;
@@ -24,7 +25,7 @@ namespace Loupedeck.ObsStudioPlugin
 
     internal class Scene
     {
-        public String Name { get; private set; }
+        public String Name { get; set; }
         public  List<LDSceneItem> Items { get; private set; } 
         public Scene(SceneBasicInfo scene)
         {
@@ -48,6 +49,8 @@ namespace Loupedeck.ObsStudioPlugin
         public event EventHandler<EventArgs> AppEvtSceneListChanged;
 
         public event EventHandler<OldNewStringChangeEventArgs> AppEvtCurrentSceneChanged;
+
+        public event EventHandler<OldNewStringChangeEventArgs> AppEvtSceneNameChanged;
         public String CurrentSceneName { get; private set; } = "";
 
         public List<Scene> Scenes { get; private set; } = new List<Scene>();
@@ -188,6 +191,61 @@ namespace Loupedeck.ObsStudioPlugin
                 this.Plugin.Log.Info($"OnObsSceneChanged to {newScene} ignoring in Studio mode");
             }
         }
-        
+
+        private void OnObsSceneNameChanged(Object sender, SceneNameChangedEventArgs args)
+        {
+            this.Plugin.Log.Info($"OnObsSceneNameChanged to {args.OldSceneName} -> {args.SceneName}");
+
+            //In the this.Scenes list, rename the scene with the new name
+            var scene = this.Scenes.Find(x => x.Name == args.OldSceneName);
+            if (scene != null)
+            {
+                scene.Name = args.SceneName;
+
+                if(this.CurrentSceneName == args.OldSceneName)
+                {
+                    this.CurrentSceneName = args.SceneName;
+                }
+
+                //We need to regenerate sceneKeys for AllSceneItems
+                var newSceneItems = new Dictionary<String, SceneItemDescriptor>();
+                foreach (var encodedKey in this.AllSceneItems.Keys)
+                {
+                    if (!SceneItemKey.TryParse(encodedKey, out var key))
+                    {
+                        this.Plugin.Log.Warning($"Internal problem: cannot get SceneKey from object {encodedKey}, ignoring item");
+                        continue;
+                    }
+
+                    var value = this.AllSceneItems[encodedKey];    
+                    if (key.Scene == args.OldSceneName)
+                    {
+                        if (value.SceneName != args.OldSceneName)
+                        {
+                            this.Plugin.Log.Warning($"SceneNameChanged: Scene Item points to different scene ({value.SceneName}) than key ({key.Scene})!");
+                        }
+
+                        key.Scene = args.SceneName;
+                        value.SceneName = args.SceneName;
+                    }
+
+                    newSceneItems[key.Stringize()] = value;
+                }
+
+                this.AllSceneItems = newSceneItems;
+
+                if (!Helpers.TryExecuteAction(() => this.AppEvtSceneNameChanged?.Invoke(sender, new OldNewStringChangeEventArgs(args.OldSceneName, args.SceneName))))
+                {
+                    this.Plugin.Log.Warning($"Exception invoking AppEvtSceneNameChanged!");
+                }
+                
+            }
+            else
+            {
+                this.Plugin.Log.Warning($"SceneNameChanged: cannot find scene {args.OldSceneName}");
+            }
+        }
+
+
     }
 }

@@ -29,6 +29,8 @@
             ObsStudioPlugin.Proxy.AppEvtSceneListChanged += this.OnSceneListChanged;
             ObsStudioPlugin.Proxy.AppEvtCurrentSceneChanged += this.OnCurrentSceneChanged;
 
+            ObsStudioPlugin.Proxy.AppEvtSceneNameChanged += this.OnSceneListChanged;
+
             this.OnAppDisconnected(this, null);
 
             return true;
@@ -41,6 +43,8 @@
 
             ObsStudioPlugin.Proxy.AppEvtSceneListChanged -= this.OnSceneListChanged;
             ObsStudioPlugin.Proxy.AppEvtCurrentSceneChanged -= this.OnCurrentSceneChanged;
+
+            ObsStudioPlugin.Proxy.AppEvtSceneNameChanged -= this.OnSceneListChanged;
 
             return true;
         }

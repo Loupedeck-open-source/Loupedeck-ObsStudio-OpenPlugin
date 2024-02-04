@@ -101,14 +101,11 @@
                 this.SceneItemCreated += this.OnObsSceneItemAdded;
                 this.SceneItemRemoved += this.OnObsSceneItemRemoved;
 
-
                 this.InputCreated += this.OnObsInputCreated;
                 this.InputRemoved += this.OnObsInputDestroyed;
 
                 this.InputMuteStateChanged += this.OnObsInputMuteStateChanged;
                 this.InputVolumeChanged += this.OnObsInputVolumeChanged;
-
-
 
                 this.InputNameChanged += this.OnObsInputNameChanged;
                 //this.InputSettingsChanged += this.OnObsInputSettingsChanged;
@@ -269,6 +266,8 @@
             this.CurrentSceneCollectionChanged += this.OnObsSceneCollectionChanged;
             this.CurrentSceneCollectionChanging += this.OnObsSceneCollectionChanging;
 
+            this.SceneNameChanged += this.OnObsSceneNameChanged;
+
             //this.SceneTransitionEnded += this.OnObsTransitionEnd;
 
             this.AppConnected?.Invoke(sender, e);
@@ -288,14 +287,18 @@
         {
             this.Plugin.Log.Info($"Entering AppDisconnected. Disconnect reason:\"{arg.DisconnectReason}\"");
 
-            // Unsubscribing from App events here
-            this.RecordStateChanged -= this.OnObsRecordingStateChange;
 
+            this.RecordStateChanged -= this.OnObsRecordingStateChange;
             this.StreamStateChanged -= this.OnObsStreamingStateChange;
+            this.VirtualcamStateChanged -= this.OnObsVirtualCameraStateChanged;
             this.StudioModeStateChanged -= this.OnObsStudioModeStateChanged;
+            this.ReplayBufferStateChanged -= this.OnObsReplayBufferStateChange;
 
             this.SceneCollectionListChanged -= this.OnObsSceneCollectionListChanged;
             this.CurrentSceneCollectionChanged -= this.OnObsSceneCollectionChanged;
+            this.CurrentSceneCollectionChanging -= this.OnObsSceneCollectionChanging;
+
+            this.SceneNameChanged += this.OnObsSceneNameChanged;
 
             //this.TransitionEnd -= this.OnObsTransitionEnd;
 

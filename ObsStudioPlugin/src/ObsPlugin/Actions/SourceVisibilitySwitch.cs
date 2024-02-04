@@ -42,7 +42,9 @@
         {
             ObsStudioPlugin.Proxy.AppConnected += this.OnAppConnected;
             ObsStudioPlugin.Proxy.AppDisconnected += this.OnAppDisconnected;
-            //ObsStudioPlugin.Proxy.AppEvtSceneListChanged += this.OnSceneListChanged;
+
+            ObsStudioPlugin.Proxy.AppEvtSceneListChanged += this.OnSceneListChanged;
+            ObsStudioPlugin.Proxy.AppEvtSceneNameChanged += this.OnSceneListChanged;
 
             return true;
         }
@@ -51,7 +53,8 @@
         {
             ObsStudioPlugin.Proxy.AppConnected -= this.OnAppConnected;
             ObsStudioPlugin.Proxy.AppDisconnected -= this.OnAppDisconnected;
-            //ObsStudioPlugin.Proxy.AppEvtSceneListChanged -= this.OnSceneListChanged;
+            ObsStudioPlugin.Proxy.AppEvtSceneListChanged -= this.OnSceneListChanged;
+            ObsStudioPlugin.Proxy.AppEvtSceneNameChanged -= this.OnSceneListChanged;
 
             return true;
         }

@@ -29,6 +29,8 @@
 
             ObsStudioPlugin.Proxy.AppEvtSceneListChanged += this.OnSceneListChanged;
             ObsStudioPlugin.Proxy.AppEvtCurrentSceneChanged += this.OnCurrentSceneChanged;
+            ObsStudioPlugin.Proxy.AppEvtSceneNameChanged += this.OnSceneListChanged; //Note using same handler since we just re-generate params
+
 
             ObsStudioPlugin.Proxy.AppEvtSceneItemVisibilityChanged += this.OnSceneItemVisibilityChanged;
 
@@ -47,6 +49,8 @@
 
             ObsStudioPlugin.Proxy.AppEvtSceneListChanged -= this.OnSceneListChanged;
             ObsStudioPlugin.Proxy.AppEvtCurrentSceneChanged -= this.OnCurrentSceneChanged;
+            ObsStudioPlugin.Proxy.AppEvtSceneNameChanged -= this.OnSceneListChanged;
+
             ObsStudioPlugin.Proxy.AppEvtSceneItemVisibilityChanged -= this.OnSceneItemVisibilityChanged;
 
             ObsStudioPlugin.Proxy.AppEvtSceneItemAdded -= this.OnSceneItemAdded;
