@@ -2,7 +2,8 @@
 {
     using System;
     using System.Collections.Generic;
-    
+    using System.Web.UI.WebControls;
+
     using OBSWebsocketDotNet;
     using OBSWebsocketDotNet.Types;
     using OBSWebsocketDotNet.Types.Events;
@@ -31,7 +32,7 @@
         {
             var key = SceneItemKey.Encode(collection, scene, itemId);
             return this.AllSceneItems.ContainsKey(key) ? this.AllSceneItems[key].SourceName : "";
-        }   
+        }
 
         ///     <summary>
         ///  Controls scene item visibilty. 
@@ -39,15 +40,45 @@
         /// <param name="key">Key for scene item</param>
         /// <param name="forceState">if True, force specific state to the scene item, otherwise toggle. </param>
         /// <param name="newState">state to force</param>
-        public void AppSceneItemVisibilityToggle(String key, Boolean forceState = false, Boolean newState = false)
+        /// <param name="applyToAllScenes">Apply to all scenes in collection where this source exists</param>
+        public void AppSceneItemVisibilityToggle(String key, Boolean forceState = false, Boolean newState = false, Boolean applyToAllScenes = false)
         {
+            //this.Plugin.Log.Info($"AppSceneItemVisibilityToggle: Key {key} applyToAllScenes {applyToAllScenes}");
+
             if (this.IsAppConnected && this.AllSceneItems.ContainsKey(key))
             {
                 try
                 {
-                    var item = this.AllSceneItems[key];
-                    this.SetSceneItemEnabled(item.SceneName, item.SourceId, forceState ? newState : !item.Visible);
-                   //.SetSourceRender(item.SourceName, forceState ? newState : !item.Visible, item.SceneName);
+                    if (!SceneItemKey.TryParse(key, out var parsedkey))
+                    {
+                        throw new ArgumentException($"Cannot parse a key \"{key}\"");
+                    }
+
+                    var items = new List<SceneItemDescriptor>();
+                    var originalItem = this.AllSceneItems[key];
+
+                    items.Add(this.AllSceneItems[key]);
+
+                    if (applyToAllScenes)
+                    {
+                        //We go thru all scenes and add only those items where source with the same name is present
+                        foreach (var newkey in this.AllSceneItems.Keys)
+                        {
+                            if ( newkey != key
+                              && (this.AllSceneItems[newkey].CollectionName == originalItem.CollectionName)
+                              && (this.AllSceneItems[newkey].SourceName == originalItem.SourceName)
+                            )
+                            {
+                                items.Add(this.AllSceneItems[newkey]);
+                            }   
+                        }
+                    }
+
+                    foreach (var item in items)
+                    {
+                        //this.Plugin.Log.Info($"AppSceneItemVisibilityToggle: settings vis {newState} to {item.SceneName}");
+                        this.SetSceneItemEnabled(item.SceneName, item.SourceId, forceState ? newState : !item.Visible);
+                    }
                 }
                 catch (Exception ex)
                 {
