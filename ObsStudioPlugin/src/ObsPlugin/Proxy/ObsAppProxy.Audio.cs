@@ -22,6 +22,8 @@
         public event EventHandler<SourceNameEventArgs> AppSourceCreated;
         public event EventHandler<SourceNameEventArgs> AppSourceDestroyed;
 
+        public event EventHandler<OldNewStringChangeEventArgs> AppInputRenamed;
+
         private readonly List<String> _audioSourceTypes = new List<String>();
 
         internal Dictionary<String, AudioSourceDescriptor> CurrentAudioSources { get; private set; }  = new Dictionary<String, AudioSourceDescriptor>();

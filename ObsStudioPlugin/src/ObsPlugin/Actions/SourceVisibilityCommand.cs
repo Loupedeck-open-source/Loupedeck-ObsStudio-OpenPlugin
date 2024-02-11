@@ -37,6 +37,9 @@
             ObsStudioPlugin.Proxy.AppEvtSceneItemAdded += this.OnSceneItemAdded;
             ObsStudioPlugin.Proxy.AppEvtSceneItemRemoved += this.OnSceneItemRemoved;
 
+            ObsStudioPlugin.Proxy.AppInputRenamed += this.OnSourceRenamed;
+
+
             this.OnAppDisconnected(this, null);
 
             return true;
@@ -55,6 +58,9 @@
 
             ObsStudioPlugin.Proxy.AppEvtSceneItemAdded -= this.OnSceneItemAdded;
             ObsStudioPlugin.Proxy.AppEvtSceneItemRemoved -= this.OnSceneItemRemoved;
+
+            ObsStudioPlugin.Proxy.AppInputRenamed -= this.OnSourceRenamed;
+
 
             return true;
         }
@@ -76,6 +82,9 @@
             this.RemoveParameter(SceneItemKey.Encode(ObsStudioPlugin.Proxy.CurrentSceneCollection, arg.SceneName, arg.ItemId));
             this.ParametersChanged();
         }
+
+        //Note: We can possibly do cherry-picking on the parameters but that require quite a bit of code. 
+        private void OnSourceRenamed(Object sender, OldNewStringChangeEventArgs args) => this.ResetParameters(true);
 
         private void OnAppConnected(Object sender, EventArgs e) => this.IsEnabled = true;
 

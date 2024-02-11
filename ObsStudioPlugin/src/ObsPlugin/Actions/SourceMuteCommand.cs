@@ -14,7 +14,7 @@
 
         public SourceMuteCommand()
         {
-            
+
             this.Description = "Mutes/Unmutes Audio Source";
             this.GroupName = "3. Audio";
 
@@ -38,6 +38,8 @@
             ObsStudioPlugin.Proxy.AppSourceCreated += this.OnSourceCreated;
             ObsStudioPlugin.Proxy.AppSourceDestroyed += this.OnSourceDestroyed;
 
+            ObsStudioPlugin.Proxy.AppInputRenamed += this.OnSourceRenamed;
+
             this.OnAppDisconnected(this, null);
 
             return true;
@@ -54,6 +56,8 @@
 
             ObsStudioPlugin.Proxy.AppSourceCreated -= this.OnSourceCreated;
             ObsStudioPlugin.Proxy.AppSourceDestroyed -= this.OnSourceDestroyed;
+
+            ObsStudioPlugin.Proxy.AppInputRenamed -= this.OnSourceRenamed;
 
             return true;
         }
@@ -86,6 +90,18 @@
             if (this.TryGetParameter(key, out _))
             {
                 this.RemoveParameter(key);
+                this.ParametersChanged();
+            }
+        }
+
+        private void OnSourceRenamed(Object sender, OldNewStringChangeEventArgs args) 
+        {
+            var key = SceneKey.Encode(ObsStudioPlugin.Proxy.CurrentSceneCollection, args.Old);
+
+            if (this.TryGetParameter(key, out _))
+            {
+                this.RemoveParameter(key);
+                this.AddSource(args.New);
                 this.ParametersChanged();
             }
         }

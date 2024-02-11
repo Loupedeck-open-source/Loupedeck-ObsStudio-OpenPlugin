@@ -8,7 +8,7 @@
         public String CollectionName;
         public String SceneName;
 
-        public String SourceName { get; private set; }
+        public String SourceName;
         
         public Int32 SourceId { get; private set; }
 

@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Reflection;
     using System.Web.UI.WebControls;
 
     using OBSWebsocketDotNet;
@@ -16,6 +17,7 @@
     {
         public event EventHandler<SceneItemArgs> AppEvtSceneItemAdded;
         public event EventHandler<SceneItemArgs> AppEvtSceneItemRemoved;
+        public event EventHandler<OldNewStringChangeEventArgs> AppSceneItemRenamed;
         public event EventHandler<SceneItemVisibilityChangedArgs> AppEvtSceneItemVisibilityChanged;
 
         /// <summary>
@@ -172,5 +174,40 @@
                 this.Plugin.Log.Warning($"Cannot find item {args.SourceName} in scene {args.SceneName}");
             }
         }
+
+        private void OnObsSourceNameChanged(Object _, InputNameChangedEventArgs e)
+        {
+            var audioInputRenamed = false;
+            var sourceRenamed = false;
+            this.Plugin.Log.Info($"Entering {MethodBase.GetCurrentMethod().Name}. {e.OldInputName} -> {e.InputName}");
+            if (this.CurrentAudioSources.ContainsKey(e.OldInputName))
+            {
+                var source = this.CurrentAudioSources[e.OldInputName];
+                this.CurrentAudioSources.Remove(e.OldInputName);
+                this.CurrentAudioSources.Add(e.InputName, source);
+                audioInputRenamed = true;
+            }
+
+            //Renaming in AllSceneItems. Note that SourceName is only part of the descriptor, not a key
+            foreach (var key in this.AllSceneItems.Keys)
+            {
+                if (this.AllSceneItems[key].SourceName == e.OldInputName)
+                {
+                    this.AllSceneItems[key].SourceName = e.InputName;
+                    sourceRenamed = true;
+                }
+            }
+            if(audioInputRenamed)
+            {
+                this.AppInputRenamed?.Invoke(this, new OldNewStringChangeEventArgs(e.OldInputName, e.InputName));
+            }
+
+            if(sourceRenamed)
+            {
+                this.AppSceneItemRenamed?.Invoke(this, new OldNewStringChangeEventArgs(e.OldInputName, e.InputName));
+            }
+
+        }
+
     }
 }

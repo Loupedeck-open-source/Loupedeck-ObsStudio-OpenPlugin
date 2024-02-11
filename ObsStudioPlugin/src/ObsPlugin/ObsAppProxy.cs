@@ -107,7 +107,7 @@
                 this.InputMuteStateChanged += this.OnObsInputMuteStateChanged;
                 this.InputVolumeChanged += this.OnObsInputVolumeChanged;
 
-                this.InputNameChanged += this.OnObsInputNameChanged;
+                this.InputNameChanged += this.OnObsSourceNameChanged;
                 //this.InputSettingsChanged += this.OnObsInputSettingsChanged;
 /*
                 this.InputActiveStateChanged += this.OnObsInputActiveStateChanged;
@@ -129,19 +129,6 @@
             }
         }
 
-#warning "FIXME: WE need to propagate this to all controls so they can rename"
-
-        private void OnObsInputNameChanged(Object _, InputNameChangedEventArgs e)
-        {
-            this.Plugin.Log.Info($"Entering {MethodBase.GetCurrentMethod().Name}. {e.OldInputName} -> {e.InputName}");
-            if(this.CurrentAudioSources.ContainsKey(e.OldInputName))
-            {
-                var source = this.CurrentAudioSources[e.OldInputName];
-                this.CurrentAudioSources.Remove(e.OldInputName);
-                this.CurrentAudioSources.Add(e.InputName, source);
-            }   
-
-        }
 /*
  
         private void OnObsInputActiveStateChanged(Object sender, InputActiveStateChangedEventArgs e)
