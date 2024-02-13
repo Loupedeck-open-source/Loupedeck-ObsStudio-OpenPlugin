@@ -173,13 +173,16 @@
         {
             this._audioSourceTypes.Clear();
             var audioTypes = "";
-            foreach (var type in this.GetInputKindList())
+            if(!Helpers.TryExecuteFunc(() => this.GetInputKindList(), out var inputKindList))
             {
-                //if (type.Capabilities.HasAudio)
-                {
+                this.Plugin.Log.Error("OnAppConnected_RetreiveSourceTypes: Cannot get input kind list");
+                return;
+            }       
+
+            foreach (var type in inputKindList)
+            {
                     this._audioSourceTypes.Add(type);
                     audioTypes += $"{type}, ";
-                }
             }
 
             this.Plugin.Log.Info($"Source Audio Types: {audioTypes}");

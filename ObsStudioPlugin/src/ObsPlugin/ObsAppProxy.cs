@@ -168,13 +168,47 @@
         }
 */
 
+        private const UInt32 MAX_OBS_FETCH_ATTEMPTS = 10;
+
         internal void InitializeObsData(Object sender, EventArgs e)
         {
             // NOTE: This can throw! Exception handling is done OUTSIDE of this method
-            var streamingStatus = this.GetStreamStatus();
-            var recordStatus = this.GetRecordStatus();
-            var vcamstatus = this.GetVirtualCamStatus();
-            var studioModeStatus = this.GetStudioModeEnabled();
+            var studioModeStatus = false;
+
+            this.Plugin.Log.Info("Init: GetStudioModeEnabled");
+
+            //With GetStudioModeEnabled() we try to proble whether OBS is ready for calls.
+            var attempt = 0;
+            while (!Helpers.TryExecuteSafe(() => studioModeStatus = this.GetStudioModeEnabled()))
+            {
+                this.Plugin.Log.Warning("GetStudioModeEnabled failed. Assuming OBS is starting");
+                System.Threading.Thread.Sleep(1000);
+                if (attempt ++ > MAX_OBS_FETCH_ATTEMPTS)
+                {
+                    throw new Exception("Cannot get Studio Mode status. Giving up.");
+                }
+            }
+
+            if(! Helpers.TryExecuteFunc(() => this.GetSceneList(), out var scenes))
+            {
+                this.Plugin.Log.Warning("Cannot retreive scenes");
+            }
+
+            if (!Helpers.TryExecuteFunc(() => this.GetStreamStatus(), out var streamingStatus))
+            {
+                this.Plugin.Log.Warning("Cannot retreive streaming status");
+            }
+
+            //var recordStatus = this.GetRecordStatus();
+            if(! Helpers.TryExecuteFunc(() => this.GetRecordStatus(), out var recordStatus))
+            {
+                this.Plugin.Log.Warning("Cannot retreive recording status");
+            }   
+            
+            if( !Helpers.TryExecuteFunc(() => this.GetVirtualCamStatus(), out var vcamstatus))
+            {
+                this.Plugin.Log.Warning("Cannot retreive virtual camera status");
+            }
 
             // Retreiving Audio types.
             this.OnAppConnected_RetreiveSourceTypes();
