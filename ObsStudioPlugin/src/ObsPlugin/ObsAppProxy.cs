@@ -179,7 +179,7 @@
 
             //With GetStudioModeEnabled() we try to proble whether OBS is ready for calls.
             var attempt = 0;
-            while (!Helpers.TryExecuteSafe(() => studioModeStatus = this.GetStudioModeEnabled()))
+            while (!Helpers.TryExecuteFunc(() => this.GetStudioModeEnabled(), out studioModeStatus))
             {
                 this.Plugin.Log.Warning("GetStudioModeEnabled failed. Assuming OBS is starting");
                 System.Threading.Thread.Sleep(1000);
@@ -189,7 +189,7 @@
                 }
             }
 
-            if(! Helpers.TryExecuteFunc(() => this.GetSceneList(), out var scenes))
+            if(!Helpers.TryExecuteFunc(() => this.GetSceneList(), out var scenes))
             {
                 this.Plugin.Log.Warning("Cannot retreive scenes");
             }
