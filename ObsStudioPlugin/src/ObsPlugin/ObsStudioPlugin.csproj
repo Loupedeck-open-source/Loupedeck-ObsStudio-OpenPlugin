@@ -43,7 +43,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug-Mac|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
-    <OutputPath>..\..\..\..\..\Users\Andrei Laperie\AppData\Local\Loupedeck\Plugins\ObsStudioPlugin\mac\</OutputPath>
+    <OutputPath>$(LocalAppData)\Loupedeck\Plugins\ObsStudioPlugin\mac\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -58,6 +58,9 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <LangVersion>7.3</LangVersion>
     <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="LoupedeckShared">
@@ -252,12 +255,10 @@
     <PropertyGroup>
       <OutputDLL>$(TargetDir)$(ProjectName).dll</OutputDLL>
     </PropertyGroup>
-
     <!-- For release build, remove debuginfo merging -->
     <PropertyGroup Condition="'$(Configuration)|$(Platform)' != 'Debug|AnyCPU'">
       <ILMegeNDebugFlag>/ndebug</ILMegeNDebugFlag>
     </PropertyGroup>
-
     <!-- Making sure the resulting DLL is not there -->
     <Delete Files="$(OutputDLL)" ContinueOnError="true" />
     <!-- Collect the files to move in the output path -->
@@ -266,7 +267,6 @@
     </ItemGroup>
     <!-- Actually run ILMerge -->
     <Exec Command="&quot;$(ILMergeConsolePath)&quot; $(ILMegeNDebugFlag) /lib:&quot;%ProgramFiles(x86)%&quot;\Loupedeck\Loupedeck2\ /out:&quot;$(OutputDLL)&quot; @(AllDlls->'&quot;%(FullPath)&quot;', ' ')" />
-
     <!-- For release build, remove all but DLL  -->
     <ItemGroup Condition="'$(Configuration)|$(Platform)' != 'Debug|AnyCPU'">
       <AllDlls Include="$(OutputPath)\*.pdb" />
