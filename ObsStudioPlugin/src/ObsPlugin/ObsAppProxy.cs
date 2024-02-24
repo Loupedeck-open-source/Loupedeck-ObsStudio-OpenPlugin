@@ -66,7 +66,6 @@
         {
             if (!this._scene_collection_events_subscribed)
             {
-                this.SceneListChanged -= this.OnObsSceneListChanged;
                 this.CurrentProgramSceneChanged -= this.OnObsSceneChanged;
                 this.CurrentPreviewSceneChanged -= this.OnObsPreviewSceneChanged;
         
@@ -92,7 +91,6 @@
         {
             if (this._scene_collection_events_subscribed)
             {
-                this.SceneListChanged += this.OnObsSceneListChanged;
                 this.CurrentProgramSceneChanged += this.OnObsSceneChanged;
                 this.CurrentPreviewSceneChanged += this.OnObsPreviewSceneChanged;
 
@@ -290,6 +288,7 @@
             this.SceneNameChanged += this.OnObsSceneNameChanged;
 
             //this.SceneTransitionEnded += this.OnObsTransitionEnd;
+            this.SceneListChanged += this.OnObsSceneListChanged;
 
             this.AppConnected?.Invoke(sender, e);
 
@@ -319,7 +318,9 @@
             this.CurrentSceneCollectionChanged -= this.OnObsSceneCollectionChanged;
             this.CurrentSceneCollectionChanging -= this.OnObsSceneCollectionChanging;
 
-            this.SceneNameChanged += this.OnObsSceneNameChanged;
+            this.SceneListChanged -= this.OnObsSceneListChanged;
+
+            this.SceneNameChanged -= this.OnObsSceneNameChanged;
 
             //this.TransitionEnd -= this.OnObsTransitionEnd;
 
