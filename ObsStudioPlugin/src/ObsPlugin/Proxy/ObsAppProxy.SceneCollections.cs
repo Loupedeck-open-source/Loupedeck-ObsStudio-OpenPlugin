@@ -36,7 +36,6 @@
 
         private void OnObsSceneCollectionChanging(Object sender, CurrentSceneCollectionChangingEventArgs e)
         {
-           
             this.Plugin.Log.Info("OBS OnObsSceneCollectionChanging");
             //Unsubscribing from the scene collection events
             this.UnsubscribeFromSceneCollectionEvents();
@@ -94,36 +93,30 @@
             }
         }
 
-        // Retreives all scene items for all scenes in current collection
-        private void OnObsSceneCollectionChange_FetchSceneItems()
+        private Boolean TryFetchSceneItems(Scene scene)
         {
-            this.AllSceneItems.Clear();
-
-            this.Plugin.Log.Info("Adding scene items");
-
-            // sources
-            foreach (var scene in this.Scenes)
+            if (!Helpers.TryExecuteFunc(() => this.GetSceneItemList(scene.Name), out var sceneDetailsList))
             {
-                if (!Helpers.TryExecuteFunc(() => this.GetSceneItemList(scene.Name), out var sceneDetailsList))
-                {
-                    this.Plugin.Log.Warning($"Cannot get SceneList for scene {scene.Name}");
-                    continue;
-                }
+                this.Plugin.Log.Warning($"Cannot get SceneList for scene {scene.Name}");
+                return false;
+            }
 
-                foreach (var item in sceneDetailsList)
+            foreach (var item in sceneDetailsList)
+            {
+                var sourceDictItem = SceneItemDescriptor.CreateSourceDictItem(this.CurrentSceneCollection, scene.Name, item, this);
+                if (sourceDictItem != null)
                 {
-                    var sourceDictItem = SceneItemDescriptor.CreateSourceDictItem(this.CurrentSceneCollection, scene.Name, item, this);
-                    if ( sourceDictItem != null)
-                    {
-                        var key = SceneItemKey.Encode(this.CurrentSceneCollection, scene.Name, item.ItemId);
-                        this.AllSceneItems[key] = sourceDictItem;
-                    }
-                    else
-                    {
-                        this.Plugin.Log.Warning($"Cannot get CreateSourceDictItem for scene {scene.Name}, item {item.SourceName}");
-                    }
+                    var key = SceneItemKey.Encode(this.CurrentSceneCollection, scene.Name, item.ItemId);
+                    this.AllSceneItems[key] = sourceDictItem;
+                }
+                else
+                {
+                    this.Plugin.Log.Warning($"Cannot get CreateSourceDictItem for scene {scene.Name}, item {item.SourceName}");
                 }
             }
+
+            return true; 
         }
+     
     }
 }
