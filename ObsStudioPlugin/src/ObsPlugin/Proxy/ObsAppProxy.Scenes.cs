@@ -1,14 +1,8 @@
-﻿using Loupedeck.ObsStudioPlugin;
-using System.Collections.Generic;
-
-namespace Loupedeck.ObsStudioPlugin
+﻿namespace Loupedeck.ObsStudioPlugin
 {
     using System;
     using System.Collections.Generic;
-    using System.Runtime.CompilerServices;
-    using Newtonsoft.Json.Linq;
 
-    using OBSWebsocketDotNet;
     using OBSWebsocketDotNet.Types;
     using OBSWebsocketDotNet.Types.Events;
 
@@ -54,8 +48,6 @@ namespace Loupedeck.ObsStudioPlugin
         public String CurrentSceneName { get; private set; } = "";
 
         public List<Scene> Scenes { get; private set; } = new List<Scene>();
-
-        
 
         /// <summary>
         /// Attemts to get the Scene object for scene in current collection
@@ -103,7 +95,19 @@ namespace Loupedeck.ObsStudioPlugin
                 this.Plugin.Log.Info($"OBS Rescanned scene list. Currently {this.Scenes?.Count} scenes in collection {this.CurrentSceneCollection} ");
 
                 // Retreiving properties for all scenes
-                this.OnObsSceneCollectionChange_FetchSceneItems();
+                this.AllSceneItems.Clear();
+
+                this.Plugin.Log.Info("Adding scene items");
+
+                // sources
+                foreach (var sc in this.Scenes)
+                {
+                    if (!this.TryFetchSceneItems(sc))
+                    {
+                        //Just log
+                        this.Plugin.Log.Warning($"Cannot fetch items for scene {sc.Name}");
+                    }
+                }
 
                 if (Helpers.TryExecuteFunc(() => this.GetCurrentProgramScene(), out var scene))
                 {
@@ -137,7 +141,8 @@ namespace Loupedeck.ObsStudioPlugin
             }
             else
             {
-                this.Plugin.Log.Warning($"Cannot find scene \"{newScene}\" in current collection {this.CurrentSceneCollection}");
+                this.Plugin.Log.Warning($"Cannot find scene \"{newScene}\" in current collection \"{this.CurrentSceneCollection}\"");
+                //It can be we have 
             }
         }
 
@@ -188,8 +193,20 @@ namespace Loupedeck.ObsStudioPlugin
             else
             {
                 //This is handled in OnObsTransitionEnd
-                this.Plugin.Log.Info($"OnObsSceneChanged to {newScene} ignoring in Studio mode");
+                this.Plugin.Log.Info($"OnSceneChanged to {newScene} ignoring in Studio mode");
             }
+        }
+        private void OnObsSceneCreated(Object sender, SceneCreatedEventArgs args)
+        {
+            this.Plugin.Log.Info($"OnObsSceneCreated {args.SceneName}");
+            //Note, in theory we can do that in a finer way, without rescanning
+            this.OnObsSceneListChanged(sender, args);
+        }
+        private void OnObsSceneRemoved(Object sender, SceneRemovedEventArgs args)
+        {
+            this.Plugin.Log.Info($"OnObsSceneRemoved {args.SceneName}");
+            //Note, in theory we can do that in a finer way, without rescanning
+            this.OnObsSceneListChanged(sender, args);
         }
 
         private void OnObsSceneNameChanged(Object sender, SceneNameChangedEventArgs args)
@@ -245,7 +262,5 @@ namespace Loupedeck.ObsStudioPlugin
                 this.Plugin.Log.Warning($"SceneNameChanged: cannot find scene {args.OldSceneName}");
             }
         }
-
-
     }
 }

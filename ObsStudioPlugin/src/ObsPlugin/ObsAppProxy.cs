@@ -285,6 +285,8 @@
             this.CurrentSceneCollectionChanged += this.OnObsSceneCollectionChanged;
             this.CurrentSceneCollectionChanging += this.OnObsSceneCollectionChanging;
 
+            this.SceneCreated += this.OnObsSceneCreated;
+            this.SceneRemoved += this.OnObsSceneRemoved;
             this.SceneNameChanged += this.OnObsSceneNameChanged;
 
             //this.SceneTransitionEnded += this.OnObsTransitionEnd;
@@ -319,6 +321,8 @@
             this.CurrentSceneCollectionChanging -= this.OnObsSceneCollectionChanging;
 
             this.SceneListChanged -= this.OnObsSceneListChanged;
+            this.SceneCreated -= this.OnObsSceneCreated;
+            this.SceneRemoved -= this.OnObsSceneRemoved;
 
             this.SceneNameChanged -= this.OnObsSceneNameChanged;
 
