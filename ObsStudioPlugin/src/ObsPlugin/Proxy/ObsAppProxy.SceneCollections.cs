@@ -2,8 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Web.UI.WebControls;
-
+    
     using OBSWebsocketDotNet;
     using OBSWebsocketDotNet.Types.Events;
 
@@ -37,17 +36,20 @@
 
         private void OnObsSceneCollectionChanging(Object sender, CurrentSceneCollectionChangingEventArgs e)
         {
+           
             this.Plugin.Log.Info("OBS OnObsSceneCollectionChanging");
-            //Unsubscribing from the scene collection events 
+            //Unsubscribing from the scene collection events
             this.UnsubscribeFromSceneCollectionEvents();
+            //Unselect currently selected scene
+            this.AppEvtCurrentSceneChanged?.Invoke(this, new OldNewStringChangeEventArgs(this.CurrentSceneName, ""));   
         }
 
         private void OnObsSceneCollectionListChanged(Object sender, SceneCollectionListChangedEventArgs args)
         {
-            this.Plugin.Log.Info("OBS SceneCollectionList changed");
+            this.Plugin.Log.Info($"OBS SceneCollectionList changed");
           
             this.SceneCollections = args.SceneCollections;
-
+     
             this.AppEvtSceneCollectionsChanged?.Invoke(sender, args);
         }
 
@@ -62,9 +64,14 @@
                 if (sender == null || newSceneCollection != this.CurrentSceneCollection)
                 {
                     var args = new OldNewStringChangeEventArgs(sender == null ? null : this.CurrentSceneCollection, newSceneCollection);
-                    this.Plugin.Log.Info($"OBS Current Scene collection changing from {args.Old} to {args.New}");
+                    this.Plugin.Log.Info($" Current Scene collection changing from {args.Old} to {args.New}");
                     this.CurrentSceneCollection = newSceneCollection;
 
+                    var newSceneCollections = this.GetSceneCollectionList();
+                    //Todo: We can probably compare the lists and avoid extra 'onChange' event
+
+                    this.OnObsSceneCollectionListChanged(sender, new SceneCollectionListChangedEventArgs(newSceneCollections));
+                    
                     // Regenerating all internal structures
                     this.OnObsSceneListChanged(sender, e);
                     this.AppEvtCurrentSceneCollectionChanged?.Invoke(sender, args);
