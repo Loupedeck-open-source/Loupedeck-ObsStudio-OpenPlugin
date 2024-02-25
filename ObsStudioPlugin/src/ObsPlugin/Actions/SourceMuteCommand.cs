@@ -73,8 +73,6 @@
         private void OnSceneListChanged(Object sender, EventArgs e) => this.ResetParameters(true);
 
         private void OnCurrentSceneChanged(Object sender, EventArgs e) =>
-
-            // TODO: Do ActionImageChanged (ActionParam) for new  and old scene
             this.ActionImageChanged();
 
         private void OnSourceCreated(Object sender, SourceNameEventArgs args)

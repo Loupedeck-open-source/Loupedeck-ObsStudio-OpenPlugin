@@ -121,9 +121,7 @@
 
             if (SceneKey.TryParse(actionParameter, out var parsed))
             {
-
                 sceneName = parsed.Scene;
-                //this.Plugin.Log.Info($"GCI - Scene: {parsed.Scene} from {parsed.Collection}. Current collection: {ObsStudioPlugin.Proxy.CurrentSceneCollection}");
 
                 if ( parsed.Collection != ObsStudioPlugin.Proxy.CurrentSceneCollection )
                 {
@@ -135,8 +133,8 @@
                 }
                 else
                 {
-                    //Todo: For such situations we can 
-                    this.Plugin.Log.Info($"Cannot find scene {parsed.Scene} in current collection. Was it renamed or deleted?");
+                    //Note: see if this produces too much logging output
+                    this.Plugin.Log.Info($"Cannot find scene \"{parsed.Scene}\" in current collection. Was it renamed or deleted?");
                 }
             }            
             return (this.Plugin as ObsStudioPlugin).GetPluginCommandImage(imageSize, imageName, sceneName, imageName == IMGSceneSelected);
