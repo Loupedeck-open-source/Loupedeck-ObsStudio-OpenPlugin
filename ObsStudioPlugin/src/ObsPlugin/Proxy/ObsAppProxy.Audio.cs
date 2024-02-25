@@ -58,9 +58,7 @@
 
             }
         }
-
         private void OnObsInputDestroyed(Object _, OBSWebsocketDotNet.Types.Events.InputRemovedEventArgs args)
-        //private void OnObsInputDestroyed(OBSWebsocket sender, String sourceName, String sourceType, String sourceKind)
         {
             if (this.CurrentAudioSources.ContainsKey(args.InputName))
             {
@@ -225,7 +223,7 @@
                 foreach (var input in this.GetSpecialInputs())
                 {
                     this.CurrentAudioSources[input.Key] = new AudioSourceDescriptor(input.Value, this);
-                    this.Plugin.Log.Info($"Adding special input {input.Key} is of a kind \"{input.Value}\"");
+                    this.Plugin.Log.Info($"Adding special input {input.Key}");
                 }
                     
             }
