@@ -15,7 +15,7 @@ displayName: OBS Studio
 pluginFileName: ObsStudioPlugin.dll 
 
 # Plugin version.
-version: 5.9.4.3
+version: 5.9.5
 # Author of the plugin. The author can be a company or an individual developer.
 author: Loupedeck
 

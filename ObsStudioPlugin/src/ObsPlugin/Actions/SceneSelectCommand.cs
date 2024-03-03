@@ -51,7 +51,7 @@
 
         protected override void RunCommand(String actionParameter)
         {
-            if (SceneKey.TryParse(actionParameter, out var key))
+            if (SceneKey.TryParse(actionParameter, out var key) && (key.Collection == ObsStudioPlugin.Proxy.CurrentSceneCollection))
             {
                 ObsStudioPlugin.Proxy.AppSwitchToScene(key.Scene);
             }
