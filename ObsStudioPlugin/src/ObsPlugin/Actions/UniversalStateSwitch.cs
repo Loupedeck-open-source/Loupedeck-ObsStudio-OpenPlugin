@@ -26,10 +26,10 @@
             this.Description = "Sets a toggle action to the ON or OFF state. This is particularly useful when creating Multi-Actions (can be found in Custom category) and trying to target a specific toggle state.";
             this.GroupName = "";
 
-            this.ActionEditor.AddControl(
+            this.ActionEditor.AddControlEx(
                 new ActionEditorListbox(name: ToggleActionSelector, labelText: "OBS toggle:"));
             
-            this.ActionEditor.AddControl(
+            this.ActionEditor.AddControlEx(
                 new ActionEditorListbox(name: ToggleStateSelector, labelText: "Set to state:"));
             this.ActionEditor.ListboxItemsRequested += this.OnActionEditorListboxItemsRequested;
             this.ActionEditor.ControlValueChanged += this.OnActionEditorControlValueChanged;

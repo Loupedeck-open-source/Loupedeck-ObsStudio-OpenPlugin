@@ -18,18 +18,20 @@ namespace Loupedeck.ObsStudioPlugin
         // Gets a value indicating whether this is an API-only plugin.
         public override Boolean HasNoApplication => true;
 
-        private readonly ObsConnector _connector;
+        //private readonly ObsConnector _connector;
 
         public ObsStudioPlugin()
         {
             ObsStudioPlugin.Proxy = new ObsAppProxy(this);
-            this._connector = new ObsConnector(ObsStudioPlugin.Proxy, this.GetPluginDataDirectory(),
-                                (Object sender, EventArgs e) => this.OnPluginStatusChanged(Loupedeck.PluginStatus.Warning, this.Localization.GetString("Connecting to OBS"), "https://support.loupedeck.com/obs-guide", ""));
+            this._iniFile = new ObsIniFile(this);   
         }
 
         // Load is called once as plugin is being initialized during service start.
         public override void Load()
         {
+            var appActive = this.ClientApplication.IsActive() || this.ClientApplication.IsRunning();
+            this.Log.Info($"Load. ClientAppActive = {appActive}" );
+
             this.Info.Icon16x16 = EmbeddedResources.ReadImage("Loupedeck.ObsStudioPlugin.metadata.Icon16x16.png");
             this.Info.Icon32x32 = EmbeddedResources.ReadImage("Loupedeck.ObsStudioPlugin.metadata.Icon32x32.png");
             this.Info.Icon48x48 = EmbeddedResources.ReadImage("Loupedeck.ObsStudioPlugin.metadata.Icon48x48.png");
@@ -41,12 +43,26 @@ namespace Loupedeck.ObsStudioPlugin
             this.ClientApplication.ApplicationInstanceStarted += this.OnApplicationStarted;
             this.ClientApplication.ApplicationInstanceStopped += this.OnApplicationStopped;
 
-            ObsStudioPlugin.Proxy.AppConnected += this.OnAppConnStatusChange;
-            ObsStudioPlugin.Proxy.AppDisconnected += this.OnAppConnStatusChange;
+        
+            ObsStudioPlugin.Proxy.AppConnected += this.OnAppConnected;
+            ObsStudioPlugin.Proxy.AppDisconnected += this.OnAppDisconected;
 
-            ObsStudioPlugin.Proxy.RegisterAppEvents(); 
+            ObsStudioPlugin.Proxy.RegisterAppEvents();
 
-            this._connector.Start();
+            if (appActive)
+            {
+                this.OnApplicationStarted(this, null);
+            }
+            else if (this.ClientApplication.GetApplicationStatus() == ClientApplicationStatus.Installed
+                && this._iniFile.iniFileExists
+                && !this._iniFile.iniFileGood
+                )
+            {
+                this.Log.Info("OBS Installed but INI file is bad, fixing");
+
+                //Attempting to fix ini file if it is not good. Can only be done when app is not running (for Portable app we need to know its location first
+                this._iniFile.FixIniFile();
+            }
 
             this.Update_PluginStatus();
         }
@@ -54,7 +70,6 @@ namespace Loupedeck.ObsStudioPlugin
         // Unload is called once when plugin is being unloaded.
         public override void Unload()
         {
-            this._connector.Stop();
             ObsStudioPlugin.Proxy.UnregisterAppEvents();
 
             this.OnApplicationStopped(this, null);
@@ -65,24 +80,91 @@ namespace Loupedeck.ObsStudioPlugin
             this.ClientApplication.ApplicationInstanceStarted -= this.OnApplicationStarted;
             this.ClientApplication.ApplicationInstanceStopped -= this.OnApplicationStopped;
 
-            ObsStudioPlugin.Proxy.AppConnected -= this.OnAppConnStatusChange;
-            ObsStudioPlugin.Proxy.AppDisconnected -= this.OnAppConnStatusChange;
+            ObsStudioPlugin.Proxy.AppConnected -= this.OnAppConnected;
+            ObsStudioPlugin.Proxy.AppDisconnected -= this.OnAppDisconected;
 
         }
 
-        private void OnAppConnStatusChange(Object sender, EventArgs e) => this.Update_PluginStatus();
+        private void OnAppConnected(Object sender, EventArgs e)
+        {
+            this.Log.Info("OnAppConnected");
+            this.Update_PluginStatus();
+        }
+
+        private void OnAppDisconected(Object sender, EventArgs e)
+        {
+            this.Log.Info("OnAppDisconnected");
+            //We'll re-read the ini file to see whether it is good or not
+            this._iniFile.ReadIniFile();
+            this.Update_PluginStatus();
+        }
+
+        private readonly ObsIniFile _iniFile;
+
+        
 
         private void OnApplicationStarted(Object sender, EventArgs e)
         {
+            //Main entry point for the plugin's connectivity
+            var status = this.ClientApplication.GetApplicationStatus();
+
+            this.Log.Info($"OnApplicationStarted. Installation status:{status != ClientApplicationStatus.Installed}, Ini exists/good: {this._iniFile.iniFileExists}/{this._iniFile.iniFileGood}  ");
+
+            if (!this._iniFile.iniFileGood && status != ClientApplicationStatus.Installed)
+            {
+                this.Log.Info("Portable mode detected");
+
+                //FIXME: There needs to be more sophisticated logic
+                this._iniFile.SetPortableIniPath(this.ClientApplication.GetRunningProcessName());
+            }
+
+            //Here we can detect if application is running in the portable mode (runnign but not installed) and adjust ini file accordingly 
+
+            if (this._iniFile.iniFileGood)
+            {
+                this.Log.Info($"Connecting using the data from IniFile (port {this._iniFile.ServerPort})");
+                const UInt32 MAX_ATTEMPTS = 20;
+                var attempt = 0;
+                //Oftentimes we receive 'application started' notification too soon for the target app to be capable of accepting connections
+                // Firstly we need to wait for the port to be listening
+                while( Loupedeck.NetworkHelpers.IsTcpPortFree(this._iniFile.ServerPort) )
+                {
+                    if (attempt ++ > MAX_ATTEMPTS)
+                    {
+                        this.Log.Error($"Port is not listening after {MAX_ATTEMPTS} attempts, giving up");
+                        break;
+                    }
+                    this.Log.Info($"Port is not yet listening, waiting for 1s");
+                    System.Threading.Thread.Sleep(1000);
+                }
+                //And we sleep some more to make sure that the app is ready to accept connections
+                System.Threading.Thread.Sleep(2000);
+
+                //
+                if (!Helpers.TryExecuteAction(() => Proxy.ConnectAsync($"ws://127.0.0.1:{this._iniFile.ServerPort}", this._iniFile.ServerPassword)))
+                {
+                    this.Log.Error("OBS: Error connecting to OBS");
+                }
+            }
+            else if (this._iniFile.iniFileExists) //Means that ini file is bad 
+            {
+                this.Update_PluginStatus();
+            }
         }
 
         private void OnApplicationStopped(Object sender, EventArgs e)
         {
+            this.Log.Info("OnApplicationStopped");
+            if (!this._iniFile.iniFileGood && this._iniFile.iniFileExists)
+            {
+                this.Log.Info("Fixing Ini file");
+                this._iniFile.FixIniFile();
+            }
         }
 
         private void Update_PluginStatus()
         {
-            if (!this.IsApplicationInstalled())
+            if (!this.IsApplicationInstalled() && !this.ClientApplication.IsRunning())
             {
                 this.OnPluginStatusChanged(Loupedeck.PluginStatus.Error, "OBS Studio is not installed", "https://support.loupedeck.com/obs-guide", "more details");
             }
@@ -90,8 +172,14 @@ namespace Loupedeck.ObsStudioPlugin
             {
                 this.OnPluginStatusChanged(Loupedeck.PluginStatus.Normal, "");
             }
+            else if (this._iniFile.iniFileExists && !this._iniFile.iniFileGood) 
+            {
+                //If ini is not good we can set up the 'on app stopped' watch to modify file
+                this.OnPluginStatusChanged(Loupedeck.PluginStatus.Error, "Cannot connect to OBS Studio. You might try restarting OBS Studio and trying again.", "https://support.loupedeck.com/obs-guide", "more details");
+            }
             else
             {
+                // FIXME: We need more elaborate explanation here. 
                 this.OnPluginStatusChanged(Loupedeck.PluginStatus.Warning, "Not connected to OBS", "https://support.loupedeck.com/obs-guide", "more details");
             }
         }
@@ -141,7 +229,5 @@ namespace Loupedeck.ObsStudioPlugin
         /// <returns>bitmap with text rendered</returns>
         internal BitmapImage GetPluginCommandImage(PluginImageSize imageSize, String imagePath, String text = null, Boolean textSelected = false) => 
             this.BuildImage(imageSize, ImageResPrefix + imagePath, text, textSelected).ToImage();
-
-        public static void Trace(String line) => Tracer.Trace("GSP:" + line); /*System.Diagnostics.Debug.WriteLine(*/
     }
 }

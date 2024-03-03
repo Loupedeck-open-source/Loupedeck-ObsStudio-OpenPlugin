@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\ILMerge.3.0.41\build\ILMerge.props" Condition="Exists('..\packages\ILMerge.3.0.41\build\ILMerge.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -8,9 +9,11 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Loupedeck.ObsStudioPlugin</RootNamespace>
-    <AssemblyName>ObsStudioPlugin</AssemblyName>
+    <AssemblyName>ObsStudioPluginBare</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup>
     <BaseIntermediateOutputPath>$(SolutionDir)..\obj\</BaseIntermediateOutputPath>
@@ -38,20 +41,58 @@
     <WarningLevel>4</WarningLevel>
     <OutputPath>..\..\bin\win\</OutputPath>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug-Mac|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>$(LocalAppData)\Loupedeck\Plugins\ObsStudioPlugin\mac\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release-Mac|AnyCPU'">
+    <OutputPath>..\..\bin\mac\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="LoupedeckShared">
       <HintPath>..\..\..\..\..\Program Files (x86)\Loupedeck\Loupedeck2\LoupedeckShared.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.13.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\..\..\..\..\Program Files (x86)\Loupedeck\Loupedeck2\Newtonsoft.Json.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="PluginApi, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath Condition="$(OS) == 'Windows_NT'">C:\Program Files (x86)\Loupedeck\Loupedeck2\PluginApi.dll</HintPath>
-      <HintPath Condition="$(OS) != 'Windows_NT'">/Applications/Loupedeck.app/Contents/MonoBundle/PluginApi.dll</HintPath>
+    <Reference Include="obs-websocket-dotnet, Version=5.0.0.3, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\obs-websocket-dotnet.5.0.0.3\lib\netstandard2.0\obs-websocket-dotnet.dll</HintPath>
+    </Reference>
+    <Reference Include="PluginApi">
+      <HintPath>..\..\..\..\..\Program Files (x86)\Loupedeck\Loupedeck2\PluginApi.dll</HintPath>
       <Private>False</Private>
+    </Reference>
+    <Reference Include="System.Reactive, Version=4.3.0.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Reactive.4.3.2\lib\net46\System.Reactive.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Threading.Channels, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Threading.Channels.4.7.0\lib\netstandard2.0\System.Threading.Channels.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Threading.Tasks.Extensions.4.5.3\lib\netstandard2.0\System.Threading.Tasks.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ValueTuple.4.5.0\lib\net47\System.ValueTuple.dll</HintPath>
+    </Reference>
+    <Reference Include="Websocket.Client, Version=4.4.0.0, Culture=neutral, PublicKeyToken=ae648c6d12f59b1b, processorArchitecture=MSIL">
+      <HintPath>..\packages\Websocket.Client.4.4.43\lib\netstandard2.0\Websocket.Client.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -62,6 +103,21 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
+    <Reference Include="System.Windows.Forms" Condition=" '$(Configuration)' == 'Debug-Mac' OR  '$(Configuration)' == 'Release-Mac'">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="WindowsBase" Condition=" '$(Configuration)' == 'Debug-Mac' OR  '$(Configuration)' == 'Release-Mac'">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Xaml" Condition=" '$(Configuration)' == 'Debug-Mac' OR  '$(Configuration)' == 'Release-Mac'">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Drawing" Condition=" '$(Configuration)' == 'Debug-Mac' OR  '$(Configuration)' == 'Release-Mac'">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Accessibility" Condition=" '$(Configuration)' == 'Debug-Mac' OR  '$(Configuration)' == 'Release-Mac'">
+      <Private>True</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Actions\RecordingPauseToggleCommand.cs" />
@@ -71,6 +127,7 @@
     <Compile Include="Actions\TransitionCommand.cs" />
     <Compile Include="Actions\ReplayBufferSaveCommand.cs" />
     <Compile Include="Actions\GenericOnOffSwitch.cs" />
+    <Compile Include="Support\OBSIniFile.cs" />
     <Compile Include="Actions\SourceVolumeAdjustment.cs" />
     <Compile Include="Actions\SourceMuteCommand.cs" />
     <Compile Include="Actions\SourceVisibilityCommand.cs" />
@@ -79,7 +136,6 @@
     <Compile Include="Actions\RecordingToggleCommand.cs" />
     <Compile Include="Actions\ReplayBufferToggleCommand.cs" />
     <Compile Include="ObsAppProxy.cs" />
-    <Compile Include="ObsConnector.cs" />
     <Compile Include="ObsStudioPlugin.Install.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ObsStudioApplication.cs" />
@@ -103,11 +159,11 @@
     <Compile Include="Support\SceneKey.cs" />
     <Compile Include="Support\SceneItemKey.cs" />
     <Compile Include="Support\SceneItemDescriptor.cs" />
+    <None Include="packages.config" />
     <None Include="Support\Support.TEMPLATE.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="metadata\LoupedeckPackage.yaml" />
-    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -157,12 +213,6 @@
     <EmbeddedResource Include="Icons\VirtualWebcamOff.png" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\obs-websocket\obs-websocket-dotnet\obs-websocket-dotnet.csproj">
-      <Project>{c8668815-f21e-49c0-8f1a-58bc698153af}</Project>
-      <Name>obs-websocket-dotnet</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="Icons\CloseDesktop.png" />
     <EmbeddedResource Include="Icons\Workspaces.png" />
   </ItemGroup>
@@ -196,4 +246,41 @@
     <PostBuildEvent Condition="$(OS) == 'Windows_NT'">call "$(ProjectDir)BuildEvents\postbuild.cmd" "$(ProjectDir)" "$(TargetDir)"</PostBuildEvent>
     <PostBuildEvent Condition="$(OS) != 'Windows_NT'">sh "$(ProjectDir)BuildEvents\postbuild" "$(ProjectDir)" "$(TargetDir)"</PostBuildEvent>
   </PropertyGroup>
+  <PropertyGroup>
+    <PostBuildEvent>call "$(ProjectDir)BuildEvents\postbuild.cmd" "$(ProjectDir)" "$(TargetDir)"</PostBuildEvent>
+  </PropertyGroup>
+  <!-- ILMerge target. Note, Windows-Only! -->
+  <Target Name="ILMerge" AfterTargets="AfterBuild" Condition="!$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))">
+    <Message Text="Merging all DLLs into one..." Importance="high" />
+    <PropertyGroup>
+      <OutputDLL>$(TargetDir)$(ProjectName).dll</OutputDLL>
+    </PropertyGroup>
+    <!-- For release build, remove debuginfo merging -->
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)' != 'Debug|AnyCPU'">
+      <ILMegeNDebugFlag>/ndebug</ILMegeNDebugFlag>
+    </PropertyGroup>
+    <!-- Making sure the resulting DLL is not there -->
+    <Delete Files="$(OutputDLL)" ContinueOnError="true" />
+    <!-- Collect the files to move in the output path -->
+    <ItemGroup>
+      <AllDlls Include="$(OutputPath)\*.dll" />
+    </ItemGroup>
+    <!-- Actually run ILMerge -->
+    <Exec Command="&quot;$(ILMergeConsolePath)&quot; $(ILMegeNDebugFlag) /lib:&quot;%ProgramFiles(x86)%&quot;\Loupedeck\Loupedeck2\ /out:&quot;$(OutputDLL)&quot; @(AllDlls->'&quot;%(FullPath)&quot;', ' ')" />
+    <!-- For release build, remove all but DLL  -->
+    <ItemGroup Condition="'$(Configuration)|$(Platform)' != 'Debug|AnyCPU'">
+      <AllDlls Include="$(OutputPath)\*.pdb" />
+      <AllDlls Include="$(OutputPath)\*.xml" />
+      <AllDlls Include="$(OutputPath)\*.config" />
+    </ItemGroup>
+    <!-- Deleting -->
+    <Message Text="Removing intermediate files...AllDLL = @(AllDlls),  debugflag = $(ILMegeNDebugFlag)" Importance="high" />
+    <Delete Files="@(AllDlls)" />
+  </Target>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\ILMerge.3.0.41\build\ILMerge.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\ILMerge.3.0.41\build\ILMerge.props'))" />
+  </Target>
 </Project>

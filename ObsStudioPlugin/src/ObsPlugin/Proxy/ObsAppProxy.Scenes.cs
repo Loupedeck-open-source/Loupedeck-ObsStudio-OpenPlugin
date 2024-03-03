@@ -1,28 +1,30 @@
-﻿using Loupedeck.ObsStudioPlugin;
-using System.Collections.Generic;
-
-namespace Loupedeck.ObsStudioPlugin
+﻿namespace Loupedeck.ObsStudioPlugin
 {
     using System;
     using System.Collections.Generic;
 
-    using OBSWebsocketDotNet;
     using OBSWebsocketDotNet.Types;
+    using OBSWebsocketDotNet.Types.Events;
 
     internal class LDSceneItem
     {
         public String SourceName { get; private set; }
-        public LDSceneItem(String sourceName) => this.SourceName = sourceName; 
+        public Int32 SceneItemId { get; private set; }
+        public LDSceneItem(String sourceName, Int32 itemId)
+        {
+            this.SourceName = sourceName;
+            this.SceneItemId = itemId;
+        }
     }
 
     internal class Scene
     {
-        public String Name { get; private set; }
+        public String Name { get; set; }
         public  List<LDSceneItem> Items { get; private set; } 
-        public Scene(OBSScene scene)
+        public Scene(SceneBasicInfo scene)
         {
             this.Name = scene.Name;
-            this.Items = scene.Items.ConvertAll(x => new LDSceneItem(x.SourceName));
+            this.Items = new List<LDSceneItem>(); // TEMP scene.Items.ConvertAll(x => new LDSceneItem(x.SourceName));
         }
 
         public Scene()
@@ -41,11 +43,11 @@ namespace Loupedeck.ObsStudioPlugin
         public event EventHandler<EventArgs> AppEvtSceneListChanged;
 
         public event EventHandler<OldNewStringChangeEventArgs> AppEvtCurrentSceneChanged;
-        public Scene CurrentScene { get; private set; } = new Scene();
+
+        public event EventHandler<OldNewStringChangeEventArgs> AppEvtSceneNameChanged;
+        public String CurrentSceneName { get; private set; } = "";
 
         public List<Scene> Scenes { get; private set; } = new List<Scene>();
-
-        
 
         /// <summary>
         /// Attemts to get the Scene object for scene in current collection
@@ -72,11 +74,12 @@ namespace Loupedeck.ObsStudioPlugin
                 {
                     if (this._studioMode)
                     {
-                        this.SetPreviewScene(newScene);
+                        //We only set previde scene in studio mode; program scene is set by transition
+                        this.SetCurrentPreviewScene(newScene);
                     }
                     else
                     {
-                        this.SetCurrentScene(newScene);
+                        this.SetCurrentProgramScene(newScene);
                     }
                 });
             }
@@ -92,13 +95,25 @@ namespace Loupedeck.ObsStudioPlugin
                 this.Plugin.Log.Info($"OBS Rescanned scene list. Currently {this.Scenes?.Count} scenes in collection {this.CurrentSceneCollection} ");
 
                 // Retreiving properties for all scenes
-                this.OnObsSceneCollectionChange_FetchSceneItems();
+                this.AllSceneItems.Clear();
 
-                if (Helpers.TryExecuteFunc(() => this.GetCurrentScene(), out var scene))
+                this.Plugin.Log.Info("Adding scene items");
+
+                // sources
+                foreach (var sc in this.Scenes)
                 {
-                    if (!String.IsNullOrEmpty(scene.Name) && !scene.Name.Equals(this.CurrentScene?.Name))
+                    if (!this.TryFetchSceneItems(sc))
                     {
-                        this.OnObsSceneChanged(e, scene.Name);
+                        //Just log
+                        this.Plugin.Log.Warning($"Cannot fetch items for scene {sc.Name}");
+                    }
+                }
+
+                if (Helpers.TryExecuteFunc(() => this.GetCurrentProgramScene(), out var scene))
+                {
+                    if (!String.IsNullOrEmpty(scene) && !scene.Equals(this.CurrentSceneName))
+                    {
+                        this.OnObsSceneChanged(e, scene);
                     }
                 }
                 else
@@ -107,6 +122,7 @@ namespace Loupedeck.ObsStudioPlugin
                 }
 
                 this.OnObsSceneCollectionChanged_RetreiveAudioSources();
+
                 this.AppEvtSceneListChanged?.Invoke(sender, e);
             }
             else
@@ -116,21 +132,23 @@ namespace Loupedeck.ObsStudioPlugin
         }
         private void OnSceneChanged(String newScene)
         {
-            if (this.TryGetSceneByName(newScene, out var scene) && this.CurrentScene != scene)
+            if (this.TryGetSceneByName(newScene, out var scene) && this.CurrentSceneName != scene.Name)
             {
-                this.Plugin.Log.Info($"OBS - Current scene changed from \"{this.CurrentScene?.Name}\" to \"{newScene}\"");
-                var args = new OldNewStringChangeEventArgs(this.CurrentScene?.Name, scene.Name);
-                this.CurrentScene = scene;
+                this.Plugin.Log.Info($"OBS - Current scene changed from \"{this.CurrentSceneName}\" to \"{newScene}\"");
+                var args = new OldNewStringChangeEventArgs(this.CurrentSceneName, scene.Name);
+                this.CurrentSceneName = scene.Name;
                 this.AppEvtCurrentSceneChanged?.Invoke(this, args);
             }
             else
             {
-                this.Plugin.Log.Warning($"Cannot find scene \"{newScene}\" in current collection {this.CurrentSceneCollection}");
+                this.Plugin.Log.Warning($"Cannot find scene \"{newScene}\" in current collection \"{this.CurrentSceneCollection}\"");
+                //It can be we have 
             }
         }
 
-        private void OnObsPreviewSceneChanged(Object sender, String newScene)
+        private void OnObsPreviewSceneChanged(Object sender, CurrentPreviewSceneChangedEventArgs args)
         {
+            var newScene = args.SceneName;
             //Scenes and preview: When in the Studio mode
             // Scene A: Preview scene
             // Scene B: Program scene
@@ -143,7 +161,9 @@ namespace Loupedeck.ObsStudioPlugin
             // This the same as onObsSceneChanged but in previewmode
             // For Studio mode, OBS plugin will set / monitor Preview scenes, not main scene
             //  NB: the SceneChange command changes program scene, not a preview one
-            if(this._studioMode)
+            this.Plugin.Log.Info($"PreviewSceneChange to {newScene}");
+
+            if (this._studioMode)
             {
                 //this.OnSceneChanged(newScene);
             }
@@ -152,17 +172,19 @@ namespace Loupedeck.ObsStudioPlugin
                 this.Plugin.Log.Info($"PreviewSceneChange to {newScene} but not in Studio mode, igrnoring");
             }
         }
-        private void OnObsTransitionEnd(OBSWebsocket sender, String transitionName, String transitionType, Int32 duration, String toScene)
+        private void OnObsTransitionEnd(Object _ , SceneTransitionEndedEventArgs args)
         {
-            this.Plugin.Log.Info($"Transition {transitionName} to scene {toScene} ended");
+            // String transitionName, String transitionType, Int32 duration, String toScene)
+            this.Plugin.Log.Info($"Transition {args.TransitionName} ended");
             if (this._studioMode)
             {
+                //In new OBS the ProgramSceneChanged Event should fire normally
                 //In studio mode (see above), the selected scene == Program scene
-                this.OnSceneChanged(toScene);
+                //this.OnSceneChanged(toScene);
             }
         }
-
-        private void OnObsSceneChanged(Object sender, String newScene)
+        private void OnObsSceneChanged(Object sender, ProgramSceneChangedEventArgs args) => this.OnObsSceneChanged(sender, args.SceneName);
+        private void OnObsSceneChanged(Object _, String newScene)
         {
             if (!this._studioMode)
             {
@@ -171,9 +193,74 @@ namespace Loupedeck.ObsStudioPlugin
             else
             {
                 //This is handled in OnObsTransitionEnd
-                this.Plugin.Log.Info($"OnObsSceneChanged to {newScene} ignoring in Studio mode");
+                this.Plugin.Log.Info($"OnSceneChanged to {newScene} ignoring in Studio mode");
             }
         }
-        
+        private void OnObsSceneCreated(Object sender, SceneCreatedEventArgs args)
+        {
+            this.Plugin.Log.Info($"OnObsSceneCreated {args.SceneName}");
+            //Note, in theory we can do that in a finer way, without rescanning
+            this.OnObsSceneListChanged(sender, args);
+        }
+        private void OnObsSceneRemoved(Object sender, SceneRemovedEventArgs args)
+        {
+            this.Plugin.Log.Info($"OnObsSceneRemoved {args.SceneName}");
+            //Note, in theory we can do that in a finer way, without rescanning
+            this.OnObsSceneListChanged(sender, args);
+        }
+
+        private void OnObsSceneNameChanged(Object sender, SceneNameChangedEventArgs args)
+        {
+            this.Plugin.Log.Info($"OnObsSceneNameChanged to {args.OldSceneName} -> {args.SceneName}");
+
+            //In the this.Scenes list, rename the scene with the new name
+            var scene = this.Scenes.Find(x => x.Name == args.OldSceneName);
+            if (scene != null)
+            {
+                scene.Name = args.SceneName;
+
+                if(this.CurrentSceneName == args.OldSceneName)
+                {
+                    this.CurrentSceneName = args.SceneName;
+                }
+
+                //We need to regenerate sceneKeys for AllSceneItems
+                var newSceneItems = new Dictionary<String, SceneItemDescriptor>();
+                foreach (var encodedKey in this.AllSceneItems.Keys)
+                {
+                    if (!SceneItemKey.TryParse(encodedKey, out var key))
+                    {
+                        this.Plugin.Log.Warning($"Internal problem: cannot get SceneKey from object {encodedKey}, ignoring item");
+                        continue;
+                    }
+
+                    var value = this.AllSceneItems[encodedKey];    
+                    if (key.Scene == args.OldSceneName)
+                    {
+                        if (value.SceneName != args.OldSceneName)
+                        {
+                            this.Plugin.Log.Warning($"SceneNameChanged: Scene Item points to different scene ({value.SceneName}) than key ({key.Scene})!");
+                        }
+
+                        key.Scene = args.SceneName;
+                        value.SceneName = args.SceneName;
+                    }
+
+                    newSceneItems[key.Stringize()] = value;
+                }
+
+                this.AllSceneItems = newSceneItems;
+
+                if (!Helpers.TryExecuteAction(() => this.AppEvtSceneNameChanged?.Invoke(sender, new OldNewStringChangeEventArgs(args.OldSceneName, args.SceneName))))
+                {
+                    this.Plugin.Log.Warning($"Exception invoking AppEvtSceneNameChanged!");
+                }
+                
+            }
+            else
+            {
+                this.Plugin.Log.Warning($"SceneNameChanged: cannot find scene {args.OldSceneName}");
+            }
+        }
     }
 }

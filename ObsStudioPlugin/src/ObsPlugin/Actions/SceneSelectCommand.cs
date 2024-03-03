@@ -29,6 +29,8 @@
             ObsStudioPlugin.Proxy.AppEvtSceneListChanged += this.OnSceneListChanged;
             ObsStudioPlugin.Proxy.AppEvtCurrentSceneChanged += this.OnCurrentSceneChanged;
 
+            ObsStudioPlugin.Proxy.AppEvtSceneNameChanged += this.OnSceneListChanged;
+
             this.OnAppDisconnected(this, null);
 
             return true;
@@ -42,12 +44,14 @@
             ObsStudioPlugin.Proxy.AppEvtSceneListChanged -= this.OnSceneListChanged;
             ObsStudioPlugin.Proxy.AppEvtCurrentSceneChanged -= this.OnCurrentSceneChanged;
 
+            ObsStudioPlugin.Proxy.AppEvtSceneNameChanged -= this.OnSceneListChanged;
+
             return true;
         }
 
         protected override void RunCommand(String actionParameter)
         {
-            if (SceneKey.TryParse(actionParameter, out var key))
+            if (SceneKey.TryParse(actionParameter, out var key) && (key.Collection == ObsStudioPlugin.Proxy.CurrentSceneCollection))
             {
                 ObsStudioPlugin.Proxy.AppSwitchToScene(key.Scene);
             }
@@ -59,12 +63,12 @@
 
             if (readContent)
             {
-                this.Plugin.Log.Info($"Adding {ObsStudioPlugin.Proxy.Scenes?.Count} scene items");
+                this.Plugin.Log.Info($"Adding {ObsStudioPlugin.Proxy.Scenes?.Count} scenes");
                 foreach (var scene in ObsStudioPlugin.Proxy.Scenes)
                 {
                     var key = SceneKey.Encode(ObsStudioPlugin.Proxy.CurrentSceneCollection, scene.Name);
                     this.AddParameter(key, scene.Name, this.GroupName).Description=$"Switch to scene \"{scene.Name}\"";
-                    this.SetCurrentState(key, scene.Name.Equals(ObsStudioPlugin.Proxy.CurrentScene?.Name) ? SCENE_SELECTED : SCENE_UNSELECTED);
+                    this.SetCurrentState(key, scene.Name.Equals(ObsStudioPlugin.Proxy.CurrentSceneName) ? SCENE_SELECTED : SCENE_UNSELECTED);
                 }
             }
 
@@ -73,15 +77,32 @@
 
         private void OnSceneListChanged(Object sender, EventArgs e) =>
             this.ResetParameters(true);
-
+        
         private void OnCurrentSceneChanged(Object sender, OldNewStringChangeEventArgs arg)
         {
-            var oldPar = SceneKey.Encode(ObsStudioPlugin.Proxy.CurrentSceneCollection, arg.Old);
-            var newPar = SceneKey.Encode(ObsStudioPlugin.Proxy.CurrentSceneCollection, arg.New);
+            this.Plugin.Log.Info($"Scene changed from {arg.Old} to {arg.New}");
+            //FIXME: We need to make sure this selection change works well
+            //Note that the old scene can be from the diffrent scene collection
 
-            //unselecting old and selecting new
-            this.SetCurrentState(oldPar, SCENE_UNSELECTED);
-            this.SetCurrentState(newPar, SCENE_SELECTED);
+            //unselecting old (if it'ss still there) and selecting new
+            if (ObsStudioPlugin.Proxy.TryGetSceneByName(arg.Old, out var _))
+            {
+                var param = SceneKey.Encode(ObsStudioPlugin.Proxy.CurrentSceneCollection, arg.Old);
+                this.SetCurrentState(param, SCENE_UNSELECTED);
+
+            }
+            else
+            {
+                this.Plugin.Log.Warning($"OnCurrentSceneChanged: Old Scene is not in current collection {arg.Old}. Current collection: {ObsStudioPlugin.Proxy.CurrentSceneCollection}");
+            }
+
+            if ( !String.IsNullOrEmpty(arg.New))
+            {
+                var param = SceneKey.Encode(ObsStudioPlugin.Proxy.CurrentSceneCollection, arg.New);
+                this.SetCurrentState(param, SCENE_SELECTED);
+            }
+
+            this.ActionImageChanged();
         }
 
         private void OnAppConnected(Object sender, EventArgs e) => this.IsEnabled = true;
@@ -102,9 +123,18 @@
             {
                 sceneName = parsed.Scene;
 
-                if( ObsStudioPlugin.Proxy.TryGetSceneByName(parsed.Scene, out var _) )
+                if ( parsed.Collection != ObsStudioPlugin.Proxy.CurrentSceneCollection )
+                {
+                    imageName = IMGSceneInaccessible;
+                }
+                else if( ObsStudioPlugin.Proxy.TryGetSceneByName(parsed.Scene, out var _) )
                 {
                     imageName = stateIndex == SCENE_SELECTED ? IMGSceneSelected : IMGSceneUnselected;
+                }
+                else
+                {
+                    //Note: see if this produces too much logging output
+                    this.Plugin.Log.Info($"Cannot find scene \"{parsed.Scene}\" in current collection. Was it renamed or deleted?");
                 }
             }            
             return (this.Plugin as ObsStudioPlugin).GetPluginCommandImage(imageSize, imageName, sceneName, imageName == IMGSceneSelected);

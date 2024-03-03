@@ -8,7 +8,7 @@
         private const String IMGSourceSelected = "AudioOn.png";
         private const String IMGSourceUnselected = "AudioOff.png";
         private const String IMGSourceInaccessible = "AudioInaccessible.png";
-        private const String SourceNameUnknown = "Offline";
+        private const String SourceNameUnknown = "N/A";
 
         // private const String SpecialSourceGroupName = "General Audio";
 
@@ -35,6 +35,8 @@
             ObsStudioPlugin.Proxy.AppSourceCreated += this.OnSourceCreated;
             ObsStudioPlugin.Proxy.AppSourceDestroyed += this.OnSourceDestroyed;
 
+            ObsStudioPlugin.Proxy.AppInputRenamed += this.OnSourceRenamed;
+
             this.OnAppDisconnected(this, null);
 
             return true;
@@ -55,24 +57,34 @@
             ObsStudioPlugin.Proxy.AppSourceCreated -= this.OnSourceCreated;
             ObsStudioPlugin.Proxy.AppSourceDestroyed -= this.OnSourceDestroyed;
 
+            ObsStudioPlugin.Proxy.AppInputRenamed -= this.OnSourceRenamed;
+
             return true;
         }
 
-        protected override String GetAdjustmentDisplayName(String actionParameter, PluginImageSize imageSize) => SceneItemKey.TryParse(actionParameter, out var key) ? key.Source : SourceNameUnknown;
+        protected override String GetAdjustmentDisplayName(String actionParameter, PluginImageSize imageSize)
+        {
+            //TODO: Global audio sources do not need to have scene name in the action parameter. We can come up with the better way to handle this.
+            return (SceneItemKey.TryParse(actionParameter, out var key) 
+                && key.Collection.Equals(ObsStudioPlugin.Proxy.CurrentSceneCollection) 
+                && ObsStudioPlugin.Proxy.AllSceneItems.ContainsKey(actionParameter))
+            ? ObsStudioPlugin.Proxy.AllSceneItems[actionParameter].SourceName
+            : SourceNameUnknown;
+        }
+        
 
         protected override void ApplyAdjustment(String actionParameter, Int32 diff)
         {
-            if (SceneKey.TryParse(actionParameter, out var key))
+            if (SceneKey.TryParse(actionParameter, out var key) && key.Collection.Equals(ObsStudioPlugin.Proxy.CurrentSceneCollection))
             {
                 ObsStudioPlugin.Proxy.AppSetVolume(key.Source, diff);
+                this.AdjustmentValueChanged();
             }
-
-            this.AdjustmentValueChanged();
         }
 
         protected override void RunCommand(String actionParameter)
         {
-            if (SceneKey.TryParse(actionParameter, out var key))
+            if (SceneKey.TryParse(actionParameter, out var key) && key.Collection.Equals(ObsStudioPlugin.Proxy.CurrentSceneCollection))
             {
                 // Pressing the button toggles mute
                 ObsStudioPlugin.Proxy.AppToggleMute(key.Source);
@@ -85,7 +97,9 @@
 
         protected override String GetAdjustmentValue(String actionParameter) 
         {
-            return ObsStudioPlugin.Proxy.AppGetVolumeLabel(SceneKey.TryParse(actionParameter, out var key) ? key.Source : "N/A");
+            return SceneKey.TryParse(actionParameter, out var key) && key.Collection.Equals(ObsStudioPlugin.Proxy.CurrentSceneCollection)
+                    ? ObsStudioPlugin.Proxy.AppGetVolumeLabel(key.Source)
+                    : "N/A";
         }
         private void OnSourceMuteStateChanged(Object sender, MuteEventArgs args)
         {
@@ -148,6 +162,19 @@
             {
                 this.RemoveParameter(key);
                 _ = this._muteStates.Remove(key);
+                this.ParametersChanged();
+            }
+        }
+
+        private void OnSourceRenamed(Object sender, OldNewStringChangeEventArgs args)
+        {
+            var key = SceneKey.Encode(ObsStudioPlugin.Proxy.CurrentSceneCollection, args.Old);
+
+            if (this.TryGetParameter(key, out _))
+            {
+                this.RemoveParameter(key);
+                _ = this._muteStates.Remove(key);
+                this.AddSource(args.New);
                 this.ParametersChanged();
             }
         }

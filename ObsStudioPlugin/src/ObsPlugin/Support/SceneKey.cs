@@ -7,8 +7,7 @@
         public const String FieldSeparator = "||~~(%)~~||";
         public const String NothingField = "NONE";
         public String Scene;
-
-        // Synonym, since sources are used collection-wide
+        // We use same field for audio sources which are unique within collection
         public String Source => this.Scene;
 
         public String Collection;

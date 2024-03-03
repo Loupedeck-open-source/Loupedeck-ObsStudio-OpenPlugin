@@ -3,10 +3,12 @@
     using System;
     using System.Collections.Generic;
     using System.Data.SqlTypes;
+    using System.Runtime;
     using System.Runtime.Remoting.Messaging;
     using System.Web;
 
     using OBSWebsocketDotNet;
+    using OBSWebsocketDotNet.Types;
 
     /// <summary>
     /// Proxy to OBS websocket server, for API reference see
@@ -20,13 +22,14 @@
         public event EventHandler<SourceNameEventArgs> AppSourceCreated;
         public event EventHandler<SourceNameEventArgs> AppSourceDestroyed;
 
-        private readonly Dictionary<String, String> _specialSources = new Dictionary<String, String>();
+        public event EventHandler<OldNewStringChangeEventArgs> AppInputRenamed;
+
         private readonly List<String> _audioSourceTypes = new List<String>();
 
         internal Dictionary<String, AudioSourceDescriptor> CurrentAudioSources { get; private set; }  = new Dictionary<String, AudioSourceDescriptor>();
 
-        private Boolean IsAudioSourceType(OBSWebsocketDotNet.Types.SourceSettings settings) => this._audioSourceTypes.Contains(settings.SourceKind ?? settings.SourceType);
-
+#if false
+        //NOTE: We might consider using this for browser_source  ONCE bar_raider implements InputSourceSettingsChanged
         private void OnObsSourceAudioActivated(OBSWebsocket sender, String sourceName)
         {
             // NOTE: We do not testSettings (type of the source) -> It's audio for sure!
@@ -36,77 +39,62 @@
             }
         }
 
+
         // NOTE: See if we need to do anything regarding
         private void OnObsSourceAudioDeactivated(OBSWebsocket sender, String sourceName) => this.OnObsSourceDestroyed(sender, sourceName, "", "");
+#endif
 
-        /// <summary>
-        /// Adds a source to CurrentAudioSources list
-        /// </summary>
-        /// <param name="sourceName">Name of the source</param>
-        /// <param name="testAudio">Test if source has audio active</param>
-        /// <returns>True if source is added</returns>
-        private Boolean AddCurrentAudioSource(String sourceName, Boolean testSettings = true, Boolean testAudio = true)
-        {
-            if ( Helpers.TryExecuteFunc(
-                        () => (!testSettings || this.IsAudioSourceType(this.GetSourceSettings(sourceName)))
-                                                 && (!testAudio || this.GetAudioActive(sourceName)), out var good) && good)
-            {
-                this.CurrentAudioSources[sourceName] = new AudioSourceDescriptor(sourceName, this);
-                this.Plugin.Log.Info($"Adding Regular audio source {sourceName}");
-                return true;
-            }
-            return false;
-        }
-
-        private void OnObsSourceCreated(OBSWebsocket sender, OBSWebsocketDotNet.Types.SourceSettings settings)
+        private void OnObsInputCreated(Object _, OBSWebsocketDotNet.Types.Events.InputCreatedEventArgs args)
         {
             // Check if we should care
-            if (this.IsAudioSourceType(settings))
+            this.Plugin.Log.Info($"OBS: OnObsInputCreated '{args.InputName}' kind '{args.InputKind}'");
+
+            //We do not add browser_source that has no "reroute audio" set to true
+            if ((args.InputKind != "browser_source" || (args.InputSettings.ContainsKey("reroute_audio") && args.InputSettings["reroute_audio"].ToString() == "true"))
+                && !this.CurrentAudioSources.ContainsKey(args.InputName))
             {
-                if (this.AddCurrentAudioSource(settings.SourceName, false, true))
-                {
-                    this.AppSourceCreated?.Invoke(this, new SourceNameEventArgs(settings.SourceName));
-                }
+                this.CurrentAudioSources[args.InputName] = new AudioSourceDescriptor(args.InputName, this);
+                this.AppSourceCreated?.Invoke(this, new SourceNameEventArgs(args.InputName));
+
             }
         }
-
-        private void OnObsSourceDestroyed(OBSWebsocket sender, String sourceName, String sourceType, String sourceKind)
+        private void OnObsInputDestroyed(Object _, OBSWebsocketDotNet.Types.Events.InputRemovedEventArgs args)
         {
-            if (this.CurrentAudioSources.ContainsKey(sourceName))
+            if (this.CurrentAudioSources.ContainsKey(args.InputName))
             {
-                this.CurrentAudioSources.Remove(sourceName);
-                this.AppSourceDestroyed?.Invoke(this, new SourceNameEventArgs(sourceName));
+                this.CurrentAudioSources.Remove(args.InputName);
+                this.AppSourceDestroyed?.Invoke(this, new SourceNameEventArgs(args.InputName));
             }
             else
             {
-                this.Plugin.Log.Warning($"SourceDestroyed: Source {sourceName} is not found in audioSources");
+                this.Plugin.Log.Warning($"SourceDestroyed: Source {args.InputName} is not found in audioSources");
             }
         }
-
-        private void OnObsSourceVolumeChanged(OBSWebsocket sender, OBSWebsocketDotNet.Types.SourceVolume volDesc)
+        private void OnObsInputVolumeChanged(Object sender, OBSWebsocketDotNet.Types.Events.InputVolumeChangedEventArgs args)
         {
-            if (this.CurrentAudioSources.ContainsKey(volDesc.SourceName))
+             
+            if (this.CurrentAudioSources.ContainsKey(args.Volume.InputName))
             {
-                this.CurrentAudioSources[volDesc.SourceName].Volume = volDesc.VolumeDb;
-                this.AppEvtSourceVolumeChanged?.Invoke(sender, new VolumeEventArgs(volDesc.SourceName, volDesc.Volume, volDesc.VolumeDb));
+                this.CurrentAudioSources[args.Volume.InputName].Volume = args.Volume.InputVolumeDb;
+                this.AppEvtSourceVolumeChanged?.Invoke(sender, new VolumeEventArgs(args.Volume.InputName,args.Volume.InputVolumeMul, args.Volume.InputVolumeDb));
             }
             else
             {
-                this.Plugin.Log.Warning($"Cannot update volume of {volDesc?.SourceName} --not present in current sources");
+                this.Plugin.Log.Warning($"Cannot update volume of {args?.Volume.InputName} --not present in current dbgSrc");
             }
         }
-
-        private void OnObsSourceMuteStateChanged(OBSWebsocket sender, String sourceName, Boolean isMuted)
+        private void OnObsInputMuteStateChanged(Object sender, OBSWebsocketDotNet.Types.Events.InputMuteStateChangedEventArgs args)
         {
-            if (this.CurrentAudioSources.ContainsKey(sourceName))
+            
+            if (this.CurrentAudioSources.ContainsKey(args.InputName))
             {
-                this.CurrentAudioSources[sourceName].Muted = isMuted;
-                this.AppEvtSourceMuteStateChanged?.Invoke(sender, new MuteEventArgs(sourceName, isMuted));
-                this.Plugin.Log.Info($"OBS: OnObsSourceMuteStateChanged Source '{sourceName}' is muted '{isMuted}'");
+                this.CurrentAudioSources[args.InputName].Muted = args.InputMuted;
+                this.AppEvtSourceMuteStateChanged?.Invoke(sender, new MuteEventArgs(args.InputName, args.InputMuted));
+                this.Plugin.Log.Info($"OBS: OnObsInputMuteStateChanged Source '{args.InputName}' is muted '{args.InputMuted}'");
             }
             else
             {
-                this.Plugin.Log.Warning($"Cannot update mute status. Source {sourceName} not in current sources");
+                this.Plugin.Log.Warning($"Cannot update mute status. Source {args.InputName} not in current dbgSrc");
             }
         }
 
@@ -122,7 +110,7 @@
                 try
                 {
                     var mute = this.AppGetMute(sourceName);
-                    this.SetMute(sourceName, !mute);
+                    this.SetInputMute(sourceName, !mute);
                     this.Plugin.Log.Info($"OBS: Setting mute to source '{sourceName}' to '{!mute}'");
                 }
                 catch (Exception ex)
@@ -132,7 +120,7 @@
             }
             else
             {
-                this.Plugin.Log.Warning($"AppToggleMute: Source {sourceName} not found in current sources, ignoring");
+                this.Plugin.Log.Warning($"AppToggleMute: Source {sourceName} not found in current dbgSrc, ignoring");
             }
         }
 
@@ -149,7 +137,7 @@
         {
             if (!this.IsAppConnected && !this.CurrentAudioSources.ContainsKey(sourceName))
             {
-                this.Plugin.Log.Warning($"AppSetVolume: Source {sourceName} not found in current sources, ignoring");
+                this.Plugin.Log.Warning($"AppSetVolume: Source {sourceName} not found in current dbgSrc, ignoring");
                 return;
             }
 
@@ -161,7 +149,7 @@
                
                 current = (Single)(current < MinVolumeDB ? MinVolumeDB : (current > MaxVolumeDB ? MaxVolumeDB : current));
 
-                this.SetVolume(sourceName, current, true);
+                this.SetInputVolume(sourceName, current, true);
             }
             catch (Exception ex)
             {
@@ -183,13 +171,16 @@
         {
             this._audioSourceTypes.Clear();
             var audioTypes = "";
-            foreach (var type in this.GetSourceTypesList())
+            if(!Helpers.TryExecuteFunc(() => this.GetInputKindList(), out var inputKindList))
             {
-                if (type.Capabilities.HasAudio)
-                {
-                    this._audioSourceTypes.Add(type.TypeID);
-                    audioTypes += $"{type.TypeID}, ";
-                }
+                this.Plugin.Log.Error("OnAppConnected_RetreiveSourceTypes: Cannot get input kind list");
+                return;
+            }       
+
+            foreach (var type in inputKindList)
+            {
+                    this._audioSourceTypes.Add(type);
+                    audioTypes += $"{type}, ";
             }
 
             this.Plugin.Log.Info($"Source Audio Types: {audioTypes}");
@@ -201,26 +192,44 @@
             this.CurrentAudioSources.Clear();
             try
             {
-                var sources = "";
-                foreach (var source in this.GetSourcesList())
-                {
-                    // NOTE: Special sources are seen as in GetSourcesList too! (they're present as 'value' specSource.Value)
-                    if ( /*!this._specialSources.ContainsValue(source.Name)
-                            &&*/ this.IsAudioSourceType(this.GetSourceSettings(source.Name))
-                            && this.GetAudioActive(source.Name))
-                    {
-                        // Adding audio source and populating initial values
-                        this.CurrentAudioSources[source.Name] = new AudioSourceDescriptor(source.Name, this);
+                var dbgSrc = "";
+                foreach (var input in this.GetInputList())
 
-                        sources += $"\"{source.Name}\",";
+                {
+                    if (input.InputKind == "browser_source")
+                    {
+                        var inputSettings = this.GetInputSettings(input.InputName);
+                        var shouldSkipInput = inputSettings == null
+                                                || !inputSettings.Settings.ContainsKey("reroute_audio")
+                                                || !String.Equals(inputSettings.Settings["reroute_audio"].ToString(), "True", StringComparison.OrdinalIgnoreCase);
+                        if (shouldSkipInput)
+                        {
+                            this.Plugin.Log.Info($"Input {input.InputName} is of a kind \"{input.InputKind}\" settings \"{inputSettings.Settings}\" -- SKIPPING");
+                            continue;
+                        }
                     }
+
+                    this.Plugin.Log.Info($"Input {input.InputName} is of a kind \"{input.InputKind}\": Adding ");
+
+                    // Adding audio source and populating initial values
+                    this.CurrentAudioSources[input.InputName] = new AudioSourceDescriptor(input.InputName, this);
+                    dbgSrc += $"\"{input.InputName}\",";
+
                 }
 
-                this.Plugin.Log.Info($"Added audio sources: {sources}");
+                this.Plugin.Log.Info($"Added audio source: {dbgSrc}");
+
+                //Adding special sources
+                foreach (var input in this.GetSpecialInputs())
+                {
+                    this.CurrentAudioSources[input.Key] = new AudioSourceDescriptor(input.Value, this);
+                    this.Plugin.Log.Info($"Adding special input {input.Key}");
+                }
+                    
             }
             catch (Exception ex)
             {
-                this.Plugin.Log.Error($"OnObsSceneCollectionChanged_RetreiveAudioSources: Exception '{ex.Message}' when retreiving list of sources from current scene collection!");
+                this.Plugin.Log.Error($"OnObsSceneCollectionChanged_RetreiveAudioSources: Exception '{ex.Message}' when retreiving list of dbgSrc from current scene collection!");
             }
         }
     }

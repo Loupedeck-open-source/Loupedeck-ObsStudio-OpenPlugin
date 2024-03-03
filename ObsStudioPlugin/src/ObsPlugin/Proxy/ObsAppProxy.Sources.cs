@@ -2,8 +2,12 @@
 {
     using System;
     using System.Collections.Generic;
-    
+    using System.Reflection;
+    using System.Web.UI.WebControls;
+
     using OBSWebsocketDotNet;
+    using OBSWebsocketDotNet.Types;
+    using OBSWebsocketDotNet.Types.Events;
 
     /// <summary>
     /// Proxy to OBS websocket server, for API reference see
@@ -11,8 +15,9 @@
     /// </summary>
     internal partial class ObsAppProxy
     {
-        public event EventHandler<TwoStringArgs> AppEvtSceneItemAdded;
-        public event EventHandler<TwoStringArgs> AppEvtSceneItemRemoved;
+        public event EventHandler<SceneItemArgs> AppEvtSceneItemAdded;
+        public event EventHandler<SceneItemArgs> AppEvtSceneItemRemoved;
+        public event EventHandler<OldNewStringChangeEventArgs> AppSceneItemRenamed;
         public event EventHandler<SceneItemVisibilityChangedArgs> AppEvtSceneItemVisibilityChanged;
 
         /// <summary>
@@ -25,21 +30,57 @@
         // Dictionary
         public Dictionary<String, SceneItemDescriptor> AllSceneItems = new Dictionary<String, SceneItemDescriptor>();
 
+        public String GetSceneItemName(String collection, String scene, Int32 itemId)
+        {
+            var key = SceneItemKey.Encode(collection, scene, itemId);
+            return this.AllSceneItems.ContainsKey(key) ? this.AllSceneItems[key].SourceName : "";
+        }
 
-        /// <summary>
+        ///     <summary>
         ///  Controls scene item visibilty. 
         /// </summary>
         /// <param name="key">Key for scene item</param>
         /// <param name="forceState">if True, force specific state to the scene item, otherwise toggle. </param>
         /// <param name="newState">state to force</param>
-        public void AppSceneItemVisibilityToggle(String key, Boolean forceState = false, Boolean newState = false)
+        /// <param name="applyToAllScenes">Apply to all scenes in collection where this source exists</param>
+        public void AppSceneItemVisibilityToggle(String key, Boolean forceState = false, Boolean newState = false, Boolean applyToAllScenes = false)
         {
+            //this.Plugin.Log.Info($"AppSceneItemVisibilityToggle: Key {key} applyToAllScenes {applyToAllScenes}");
+
             if (this.IsAppConnected && this.AllSceneItems.ContainsKey(key))
             {
                 try
                 {
-                    var item = this.AllSceneItems[key];
-                    this.SetSourceRender(item.SourceName, forceState ? newState : !item.Visible, item.SceneName);
+                    if (!SceneItemKey.TryParse(key, out var parsedkey))
+                    {
+                        throw new ArgumentException($"Cannot parse a key \"{key}\"");
+                    }
+
+                    var items = new List<SceneItemDescriptor>();
+                    var originalItem = this.AllSceneItems[key];
+
+                    items.Add(this.AllSceneItems[key]);
+
+                    if (applyToAllScenes)
+                    {
+                        //We go thru all scenes and add only those items where source with the same name is present
+                        foreach (var newkey in this.AllSceneItems.Keys)
+                        {
+                            if ( newkey != key
+                              && (this.AllSceneItems[newkey].CollectionName == originalItem.CollectionName)
+                              && (this.AllSceneItems[newkey].SourceName == originalItem.SourceName)
+                            )
+                            {
+                                items.Add(this.AllSceneItems[newkey]);
+                            }   
+                        }
+                    }
+
+                    foreach (var item in items)
+                    {
+                        //this.Plugin.Log.Info($"AppSceneItemVisibilityToggle: settings vis {newState} to {item.SceneName}");
+                        this.SetSceneItemEnabled(item.SceneName, item.SourceId, forceState ? newState : !item.Visible);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -47,85 +88,125 @@
                 }
             }
         }
-        private void OnObsSceneItemVisibilityChanged(OBSWebsocket sender, String sceneName, String itemName, Boolean isVisible)
+        
+        private void OnObsSceneItemVisibilityChanged(Object sender, SceneItemEnableStateChangedEventArgs arg)
         {
-            var key = SceneItemKey.Encode(this.CurrentSceneCollection, sceneName, itemName);
+
+            var key = SceneItemKey.Encode(this.CurrentSceneCollection, arg.SceneName, arg.SceneItemId);
+
             if (this.AllSceneItems.ContainsKey(key))
             {
-                this.AllSceneItems[key].Visible = isVisible;
+                this.AllSceneItems[key].Visible = arg.SceneItemEnabled;
             }
             else
             {
-                this.Plugin.Log.Warning($"Cannot update visiblity: item {itemName} scene {sceneName} not in dictionary");
+                this.Plugin.Log.Warning($"Cannot update visiblity: item {arg.SceneItemId} scene {arg.SceneName} not in dictionary");
             }
 
-            this.AppEvtSceneItemVisibilityChanged?.Invoke(sender, new SceneItemVisibilityChangedArgs(sceneName, itemName, isVisible));
+            this.AppEvtSceneItemVisibilityChanged?.Invoke(sender, new SceneItemVisibilityChangedArgs(arg.SceneName,"", arg.SceneItemId, arg.SceneItemEnabled));
         }
 
-        private void OnObsSceneItemAdded(OBSWebsocket sender, String sceneName, String itemName)
+        private void OnObsSceneItemAdded(Object sender, SceneItemCreatedEventArgs args)
         {
-            this.Plugin.Log.Info($"OBS: OnObsSceneItemAdded: Item '{itemName}' scene '{sceneName}'");
 
-            if (sceneName != this.CurrentScene.Name)
+            this.Plugin.Log.Info($"OBS: OnObsSceneItemAdded: Item '{args.SourceName}' scene '{args.SceneName}' ItemId {args.SceneItemId} ");
+
+            if (args.SceneName != this.CurrentSceneName)
             {
-                this.Plugin.Log.Warning($"OnObsSceneItemAdded received non-current scene '{sceneName}'. Current is '{this.CurrentScene.Name}'. Ignoring");
+                this.Plugin.Log.Warning($"OnObsSceneItemAdded received non-current scene '{args.SceneName}'. Current is '{this.CurrentSceneName}'. Ignoring");
                 return;
             }
+// "Check if in new API we get sceneItemAdded for non-current"
+#if false
 
-            // Re-reading current scene, since this.CurrentScene does not contain the item
-            if (!Helpers.TryExecuteFunc(() => this.GetCurrentScene(), out var obsCurrentScene))
+            // Re-reading current scene, since this.CurrentSceneName does not contain the item
+            if (!Helpers.TryExecuteFunc(() => this.GetCurrentProgramScene(), out var obsCurrentScene))
             {
                 this.Plugin.Log.Warning($"Cannot get current scene from OBS");
                 return;
             }
 
-            if (obsCurrentScene.Name != this.CurrentScene.Name)
+            if (obsCurrentScene != this.CurrentSceneName)
             {
                 this.Plugin.Log.Warning($"Current scene changed to '{obsCurrentScene}' mid-way.");
                 return;
             }
 
-            this.CurrentScene = new Scene(obsCurrentScene);
+            this.CurrentSceneName = new Scene(obsCurrentScene);
+#endif
 
-            var itemIndex = this.CurrentScene.Items.FindIndex(x => x.SourceName == itemName);
-
-            if (itemIndex == -1)
-            {
-                this.Plugin.Log.Warning($"Cannot find item '{itemName}' among current scene items.");
-                return;
-            }
-
-            var item = this.CurrentScene.Items[itemIndex];
-
+            //NOTE: args.sceneItemIndex is an array index of 
             //Creating item and fetching all missing data for it from OBS
-            var sourceDictItem = SceneItemDescriptor.CreateSourceDictItem(this.CurrentSceneCollection, sceneName, item, this, null);
+            //FIXME: The only detail fetched is 'visibiility' -> If we can validate that all items are 'visible' upon creation we can skip it
+            //and create the descriptor manually
 
+            var sourceDictItem = SceneItemDescriptor.CreateSourceDictItem( this.CurrentSceneCollection, args.SceneName, new SceneItemDetails() { SourceName = args.SourceName, ItemId = args.SceneItemId }, this, true);
+
+            //Note, this should never happen because we don't fecth visibility for new items
             if (sourceDictItem == null)
             {
-                this.Plugin.Log.Warning($"Cannot get properties for item '{itemName}'.");
+                this.Plugin.Log.Warning($"Cannot get properties for item '{args.SourceName}'.");
                 return;
             }
 
-            this.AllSceneItems[SceneItemKey.Encode(this.CurrentSceneCollection, sceneName, item.SourceName)] = sourceDictItem;
+            var key = SceneItemKey.Encode(this.CurrentSceneCollection, args.SceneName, args.SceneItemId); 
 
-            this.AppEvtSceneItemAdded?.Invoke(this, new TwoStringArgs(sceneName, itemName));
+            this.AllSceneItems[key] = sourceDictItem;
+
+            this.AppEvtSceneItemAdded?.Invoke(this, new SceneItemArgs(args.SceneName, args.SourceName, args.SceneItemId));
+
         }
 
-        private void OnObsSceneItemRemoved(OBSWebsocket sender, String sceneName, String itemName)
+        private void OnObsSceneItemRemoved(Object sender, SceneItemRemovedEventArgs args)
         {
-            this.Plugin.Log.Info($"OBS: Scene Item {itemName} removed from scene {sceneName}");
+            
+            this.Plugin.Log.Info($"OBS: Scene Item {args.SourceName} removed from scene {args.SceneName}");
 
-            var key = SceneItemKey.Encode(this.CurrentSceneCollection, sceneName, itemName);
+            var key = SceneItemKey.Encode(this.CurrentSceneCollection, args.SceneName, args.SceneItemId);
             if (this.AllSceneItems.ContainsKey(key))
             {
                 this.AllSceneItems.Remove(key);
 
-                this.AppEvtSceneItemRemoved?.Invoke(this, new TwoStringArgs(sceneName, itemName));
+                this.AppEvtSceneItemRemoved?.Invoke(this, new SceneItemArgs(args.SceneName, args.SourceName, args.SceneItemId));
             }
             else
             {
-                this.Plugin.Log.Warning($"Cannot find item {itemName} in scene {sceneName}");
+                this.Plugin.Log.Warning($"Cannot find item {args.SourceName} in scene {args.SceneName}");
             }
+        }
+
+        private void OnObsSourceNameChanged(Object _, InputNameChangedEventArgs e)
+        {
+            var audioInputRenamed = false;
+            var sourceRenamed = false;
+            this.Plugin.Log.Info($"Entering {MethodBase.GetCurrentMethod().Name}. {e.OldInputName} -> {e.InputName}");
+            if (this.CurrentAudioSources.ContainsKey(e.OldInputName))
+            {
+                var source = this.CurrentAudioSources[e.OldInputName];
+                this.CurrentAudioSources.Remove(e.OldInputName);
+                this.CurrentAudioSources.Add(e.InputName, source);
+                audioInputRenamed = true;
+            }
+
+            //Renaming in AllSceneItems. Note that SourceName is only part of the descriptor, not a key
+            foreach (var key in this.AllSceneItems.Keys)
+            {
+                if (this.AllSceneItems[key].SourceName == e.OldInputName)
+                {
+                    this.AllSceneItems[key].SourceName = e.InputName;
+                    sourceRenamed = true;
+                }
+            }
+            if(audioInputRenamed)
+            {
+                this.AppInputRenamed?.Invoke(this, new OldNewStringChangeEventArgs(e.OldInputName, e.InputName));
+            }
+
+            if(sourceRenamed)
+            {
+                this.AppSceneItemRenamed?.Invoke(this, new OldNewStringChangeEventArgs(e.OldInputName, e.InputName));
+            }
+
         }
 
     }

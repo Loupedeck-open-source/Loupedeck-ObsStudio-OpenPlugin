@@ -102,7 +102,7 @@
         protected override BitmapImage GetCommandImage(String actionParameter, Int32 stateIndex, PluginImageSize imageSize)
         {
             var imageName = stateIndex == 1 ? IMGCollectionSelected : IMGCollectionUnselected;
-
+            //TODO: for deleted/unavailable collections we can gray out the image
             return (this.Plugin as ObsStudioPlugin).GetPluginCommandImage(imageSize, imageName, String.IsNullOrEmpty(actionParameter) ? "Offline" : actionParameter, stateIndex == 1);
         }
     }

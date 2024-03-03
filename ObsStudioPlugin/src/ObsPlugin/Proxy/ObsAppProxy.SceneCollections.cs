@@ -2,9 +2,9 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Web.UI.WebControls;
-
+    
     using OBSWebsocketDotNet;
+    using OBSWebsocketDotNet.Types.Events;
 
     /// <summary>
     /// Proxy to OBS websocket server, for API reference see
@@ -34,38 +34,43 @@
             }
         }
 
-        //While AllSceneItems is a flat list indexed y string key, this one is the list of lists for scene, 
-        //To be used in the SourceVisibility processing 
-        public Dictionary<String, List<Tuple<String, String>>> ScenesWithItems { get; private set; } = new Dictionary<String, List<Tuple<String, String>>>();
-        private void OnObsSceneCollectionListChanged(Object sender, EventArgs args)
+        private void OnObsSceneCollectionChanging(Object sender, CurrentSceneCollectionChangingEventArgs e)
         {
-            this.Plugin.Log.Info("OBS SceneCollectionList changed");
-
-            if (Helpers.TryExecuteSafe(() => this.SceneCollections = this.ListSceneCollections()))
-            {
-                this.Plugin.Log.Info($"Retreived list of {this.SceneCollections.Count} collections");
-
-                this.AppEvtSceneCollectionsChanged?.Invoke(sender, args);
-            }
-            else
-            {
-                this.Plugin.Log.Warning($"Cannot handle SceneCollectionList change");
-            }
+            this.Plugin.Log.Info("OBS OnObsSceneCollectionChanging");
+            //Unsubscribing from the scene collection events
+            this.UnsubscribeFromSceneCollectionEvents();
+            //Unselect currently selected scene
+            this.AppEvtCurrentSceneChanged?.Invoke(this, new OldNewStringChangeEventArgs(this.CurrentSceneName, ""));   
         }
 
-        private void OnObsSceneCollectionChanged(Object sender, EventArgs e)
+        private void OnObsSceneCollectionListChanged(Object sender, SceneCollectionListChangedEventArgs args)
+        {
+            this.Plugin.Log.Info($"OBS SceneCollectionList changed");
+          
+            this.SceneCollections = args.SceneCollections;
+     
+            this.AppEvtSceneCollectionsChanged?.Invoke(sender, args);
+        }
+
+        private void OnObsSceneCollectionChanged(Object sender, CurrentSceneCollectionChangedEventArgs e)
         {
             //If sender == null, we came from initialization routine
             try
-            {
+            {             
                 this.Plugin.Log.Info($"OnObsSceneCollectionChanged: Fetching current collection");
-                var newSceneCollection = this.GetCurrentSceneCollection();
+
+                var newSceneCollection = e.SceneCollectionName;
                 if (sender == null || newSceneCollection != this.CurrentSceneCollection)
                 {
                     var args = new OldNewStringChangeEventArgs(sender == null ? null : this.CurrentSceneCollection, newSceneCollection);
-                    this.Plugin.Log.Info($"OBS Current Scene collection changing from {args.Old} to {args.New}");
+                    this.Plugin.Log.Info($" Current Scene collection changing from {args.Old} to {args.New}");
                     this.CurrentSceneCollection = newSceneCollection;
 
+                    var newSceneCollections = this.GetSceneCollectionList();
+                    //Todo: We can probably compare the lists and avoid extra 'onChange' event
+
+                    this.OnObsSceneCollectionListChanged(sender, new SceneCollectionListChangedEventArgs(newSceneCollections));
+                    
                     // Regenerating all internal structures
                     this.OnObsSceneListChanged(sender, e);
                     this.AppEvtCurrentSceneCollectionChanged?.Invoke(sender, args);
@@ -88,54 +93,30 @@
             }
         }
 
-        // Retreives all scene items for all scenes in current collection
-        private void OnObsSceneCollectionChange_FetchSceneItems()
+        private Boolean TryFetchSceneItems(Scene scene)
         {
-            this.AllSceneItems.Clear();
-            this.ScenesWithItems.Clear();
-
-            this.Plugin.Log.Info("Adding scene items");
-
-            // sources
-            foreach (var scene in this.Scenes)
+            if (!Helpers.TryExecuteFunc(() => this.GetSceneItemList(scene.Name), out var sceneDetailsList))
             {
-                if (!Helpers.TryExecuteFunc(() => this.GetSceneItemList(scene.Name), out var sceneDetailsList))
-                {
-                    this.Plugin.Log.Warning($"Cannot get SceneList for scene {scene.Name}");
-                    continue;
-                }
-
-                var itemsList = new List<Tuple<String,String>>();
-
-                foreach (var item in sceneDetailsList)
-                {
-                    var sceneItem = scene?.Items?.Find(x => x.SourceName == item.SourceName) ?? null;
-                    if (sceneItem != null)
-                    {
-                        if(Helpers.TryExecuteFunc(()=> { return SceneItemDescriptor.CreateSourceDictItem(this.CurrentSceneCollection, scene.Name, sceneItem, this, item); }, out var sourceDictItem) 
-                            && sourceDictItem != null)
-                        {
-                            var key = SceneItemKey.Encode(this.CurrentSceneCollection, scene.Name, item.SourceName);
-                            this.AllSceneItems[key] = sourceDictItem;
-                            itemsList.Add(Tuple.Create(key, item.SourceName));
-                        }
-                        else
-                        {
-                            this.Plugin.Log.Warning($"Cannot get CreateSourceDictItem for scene {scene.Name}, item {sceneItem.SourceName}");
-                        }
-                    }
-                    else
-                    {
-                        this.Plugin.Log.Warning($"Cannot get SceneItemList for scene {scene.Name}");
-                    }
-                }
-
-                if(itemsList.Count > 0)
-                {
-                    this.ScenesWithItems.Add(scene.Name, itemsList);
-                }
-
+                this.Plugin.Log.Warning($"Cannot get SceneList for scene {scene.Name}");
+                return false;
             }
+
+            foreach (var item in sceneDetailsList)
+            {
+                var sourceDictItem = SceneItemDescriptor.CreateSourceDictItem(this.CurrentSceneCollection, scene.Name, item, this);
+                if (sourceDictItem != null)
+                {
+                    var key = SceneItemKey.Encode(this.CurrentSceneCollection, scene.Name, item.ItemId);
+                    this.AllSceneItems[key] = sourceDictItem;
+                }
+                else
+                {
+                    this.Plugin.Log.Warning($"Cannot get CreateSourceDictItem for scene {scene.Name}, item {item.SourceName}");
+                }
+            }
+
+            return true; 
         }
+     
     }
 }

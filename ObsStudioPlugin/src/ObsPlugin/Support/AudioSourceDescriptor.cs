@@ -17,9 +17,9 @@
 
             try
             {   /*NB. All volume in decibels!*/
-                var v = that.GetVolume(name,true);
-                this.Muted = v.Muted;
-                this.Volume = v.Volume;
+                var v = that.GetInputVolume(name);
+                this.Muted = that.GetInputMute(name);
+                this.Volume = v.VolumeDb;
             }
             catch (Exception ex)
             {

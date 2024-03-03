@@ -42,6 +42,19 @@
         public TwoStringArgs(String item1, String item2) => this.val = Tuple.Create(item1, item2);
     }
 
+    internal class SceneItemArgs : EventArgs
+    {
+        public String SceneName;
+        public String ItemName;
+        public Int32 ItemId;
+        public SceneItemArgs(String scene, String item, Int32 itemId)
+        {
+            this.SceneName = scene;
+            this.ItemName = item;
+            this.ItemId = itemId;
+        }
+    }
+
     internal class OldNewStringChangeEventArgs: TwoStringArgs
     {
         public String Old => this.Item1;
@@ -50,12 +63,11 @@
         {
         }
     }
-    internal class SceneItemVisibilityChangedArgs: TwoStringArgs
+
+    internal class SceneItemVisibilityChangedArgs: SceneItemArgs
     {
         public Boolean Visible { get; private set; }
-        public String SceneName => this.Item1;
-        public String ItemName=> this.Item2;
-        public SceneItemVisibilityChangedArgs(String scene, String item, Boolean isVisible) : base(scene, item) => this.Visible = isVisible;
+        public SceneItemVisibilityChangedArgs(String scene, String itemName, Int32 itemId, Boolean isVisible) : base(scene, itemName, itemId) => this.Visible = isVisible;
     }
 
     internal class SourceNameEventArgs: EventArgs
@@ -64,4 +76,5 @@
         public SourceNameEventArgs(String name) => this.SourceName = name;
 
     }
+
 }
