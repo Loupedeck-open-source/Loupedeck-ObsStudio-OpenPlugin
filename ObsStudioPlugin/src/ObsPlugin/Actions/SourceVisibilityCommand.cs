@@ -79,7 +79,9 @@
 
         private void OnSceneItemRemoved(Object sender, SceneItemArgs arg)
         {
-            this.RemoveParameter(SceneItemKey.Encode(ObsStudioPlugin.Proxy.CurrentSceneCollection, arg.SceneName, arg.ItemId));
+            var s = SceneItemKey.Encode(ObsStudioPlugin.Proxy.CurrentSceneCollection, arg.SceneName, arg.ItemId,arg.ItemName);
+            this.Plugin.Log.Info($"Removing scene item {s} sources");
+            this.RemoveParameter(s);
             this.ParametersChanged();
         }
 
@@ -109,13 +111,13 @@
             var imageName = IMGSceneInaccessible;
             if (SceneItemKey.TryParse(actionParameter, out var parsed))
             {
-                sourceName = ObsStudioPlugin.Proxy.GetSceneItemName(parsed.Collection, parsed.Scene, parsed.SourceId);
-                imageName = parsed.Collection != ObsStudioPlugin.Proxy.CurrentSceneCollection
+                sourceName = parsed.SourceName;
+                imageName = parsed.Collection != ObsStudioPlugin.Proxy.CurrentSceneCollection || !ObsStudioPlugin.Proxy.AllSceneItems.ContainsKey(actionParameter)
                     ? IMGSceneInaccessible
                     : stateIndex == SOURCE_SELECTED ? IMGSceneSelected : IMGSceneUnselected;
             }
 
-            return (this.Plugin as ObsStudioPlugin).GetPluginCommandImage(imageSize, imageName, sourceName.Length == 0 ? SourceNameUnknown : sourceName, imageName == IMGSceneSelected);
+            return (this.Plugin as ObsStudioPlugin).GetPluginCommandImage(imageSize, imageName, sourceName, imageName == IMGSceneSelected);
         }
 
         private void AddSceneItemParameter(String sceneName, String itemName,Int32 itemId)

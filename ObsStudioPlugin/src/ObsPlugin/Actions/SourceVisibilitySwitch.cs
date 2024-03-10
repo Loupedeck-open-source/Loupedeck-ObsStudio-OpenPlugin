@@ -92,7 +92,7 @@
                 var sceneName = "Unknown";
                 if (SceneItemKey.TryParse(e.ActionEditorState.GetControlValue(ControlSourceSelector), out var parsed))
                 {
-                    sourceName = ObsStudioPlugin.Proxy.GetSceneItemName(parsed.Collection, parsed.Scene, parsed.SourceId);
+                    sourceName = parsed.SourceName;
                     sceneName = parsed.Scene;
                 }
 
@@ -193,19 +193,21 @@
 
             if (actionParameters.TryGetString(ControlSourceSelector, out var key) && SceneItemKey.TryParse(key, out var parsed))
             {
-                sourceName = ObsStudioPlugin.Proxy.GetSceneItemName(parsed.Collection, parsed.Scene, parsed.SourceId);
+                sourceName = parsed.SourceName;
                 var sourceVisible = actionParameters.TryGetString(ControlIsSourceVisible, out var vis) && vis == this.Visibility_Show;
 
-                imageName = parsed.Collection != ObsStudioPlugin.Proxy.CurrentSceneCollection
+                imageName = parsed.Collection != ObsStudioPlugin.Proxy.CurrentSceneCollection || !ObsStudioPlugin.Proxy.AllSceneItems.ContainsKey(key)
                     ? SourceVisibilityCommand.IMGSceneInaccessible
-                    : sourceVisible ? SourceVisibilityCommand.IMGSceneSelected : SourceVisibilityCommand.IMGSceneUnselected;
+                    : sourceVisible 
+                        ? SourceVisibilityCommand.IMGSceneSelected 
+                        : SourceVisibilityCommand.IMGSceneUnselected;
             }
             else
             {
                 this.Plugin.Log.Warning($"Cannot retreive selected source name from '{actionParameters}'");
             }
 
-            return (this.Plugin as ObsStudioPlugin).GetPluginCommandImage(imageWidth >=80 ? PluginImageSize.Width90: PluginImageSize.Width60, imageName, sourceName.Length == 0 ? SourceVisibilityCommand.SourceNameUnknown : sourceName, imageName == SourceVisibilityCommand.IMGSceneSelected);
+            return (this.Plugin as ObsStudioPlugin).GetPluginCommandImage(imageWidth >=80 ? PluginImageSize.Width90: PluginImageSize.Width60, imageName, sourceName, imageName == SourceVisibilityCommand.IMGSceneSelected);
         }
 
         protected override Boolean RunCommand(ActionEditorActionParameters actionParameters)

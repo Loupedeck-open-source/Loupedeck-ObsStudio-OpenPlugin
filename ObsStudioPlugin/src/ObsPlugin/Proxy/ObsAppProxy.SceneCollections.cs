@@ -106,7 +106,7 @@
                 var sourceDictItem = SceneItemDescriptor.CreateSourceDictItem(this.CurrentSceneCollection, scene.Name, item, this);
                 if (sourceDictItem != null)
                 {
-                    var key = SceneItemKey.Encode(this.CurrentSceneCollection, scene.Name, item.ItemId);
+                    var key = SceneItemKey.Encode(this.CurrentSceneCollection, scene.Name, item.ItemId, item.SourceName);
                     this.AllSceneItems[key] = sourceDictItem;
                 }
                 else

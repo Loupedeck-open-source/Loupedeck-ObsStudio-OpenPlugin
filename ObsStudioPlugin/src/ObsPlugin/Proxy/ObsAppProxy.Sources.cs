@@ -32,8 +32,17 @@
 
         public String GetSceneItemName(String collection, String scene, Int32 itemId)
         {
-            var key = SceneItemKey.Encode(collection, scene, itemId);
-            return this.AllSceneItems.ContainsKey(key) ? this.AllSceneItems[key].SourceName : "";
+            foreach (var item in ObsStudioPlugin.Proxy.AllSceneItems)
+            {
+                if (item.Value.CollectionName == collection &&
+                    item.Value.SceneName == scene &&
+                    item.Value.SourceId == itemId)
+                {
+                    return item.Value.SourceName;
+                    
+                }
+            }
+            return String.Empty;
         }
 
         ///     <summary>
@@ -159,10 +168,9 @@
 
         private void OnObsSceneItemRemoved(Object sender, SceneItemRemovedEventArgs args)
         {
-            
             this.Plugin.Log.Info($"OBS: Scene Item {args.SourceName} removed from scene {args.SceneName}");
 
-            var key = SceneItemKey.Encode(this.CurrentSceneCollection, args.SceneName, args.SceneItemId);
+            var key = SceneItemKey.Encode(this.CurrentSceneCollection, args.SceneName, args.SceneItemId, args.SourceName);
             if (this.AllSceneItems.ContainsKey(key))
             {
                 this.AllSceneItems.Remove(key);
