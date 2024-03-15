@@ -107,6 +107,7 @@
                 if (sourceDictItem != null)
                 {
                     var key = SceneItemKey.Encode(this.CurrentSceneCollection, scene.Name, item.ItemId, item.SourceName);
+                    this.RetreiveSourceFilters(sourceDictItem);
                     this.AllSceneItems[key] = sourceDictItem;
                 }
                 else

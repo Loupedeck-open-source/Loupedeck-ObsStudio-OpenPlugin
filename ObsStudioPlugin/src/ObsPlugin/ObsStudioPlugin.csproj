@@ -121,12 +121,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Actions\RecordingPauseToggleCommand.cs" />
+    <Compile Include="Actions\SourceFilterCommand.cs" />
     <Compile Include="Actions\SourceVisibilitySwitch.cs" />
     <Compile Include="Actions\UniversalStateSwitch.cs" />
     <Compile Include="Actions\ScreenshotCommand.cs" />
     <Compile Include="Actions\TransitionCommand.cs" />
     <Compile Include="Actions\ReplayBufferSaveCommand.cs" />
     <Compile Include="Actions\GenericOnOffSwitch.cs" />
+    <Compile Include="Proxy\ObsAppProxy.Filters.cs" />
     <Compile Include="Support\OBSIniFile.cs" />
     <Compile Include="Actions\SourceVolumeAdjustment.cs" />
     <Compile Include="Actions\SourceMuteCommand.cs" />
@@ -156,6 +158,7 @@
     <Compile Include="Proxy\ObsAppProxy.Streaming.cs" />
     <Compile Include="Support\EventArgs.cs" />
     <Compile Include="Support\AudioSourceDescriptor.cs" />
+    <Compile Include="Support\SourceFilterKey.cs" />
     <Compile Include="Support\SceneKey.cs" />
     <Compile Include="Support\SceneItemKey.cs" />
     <Compile Include="Support\SceneItemDescriptor.cs" />
@@ -240,6 +243,11 @@
     <EmbeddedResource Include="Icons\AudioInaccessible.png" />
     <EmbeddedResource Include="Icons\SceneInaccessible.png" />
     <EmbeddedResource Include="Icons\SourceInaccessible.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Icons\FilterDisabled.png" />
+    <EmbeddedResource Include="Icons\FilterEnabled.png" />
+    <EmbeddedResource Include="Icons\FilterInaccessible.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

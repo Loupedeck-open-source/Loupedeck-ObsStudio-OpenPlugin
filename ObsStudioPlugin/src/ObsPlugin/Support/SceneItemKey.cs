@@ -1,18 +1,38 @@
 ﻿namespace Loupedeck.ObsStudioPlugin
 {
     using System;
-    using System.Linq;
 
     internal class SceneItemKey: SceneKey
     {
         public Int32 SourceId;
         public String SourceName;
 
+        //Implement simple copy constructor
+        public SceneItemKey(SceneItemKey key) : base(key.Collection, key.Scene)
+        {
+            this.SourceId = key.SourceId;
+            this.SourceName = key.SourceName;
+        }
+
         public SceneItemKey(String coll, String scene, Int32 sourceId, String sourceName = "" )
             : base(coll, scene)
         {
-            this.SourceId = sourceId;
-            this.SourceName = (sourceName != String.Empty) ? sourceName: ObsStudioPlugin.Proxy.GetSceneItemName(coll, scene, sourceId);
+            if (sourceId == -1)
+            {
+                if (sourceName == "" || !ObsStudioPlugin.Proxy.TryGetSceneItemByName(coll, scene, sourceName, out var item))
+                {
+                    ObsStudioPlugin.Proxy.Plugin.Log.Error($"SceneItemKey:  Key \"{coll} | {scene} | {sourceId}\": Cannot create key with empty sourceName and sourceId = -1");
+                    throw new ArgumentException("Cannot create key with empty sourceName and sourceId = -1");
+                }
+               
+                this.SourceId = item.SourceId;
+            }
+            else
+            {
+                this.SourceId = sourceId;
+            }
+
+            this.SourceName = (sourceName != String.Empty) ? sourceName: ObsStudioPlugin.Proxy.GetSceneItemNameById(coll, scene, sourceId);
            
         }
 
@@ -69,7 +89,7 @@
 
             if (sceneItemName == String.Empty)
             {
-                sceneItemName = ObsStudioPlugin.Proxy.GetSceneItemName(parts[0], parts[1], sceneItemId);
+                sceneItemName = ObsStudioPlugin.Proxy.GetSceneItemNameById(parts[0], parts[1], sceneItemId);
 
                 if (sceneItemName == String.Empty)
                 {
@@ -85,5 +105,4 @@
 
         public static String Encode(String coll, String scene, Int32 sourceId, String sceneItemName = "") => new SceneItemKey(coll, scene, sourceId, sceneItemName).Stringize();
     }
-
 }

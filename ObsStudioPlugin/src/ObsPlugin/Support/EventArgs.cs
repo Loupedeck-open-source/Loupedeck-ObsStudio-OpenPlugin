@@ -55,6 +55,24 @@
         }
     }
 
+    internal class SourceFilterEventArgs : EventArgs
+    {
+        public String SourceName;
+        public String FilterName;
+        public SourceFilterEventArgs(String source, String filter)
+        {
+            this.SourceName = source;
+            this.FilterName = filter;
+        }
+    }
+
+    internal class SourceFilterRenamedArgs : SourceFilterEventArgs
+    {
+        public String NewFilterName;
+        public SourceFilterRenamedArgs(String source, String oldName, String newName) : base(source, oldName) => this.NewFilterName = newName;
+    }
+
+
     internal class OldNewStringChangeEventArgs: TwoStringArgs
     {
         public String Old => this.Item1;
