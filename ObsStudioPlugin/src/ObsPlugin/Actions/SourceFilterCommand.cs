@@ -4,8 +4,8 @@
 
     internal class SourceFilterCommand : PluginMultistateDynamicCommand
     {
-        public const String IMGEnabled = "FilterEnabled.png";
-        public const String IMGDisabled = "FilterDisabled.png";
+        public const String IMGEnabled = "FilterOn.png";
+        public const String IMGDisabled = "FilterOff.png";
         public const String IMGInaccessible = "FilterInaccessible.png";
         public const String NameUnknown = "UnknownFilter";
 
@@ -15,7 +15,7 @@
         public SourceFilterCommand()
         {
             this.Description = "Enables/Disables Source Filter";
-            this.GroupName = "5. Sources";
+            this.GroupName = "5. Filters";
             _ = this.AddState("Disabled", "Filter disabled");
             _ = this.AddState("Enabled", "Filter enabled");
         }
