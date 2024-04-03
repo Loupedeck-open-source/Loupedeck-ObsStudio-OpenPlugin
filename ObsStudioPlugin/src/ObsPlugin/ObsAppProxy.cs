@@ -222,7 +222,7 @@
             }
 
             // Retreiving Audio types.
-            this.OnAppConnected_RetreiveSourceTypes();
+            // this.OnAppConnected_RetreiveSourceTypes();
 
             if (streamingStatus != null)
             {
