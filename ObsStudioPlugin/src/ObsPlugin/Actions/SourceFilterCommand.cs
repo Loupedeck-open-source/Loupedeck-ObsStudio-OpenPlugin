@@ -6,7 +6,7 @@
     {
         public const String IMGEnabled = "FilterOn.png";
         public const String IMGDisabled = "FilterOff.png";
-        public const String IMGInaccessible = "FilterInaccessible.png";
+        public const String IMGInaccessible = "FilterDisabled.png";
         public const String NameUnknown = "UnknownFilter";
 
         private const Int16 STATE_DISABLED = 0;

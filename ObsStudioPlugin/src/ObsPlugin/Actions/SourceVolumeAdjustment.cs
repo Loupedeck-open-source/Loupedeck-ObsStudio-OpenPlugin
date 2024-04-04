@@ -7,7 +7,7 @@
     {
         private const String IMGSourceSelected = "AudioOn.png";
         private const String IMGSourceUnselected = "AudioOff.png";
-        private const String IMGSourceInaccessible = "AudioInaccessible.png";
+        private const String IMGSourceInaccessible = "AudioDisabled.png";
         private const String SourceNameUnknown = "N/A";
 
         // private const String SpecialSourceGroupName = "General Audio";

@@ -6,7 +6,7 @@
     {
         public const String IMGSceneSelected = "SourceOn.png";
         public const String IMGSceneUnselected = "SourceOff.png";
-        public const String IMGSceneInaccessible = "SourceInaccessible.png";
+        public const String IMGSceneInaccessible = "SourceDisabled.png";
         public const String SourceNameUnknown = "Name Not Available";
 
         private const Int16 SOURCE_UNSELECTED = 0;

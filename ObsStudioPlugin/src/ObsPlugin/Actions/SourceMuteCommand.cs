@@ -6,7 +6,7 @@
     {
         public const String IMGSourceMuted = "AudioOff.png";
         public const String IMGSourceUnmuted = "AudioOn.png";
-        public const String IMGSourceInaccessible = "AudioInaccessible.png";
+        public const String IMGSourceInaccessible = "AudioDisabled.png";
         public const String SourceNameUnknown = "Offline";
 
         private const Int32 State_Muted = 1;

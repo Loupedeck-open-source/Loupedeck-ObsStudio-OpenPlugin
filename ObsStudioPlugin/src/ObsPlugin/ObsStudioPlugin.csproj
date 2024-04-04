@@ -240,16 +240,14 @@
     <EmbeddedResource Include="Icons\animated-studio.gif" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Icons\AudioInaccessible.png" />
-    <EmbeddedResource Include="Icons\SceneInaccessible.png" />
-    <EmbeddedResource Include="Icons\SourceInaccessible.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Icons\FilterInaccessible.png" />
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="Icons\FilterOff.png" />
     <EmbeddedResource Include="Icons\FilterOn.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Icons\AudioDisabled.png" />
+    <EmbeddedResource Include="Icons\FilterDisabled.png" />
+    <EmbeddedResource Include="Icons\SceneDisabled.png" />
+    <EmbeddedResource Include="Icons\SourceDisabled.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
