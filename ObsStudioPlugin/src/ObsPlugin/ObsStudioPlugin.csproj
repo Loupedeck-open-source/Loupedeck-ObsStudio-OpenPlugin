@@ -174,49 +174,23 @@
   <ItemGroup>
     <EmbeddedResource Include="Icons\AudioOff.png" />
     <EmbeddedResource Include="Icons\AudioOn.png" />
-    <EmbeddedResource Include="Icons\Record.png" />
     <EmbeddedResource Include="Icons\SceneOff.png" />
     <EmbeddedResource Include="Icons\SceneOn.png" />
-    <EmbeddedResource Include="Icons\SoftwareNotFound.png" />
     <EmbeddedResource Include="Icons\SourceOff.png" />
     <EmbeddedResource Include="Icons\SourceOn.png" />
-    <EmbeddedResource Include="Icons\Stop.png" />
     <EmbeddedResource Include="Icons\STREAM_DisableStudioMode2.png" />
     <EmbeddedResource Include="Icons\STREAM_EnableStudioMode.png" />
-    <EmbeddedResource Include="Icons\STREAM_MuteEventSounds1.png" />
-    <EmbeddedResource Include="Icons\STREAM_MuteEventSounds2.png" />
     <EmbeddedResource Include="Icons\STREAM_SaveReplay.png" />
-    <EmbeddedResource Include="Icons\STREAM_Scene.png" />
-    <EmbeddedResource Include="Icons\STREAM_SelectedScene.png" />
-    <EmbeddedResource Include="Icons\STREAM_SelectedSource.png" />
-    <EmbeddedResource Include="Icons\STREAM_SkipAlert.png" />
-    <EmbeddedResource Include="Icons\STREAM_Source.png" />
-    <EmbeddedResource Include="Icons\STREAM_Starting-Stopping.png" />
-    <EmbeddedResource Include="Icons\STREAM_StartRecording.png" />
     <EmbeddedResource Include="Icons\STREAM_StartReplayBuffer.png" />
     <EmbeddedResource Include="Icons\STREAM_StartStreamingGreen.png" />
     <EmbeddedResource Include="Icons\STREAM_StartStreamingRed.png" />
-    <EmbeddedResource Include="Icons\STREAM_StartStreamingWhite.png" />
-    <EmbeddedResource Include="Icons\STREAM_StartStreamingYellow.png" />
-    <EmbeddedResource Include="Icons\STREAM_StopRecording.png" />
     <EmbeddedResource Include="Icons\STREAM_StopReplayBuffer.png" />
-    <EmbeddedResource Include="Icons\STREAM_StopStreamingGreen.png" />
-    <EmbeddedResource Include="Icons\STREAM_StopStreamingRed.png" />
-    <EmbeddedResource Include="Icons\STREAM_StopStreamingWhite.png" />
-    <EmbeddedResource Include="Icons\STREAM_StopStreamingYellow.png" />
-    <EmbeddedResource Include="Icons\STREAM_StreamStartingGreen.png" />
-    <EmbeddedResource Include="Icons\STREAM_StreamStartingRed.png" />
-    <EmbeddedResource Include="Icons\STREAM_StreamStartingWhite.png" />
-    <EmbeddedResource Include="Icons\STREAM_StreamStartingYellow.png" />
-    <EmbeddedResource Include="Icons\STREAM_ToggleAlertQueue1.png" />
-    <EmbeddedResource Include="Icons\STREAM_ToggleAlertQueue2.png" />
     <EmbeddedResource Include="Icons\STREAM_ToggleRecord1.png" />
     <EmbeddedResource Include="Icons\STREAM_ToggleRecord2.png" />
     <EmbeddedResource Include="Icons\VirtualWebcam.png" />
     <EmbeddedResource Include="Icons\VirtualWebcamOff.png" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Icons\CloseDesktop.png" />
     <EmbeddedResource Include="Icons\Workspaces.png" />
   </ItemGroup>
   <ItemGroup>
@@ -231,13 +205,6 @@
     <EmbeddedResource Include="metadata\Icon256x256.png" />
     <EmbeddedResource Include="metadata\Icon32x32.png" />
     <EmbeddedResource Include="metadata\Icon48x48.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Icons\animated-camera.gif" />
-    <EmbeddedResource Include="Icons\animated-pause.gif" />
-    <EmbeddedResource Include="Icons\animated-record.gif" />
-    <EmbeddedResource Include="Icons\animated-streaming.gif" />
-    <EmbeddedResource Include="Icons\animated-studio.gif" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Icons\FilterOff.png" />
