@@ -18,7 +18,7 @@
             this.Collection = collection ?? NothingField;
         }
 
-        private String Stringize()
+        public String Stringize()
         {
             var a = new String[] { this.Collection, this.Scene };
             return String.Join(FieldSeparator, a);

@@ -36,7 +36,7 @@
            
         }
 
-        public String Stringize()
+        public new String Stringize()
         {
             var a = new String[] { this.Collection, this.Scene, this.SourceId.ToString(),this.SourceName };
             return String.Join(FieldSeparator, a);
