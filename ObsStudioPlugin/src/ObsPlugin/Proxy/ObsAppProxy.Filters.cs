@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
 
     using OBSWebsocketDotNet;
     using OBSWebsocketDotNet.Types.Events;
@@ -30,6 +31,45 @@
             }
         }
 
+        private void RetreiveSourceFilters(String SourceName, AudioSourceDescriptor dtor)
+        {
+            if (Helpers.TryExecuteFunc(() => this.GetSourceFilterList(SourceName), out var filters))
+            {
+                foreach (var filter in filters)
+                {
+                    this.Plugin.Log.Info($"Adding filters {filter.Name} to audio source source {SourceName}");
+
+                    dtor.Filters.Add(filter.Name, new SourceFilter(filter.Name, filter.IsEnabled));
+                }
+            }
+        }
+
+        ///     <summary>
+        ///  Controls source filter enablement 
+        /// </summary>
+        /// <param name="key">Key for source filter</param>
+        /// <param name="forceState">if True, force specific state to the scene item, otherwise toggle. </param>
+        /// <param name="newState">state to force</param>
+        /// <param name="applyToAllScenes">Apply to all scenes in collection where this source exists</param>
+        public void AppGlobalAudioFilterEnableToggle(String filterKey, Boolean forceState = false, Boolean newState = false)
+        {
+
+            if(this.IsAppConnected 
+                && GlobalFilterKey.TryParse(filterKey, out var key) 
+                && this.CurrentAudioSources.ContainsKey(key.Source) 
+                && this.CurrentAudioSources[key.Source].Filters.ContainsKey(key.FilterName))
+            {
+                this.Plugin.Log.Info($"AppGlobalAudioFilterEnableToggle: Key {filterKey}");
+                this.CurrentAudioSources[key.Source].Filters[key.FilterName].Enabled = forceState ? newState : !this.CurrentAudioSources[key.Source].Filters[key.FilterName].Enabled;
+
+                Helpers.TryExecuteAction(() => this.SetSourceFilterEnabled(key.Source, key.FilterName, this.CurrentAudioSources[key.Source].Filters[key.FilterName].Enabled));
+            }
+            else
+            {
+                this.Plugin.Log.Warning($"AppGlobalAudioFilterEnableToggle: Filterkey \"{filterKey}\" not actionable");
+            }
+        }
+
         ///     <summary>
         ///  Controls source filter enablement 
         /// </summary>
@@ -39,6 +79,7 @@
         /// <param name="applyToAllScenes">Apply to all scenes in collection where this source exists</param>
         public void AppSourceFilterEnableToggle(String filterKey, Boolean forceState = false, Boolean newState = false)
         {
+
             SourceFilterKey fKey = SourceFilterKey.TryParse(filterKey, out var parsedkey) ? parsedkey : null;
             var key = ((SceneItemKey)fKey).Stringize();
 
@@ -65,13 +106,25 @@
         {
             try
             {
-                var key = SceneItemKey.Encode(this.CurrentSceneCollection, this.CurrentSceneName, -1, e.SourceName);
-                if (!this.AllSceneItems.ContainsKey(key))
-                {
-                    this.Plugin.Log.Error($"WARNING: KEY \"{key}\" NOT FOUND");
-                    return;
+                this.Plugin.Log.Info($"OnObsSourceFilterCreated: SourceName:{e.SourceName}. FilterName:{e.FilterName}. FilterKind:{e.FilterKind}");
+                
+                if( this.CurrentAudioSources.ContainsKey(e.SourceName) ) //Global Audio filter
+                { 
+                    this.Plugin.Log.Info($"OnObsSourceFilterCreated:  Filter for audio sources Audio Source {e.SourceName}");
+                    this.CurrentAudioSources[e.SourceName].Filters.Add(e.FilterName, new SourceFilter(e.FilterName, false));
+
                 }
-                this.AllSceneItems[key].Filters.Add(e.FilterName, new SourceFilter(e.FilterName, false));
+                else
+                {
+                    var key = SceneItemKey.Encode(this.CurrentSceneCollection, this.CurrentSceneName, -1, e.SourceName);
+                    if (!this.AllSceneItems.ContainsKey(key))
+                    {
+                        this.Plugin.Log.Error($"WARNING: KEY \"{key}\" NOT FOUND");
+                        return;
+                    }
+                    this.AllSceneItems[key].Filters.Add(e.FilterName, new SourceFilter(e.FilterName, false));
+                }
+
                 this.AppEvtSourceFilterCreated?.Invoke(sender, new SourceFilterEventArgs(e.SourceName, e.FilterName));
             }
             catch (Exception ex)
@@ -84,84 +137,81 @@
 
         private void OnObsSourceFilterRemoved(Object sender, SourceFilterRemovedEventArgs e)
         {
-            if (this.TryGetSceneItemByName(this.CurrentSceneCollection, this.CurrentSceneName, e.SourceName, out var item))
+            this.Plugin.Log.Info($"OnObsSourceFilterRemoved: SourceName:{e.SourceName}. FilterName:{e.FilterName}");
+            
+            var itemRemoved = false;
+            if (this.CurrentAudioSources.ContainsKey(e.SourceName) && this.CurrentAudioSources[e.SourceName].Filters.ContainsKey(e.FilterName)) //Global Audio filter
             {
-                if (item.Filters.ContainsKey(e.FilterName))
-                {
-                    item.Filters.Remove(e.FilterName);
-
-                    this.AppEvtSourceFilterRemoved?.Invoke(sender, new SourceFilterEventArgs(e.SourceName, e.FilterName));
-                }
-                else
-                {
-                    this.Plugin.Log.Warning($"Cannot remove filter: Scene Item {e.SourceName} does note have filter {e.FilterName}");
-                }
+                itemRemoved = !this.CurrentAudioSources[e.SourceName].Filters.Remove(e.FilterName);
+            }
+            else if (this.TryGetSceneItemByName(this.CurrentSceneCollection, this.CurrentSceneName, e.SourceName, out var item) && item.Filters.ContainsKey(e.FilterName))
+            {
+                itemRemoved = item.Filters.Remove(e.FilterName);
             }
             else
             {
-                this.Plugin.Log.Warning($"Cannot find source {e.SourceName} in scene {this.CurrentSceneName}");
+                this.Plugin.Log.Warning($"Cannot remove filter: Scene Item {e.SourceName} does note have filter {e.FilterName}");
+                return;
             }
-
-            this.Plugin.Log.Info($"OnObsSourceFilterRemoved: source \"{e.SourceName}\" Filter \"{e.FilterName}\"");
-        }
-
-        private Boolean TryGetSourceFilter(String sourceName, String filterName, out SourceFilter filter)
-        {
-            filter = null;
-            //Search in AllSceneItems
-            foreach (var item in ObsStudioPlugin.Proxy.AllSceneItems)
+            
+            if(!itemRemoved)
             {
-                if (item.Value.CollectionName == this.CurrentSceneCollection &&
-                    item.Value.SceneName == this.CurrentSceneName &&
-                    item.Value.SourceName == sourceName)
-                {
-                    if (item.Value.Filters.ContainsKey(filterName))
-                    {
-                        filter = item.Value.Filters[filterName];
-                        return true;
-                    }
-                }
+                this.Plugin.Log.Warning($"Cannot remove filter: Scene Item {e.SourceName} does note have filter {e.FilterName}");
             }
-            return false;
+
+            this.AppEvtSourceFilterRemoved?.Invoke(sender, new SourceFilterEventArgs(e.SourceName, e.FilterName));
+            
         }
 
         private void OnObsSourceFilterEnableStateChanged(Object sender, SourceFilterEnableStateChangedEventArgs e)
         {
-            if (this.TryGetSceneItemByName(this.CurrentSceneCollection, this.CurrentSceneName, e.SourceName, out var item)
+            this.Plugin.Log.Info($"OnObsSourceFilterEnableStateChanged: source \"{e.SourceName}\" Filter \"{e.FilterName}\", Enabled state changed to {e.FilterEnabled} ");
+
+            if (this.CurrentAudioSources.ContainsKey(e.SourceName) && this.CurrentAudioSources[e.SourceName].Filters.ContainsKey(e.FilterName)) //Global Audio filter
+            {
+                this.CurrentAudioSources[e.SourceName].Filters[e.FilterName].Enabled = e.FilterEnabled;
+            }
+            else if (this.TryGetSceneItemByName(this.CurrentSceneCollection, this.CurrentSceneName, e.SourceName, out var item)
                 && item.Filters.ContainsKey(e.FilterName))
             {
                 item.Filters[e.FilterName].Enabled = e.FilterEnabled;
-                this.AppEvtSourceFilterEnableStateChanged?.Invoke(sender, new SourceFilterEventArgs(e.SourceName, e.FilterName));
             }
             else
             {
                 this.Plugin.Log.Warning($"Cannot find filter {e.FilterName} in source {e.SourceName}");
+                return;
             }
 
-            this.Plugin.Log.Info($"OnObsSourceFilterEnableStateChanged: source \"{e.SourceName}\" Filter \"{e.FilterName}\", Enabled state changed to {e.FilterEnabled} ");
+            this.AppEvtSourceFilterEnableStateChanged?.Invoke(sender, new SourceFilterEventArgs(e.SourceName, e.FilterName));
+
         }
 
         private void OnObsSourceFilterNameChanged(Object sender, SourceFilterNameChangedEventArgs e)
         {
-            var key = new SourceFilterKey(this.CurrentSceneCollection, this.CurrentSceneName, -1, e.SourceName, e.FilterName);
-            if (this.AllSceneItems.ContainsKey(key.StringizeAsItemKey()))
+            this.Plugin.Log.Info($"OnObsSourceFilterNameChanged: source \"{e.SourceName}\" Filter name changed to \"{e.FilterName}\" from {e.OldFilterName} ");
+
+            if (this.CurrentAudioSources.ContainsKey(e.SourceName) && this.CurrentAudioSources[e.SourceName].Filters.ContainsKey(e.OldFilterName)) //Global Audio filter
             {
-                if (this.AllSceneItems[key.StringizeAsItemKey()].Filters.ContainsKey(e.OldFilterName))
-                {
-                    var f = this.AllSceneItems[key.StringizeAsItemKey()].Filters[e.OldFilterName];
-                    this.AllSceneItems[key.StringizeAsItemKey()].Filters.Remove(e.OldFilterName);
-                    f.FilterName = e.FilterName;
-                    this.AllSceneItems[key.StringizeAsItemKey()].Filters.Add(e.FilterName, f);
-                }
+                var f = this.CurrentAudioSources[e.SourceName].Filters[e.OldFilterName];
+                this.CurrentAudioSources[e.SourceName].Filters.Remove(e.OldFilterName);
+                f.FilterName = e.FilterName;
+                this.CurrentAudioSources[e.SourceName].Filters.Add(e.FilterName, f);
+            }
+            else if (this.TryGetSceneItemByName(this.CurrentSceneCollection, this.CurrentSceneName, e.SourceName, out var item)
+                && item.Filters.ContainsKey(e.OldFilterName))
+            {
+                var f = item.Filters[e.OldFilterName];
+                item.Filters.Remove(e.OldFilterName);
+                f.FilterName = e.FilterName;
+                item.Filters.Add(e.FilterName, f);
             }
             else
             {
                 this.Plugin.Log.Warning($"Cannot find source {e.SourceName} in scene {this.CurrentSceneName}");
+                return;        
             }
 
             this.AppEvtSourceFilterRenamed?.Invoke(sender, new SourceFilterRenamedArgs(e.SourceName, e.OldFilterName, e.FilterName));
-            this.Plugin.Log.Info($"OnObsSourceFilterNameChanged: source \"{e.SourceName}\" Filter name changed to \"{e.FilterName}\" from {e.OldFilterName} ");
-
         }
 
     }
