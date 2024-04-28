@@ -97,7 +97,6 @@
         }
         private void OnObsInputMuteStateChanged(Object sender, OBSWebsocketDotNet.Types.Events.InputMuteStateChangedEventArgs args)
         {
-            
             if (this.CurrentAudioSources.ContainsKey(args.InputName))
             {
                 this.CurrentAudioSources[args.InputName].Muted = args.InputMuted;
@@ -208,20 +207,30 @@
                     //this.Plugin.Log.Info($"Adding Input {input.InputName} is of a kind \"{input.InputKind}\"");
 
                     // Adding audio source and populating initial values
-                    this.CurrentAudioSources.Add(input.InputName,new AudioSourceDescriptor(input.InputName, this));
+                    var dtor = new AudioSourceDescriptor(input.InputName, this);
+                    this.CurrentAudioSources.Add(input.InputName, dtor);
+                    // NOTE: For regular sources the filters are coming thru SceneItems , so not adding  this.RetreiveSourceFilters(input.InputName, dtor);
                     dbgSrc += $"\"{input.InputName}\",";
-
                 }
-
                 
                 dbgSrc += " Special sources:";
-                //Adding special sources
+                // Adding special sources. Note: GetSpecialInput returns name-value pairs where name is from fixed
+                // list (like desktop1, mic2 etc and value is actual display name, which is used for all other calls later.)
                 foreach (var input in this.GetSpecialInputs())
                 {
-                    //this.Plugin.Log.Info($"Adding special input {input.Key}");
-                    this.CurrentAudioSources.Add(input.Value,new AudioSourceDescriptor(input.Value, this));
-                    dbgSrc += $"\"{input.Value} (for input {input.Key})\",";
+                    //this.Plugin.Log.Info($"Adding special input {input.Key}, INE={String.IsNullOrEmpty(input.Value)}, v={input.Value}");
                     
+                    if (String.IsNullOrEmpty(input.Value) || (input.Value.TrimStart().Length == 0))
+                    {
+                        this.Plugin.Log.Warning($"Warning: Empty source display name for special input \"{input.Key}\", ignoring");
+                    }
+                    else
+                    {
+                        var dtor = new AudioSourceDescriptor(input.Key, this, true);
+                        this.RetreiveSourceFilters(input.Value, dtor);
+                        this.CurrentAudioSources.Add(input.Value, dtor);
+                        dbgSrc += $"\"{input.Value} (for input {input.Key})\",";
+                    }
                 }
 
                 this.Plugin.Log.Info($"Added audio sources: {dbgSrc}");
