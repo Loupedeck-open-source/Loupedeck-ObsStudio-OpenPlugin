@@ -79,6 +79,12 @@
 
         private void OnSourceFilterCreated(Object sender, SourceFilterEventArgs args)
         {
+            if (ObsStudioPlugin.Proxy.CurrentAudioSources.ContainsKey(args.SourceName))
+            {
+                //Not ours, handled by GlobalAudioFilterCommand
+                return;
+            }
+
             var key = new SourceFilterKey(ObsStudioPlugin.Proxy.CurrentSceneCollection, ObsStudioPlugin.Proxy.CurrentSceneName, -1, args.SourceName, args.FilterName);
 
             if (ObsStudioPlugin.Proxy.AllSceneItems.ContainsKey(key.StringizeAsItemKey()))
@@ -89,12 +95,18 @@
             }
             else
             {
-                this.Plugin.Log.Warning($"OnSourceFilterCreated: Cannot find Scene item  by key {key.StringizeAsItemKey()} ");
+                this.Plugin.Log.Warning($"OnGlobalSourceFilterCreated: Cannot find Scene item  by key {key.StringizeAsItemKey()} ");
             }
         }
 
         private void OnSourceFilterRemoved(Object sender, SourceFilterEventArgs args)
         {
+            if (ObsStudioPlugin.Proxy.CurrentAudioSources.ContainsKey(args.SourceName))
+            {
+                //Not ours, handled by GlobalAudioFilterCommand
+                return;
+            }
+
             var sfk = new SourceFilterKey(ObsStudioPlugin.Proxy.CurrentSceneCollection, ObsStudioPlugin.Proxy.CurrentSceneName, -1, args.SourceName, args.FilterName);
 
             if (ObsStudioPlugin.Proxy.AllSceneItems.ContainsKey(sfk.StringizeAsItemKey()))
@@ -106,6 +118,12 @@
 
         private void OnSourceFilterRenamed(Object sender, SourceFilterRenamedArgs args)
         {
+            if (ObsStudioPlugin.Proxy.CurrentAudioSources.ContainsKey(args.SourceName))
+            {
+                //Not ours, handled by GlobalAudioFilterCommand
+                return;
+            }
+
             //arg.FilterName is the old name
             var sfk = new SourceFilterKey(ObsStudioPlugin.Proxy.CurrentSceneCollection, ObsStudioPlugin.Proxy.CurrentSceneName, -1, args.SourceName, args.FilterName);
             if (ObsStudioPlugin.Proxy.AllSceneItems.ContainsKey(sfk.StringizeAsItemKey()))
@@ -120,6 +138,12 @@
 
         private void OnSourceFilterEnableStateChanged(Object sender, SourceFilterEventArgs args)
         {
+            if (ObsStudioPlugin.Proxy.CurrentAudioSources.ContainsKey(args.SourceName))
+            {
+                //Not ours, handled by GlobalAudioFilterCommand
+                return;
+            }
+
             var sfk = new SourceFilterKey(ObsStudioPlugin.Proxy.CurrentSceneCollection, ObsStudioPlugin.Proxy.CurrentSceneName, -1, args.SourceName, args.FilterName);
 
             if (ObsStudioPlugin.Proxy.AllSceneItems.ContainsKey(sfk.StringizeAsItemKey()))
@@ -149,7 +173,7 @@
             var s = SceneItemKey.Encode(ObsStudioPlugin.Proxy.CurrentSceneCollection, arg.SceneName, arg.ItemId, arg.ItemName);
             if (ObsStudioPlugin.Proxy.AllSceneItems.ContainsKey(s) && ObsStudioPlugin.Proxy.AllSceneItems[s].Filters.Count > 0)
             {
-                this.AddSourceFilterParameter(arg.SceneName, arg.ItemName, arg.ItemId);
+                this.AddFilter(arg.SceneName, arg.ItemName, arg.ItemId);
                 this.ParametersChanged();
             }
         }
@@ -187,7 +211,6 @@
         {
             var actionParameter = SceneItemKey.Encode(ObsStudioPlugin.Proxy.CurrentSceneCollection, arg.SceneName, arg.ItemId);
             _ = this.SetCurrentState(actionParameter, arg.Visible ? STATE_ENABLED : STATE_DISABLED);
-            //this.ActionImageChanged(actionParameter);
         }
 
         protected override BitmapImage GetCommandImage(String actionParameter, Int32 stateIndex, PluginImageSize imageSize)
@@ -246,6 +269,7 @@
             }
 
             this.ParametersChanged();
+            this.ActionImageChanged();
         }
     }
 }
