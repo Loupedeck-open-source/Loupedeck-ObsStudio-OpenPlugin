@@ -67,6 +67,7 @@
             }
 
             this.ParametersChanged();
+            this.ActionImageChanged();
         }
 
         private void OnSceneCollectionsChanged(Object sender, EventArgs e) =>

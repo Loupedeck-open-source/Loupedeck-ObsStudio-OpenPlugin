@@ -219,6 +219,7 @@
             }
 
             this.ParametersChanged();
+            this.ActionImageChanged();
         }
     }
 }

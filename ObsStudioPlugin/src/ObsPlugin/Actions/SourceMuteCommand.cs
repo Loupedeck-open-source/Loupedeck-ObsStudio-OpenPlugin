@@ -166,6 +166,7 @@
             }
 
             this.ParametersChanged();
+            this.ActionImageChanged();
         }
     }
 }
