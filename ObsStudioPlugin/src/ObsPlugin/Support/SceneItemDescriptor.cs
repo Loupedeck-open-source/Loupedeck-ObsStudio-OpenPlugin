@@ -3,18 +3,6 @@
     using System;
     using System.Collections.Generic;
 
-    internal class SourceFilter
-    {
-        public String FilterName;
-        public Boolean Enabled;
-        public SourceFilter(String name, Boolean enabled)
-        {
-            this.FilterName = name;
-            this.Enabled = enabled;
-        }   
-    }
-
-
     internal class SceneItemDescriptor
     {
         //For now we'll keep Filtername both as a key and as a part of the value
