@@ -3,9 +3,8 @@
     using System;
     using System.Collections.Generic;
     using System.Reflection;
-    using System.Web.UI.WebControls;
+    using System.Runtime.Remoting.Messaging;
 
-    using OBSWebsocketDotNet;
     using OBSWebsocketDotNet.Types;
     using OBSWebsocketDotNet.Types.Events;
 
@@ -30,7 +29,7 @@
         // Dictionary
         public Dictionary<String, SceneItemDescriptor> AllSceneItems = new Dictionary<String, SceneItemDescriptor>();
 
-        public String GetSceneItemName(String collection, String scene, Int32 itemId)
+        public String GetSceneItemNameById(String collection, String scene, Int32 itemId)
         {
             foreach (var item in ObsStudioPlugin.Proxy.AllSceneItems)
             {
@@ -43,6 +42,23 @@
                 }
             }
             return String.Empty;
+        }
+
+        public Boolean TryGetSceneItemByName(String collection, String scene, String sourceName, out SceneItemDescriptor descriptor)
+        {
+            //Search in AllSceneItems
+            foreach (var item in ObsStudioPlugin.Proxy.AllSceneItems)
+            {
+                if (item.Value.CollectionName == this.CurrentSceneCollection &&
+                    item.Value.SceneName == this.CurrentSceneName &&
+                    item.Value.SourceName == sourceName)
+                {
+                    descriptor = item.Value;
+                    return true;
+                }
+            }
+            descriptor = null;
+            return false;
         }
 
         ///     <summary>
@@ -158,12 +174,11 @@
                 return;
             }
 
-            var key = SceneItemKey.Encode(this.CurrentSceneCollection, args.SceneName, args.SceneItemId); 
-
-            this.AllSceneItems[key] = sourceDictItem;
-
+            var key = SceneItemKey.Encode(this.CurrentSceneCollection, args.SceneName, args.SceneItemId,args.SourceName);
+            this.AllSceneItems.Add(key, sourceDictItem);
+            //this.Plugin.Log.Info($"OnObsSceneItemAdded: Adding item key: {key}");
+           // NB: We assume that filters are added explicitly this.RetreiveSourceFilters(this.AllSceneItems[key]);
             this.AppEvtSceneItemAdded?.Invoke(this, new SceneItemArgs(args.SceneName, args.SourceName, args.SceneItemId));
-
         }
 
         private void OnObsSceneItemRemoved(Object sender, SceneItemRemovedEventArgs args)
@@ -187,7 +202,7 @@
         {
             var audioInputRenamed = false;
             var sourceRenamed = false;
-            this.Plugin.Log.Info($"Entering {MethodBase.GetCurrentMethod().Name}. {e.OldInputName} -> {e.InputName}");
+            //this.Plugin.Log.Info($"Entering {MethodBase.GetCurrentMethod().Name}. {e.OldInputName} -> {e.InputName}");
             if (this.CurrentAudioSources.ContainsKey(e.OldInputName))
             {
                 var source = this.CurrentAudioSources[e.OldInputName];
@@ -196,15 +211,21 @@
                 audioInputRenamed = true;
             }
 
-            //Renaming in AllSceneItems. Note that SourceName is only part of the descriptor, not a key
+            //Assumption: Source is unique in the AllSceneItems
             foreach (var key in this.AllSceneItems.Keys)
             {
                 if (this.AllSceneItems[key].SourceName == e.OldInputName)
                 {
-                    this.AllSceneItems[key].SourceName = e.InputName;
+                    var dtor = this.AllSceneItems[key];
+                    dtor.SourceName = e.InputName;
+                    var newKey = SceneItemKey.Encode(dtor.CollectionName, dtor.SceneName, dtor.SourceId, e.InputName);
+                    this.AllSceneItems.Add(newKey, dtor);
+                    this.AllSceneItems.Remove(key);
                     sourceRenamed = true;
+                    break;
                 }
             }
+
             if(audioInputRenamed)
             {
                 this.AppInputRenamed?.Invoke(this, new OldNewStringChangeEventArgs(e.OldInputName, e.InputName));
@@ -216,6 +237,5 @@
             }
 
         }
-
     }
 }

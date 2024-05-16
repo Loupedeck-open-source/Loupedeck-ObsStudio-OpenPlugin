@@ -6,7 +6,7 @@
     {
         public const String IMGSceneSelected = "SceneOn.png";
         public const String IMGSceneUnselected = "SceneOff.png";
-        public const String IMGSceneInaccessible = "SceneInaccessible.png";
+        public const String IMGSceneInaccessible = "SceneDisabled.png";
         public const String SceneNameUnknown = "Offline";
         private const Int16 SCENE_UNSELECTED = 0;
         private const Int16 SCENE_SELECTED = 1;
@@ -73,6 +73,7 @@
             }
 
             this.ParametersChanged();
+            this.ActionImageChanged();
         }
 
         private void OnSceneListChanged(Object sender, EventArgs e) =>

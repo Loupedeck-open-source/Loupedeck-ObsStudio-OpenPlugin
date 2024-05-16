@@ -1,10 +1,12 @@
 ﻿namespace Loupedeck.ObsStudioPlugin
 {
     using System;
-    using System.Net.NetworkInformation;
+    using System.Collections.Generic;
 
     internal class SceneItemDescriptor
     {
+        //For now we'll keep Filtername both as a key and as a part of the value
+        public Dictionary<String, SourceFilter> Filters = new Dictionary<String, SourceFilter>();
         public String CollectionName;
         public String SceneName;
 

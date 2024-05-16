@@ -78,7 +78,14 @@
 
                 this.InputMuteStateChanged -= this.OnObsInputMuteStateChanged;
                 this.InputVolumeChanged -= this.OnObsInputVolumeChanged;
-                
+
+                this.InputNameChanged -= this.OnObsSourceNameChanged;
+
+                this.SourceFilterCreated -= this.OnObsSourceFilterCreated;
+                this.SourceFilterRemoved -= this.OnObsSourceFilterRemoved;
+                this.SourceFilterEnableStateChanged -= this.OnObsSourceFilterEnableStateChanged;
+                this.SourceFilterNameChanged -= this.OnObsSourceFilterNameChanged;
+
 #if false
                 this.SourceAudioActivated -= this.OnObsSourceAudioActivated;
                 this.SourceAudioDeactivated -= this.OnObsSourceAudioDeactivated;
@@ -106,16 +113,22 @@
                 this.InputVolumeChanged += this.OnObsInputVolumeChanged;
 
                 this.InputNameChanged += this.OnObsSourceNameChanged;
-                //this.InputSettingsChanged += this.OnObsInputSettingsChanged;
-/*
-                this.InputActiveStateChanged += this.OnObsInputActiveStateChanged;
-                this.InputShowStateChanged += this.OnObsInputShowStateChanged;
 
-                this.InputAudioBalanceChanged += this.OnObsInputAudioBalanceChanged;
-                this.InputAudioSyncOffsetChanged += this.OnObsinputAudioSyncOffsetChanged;
-                this.InputAudioTracksChanged += this.OnObsInputAudioTracksChanged;
-                this.InputAudioMonitorTypeChanged += this.OnObsInputAudioMonitorTypeChanged;
-                this.InputVolumeMeters += this.OnObsInputVolumeMeters;
+                this.SourceFilterCreated += this.OnObsSourceFilterCreated;
+                this.SourceFilterRemoved += this.OnObsSourceFilterRemoved;
+                this.SourceFilterEnableStateChanged += this.OnObsSourceFilterEnableStateChanged;
+                this.SourceFilterNameChanged += this.OnObsSourceFilterNameChanged;
+
+/*
+            this.InputSettingsChanged += this.OnObsInputSettingsChanged;
+            this.InputActiveStateChanged += this.OnObsInputActiveStateChanged;
+            this.InputShowStateChanged += this.OnObsInputShowStateChanged;
+
+            this.InputAudioBalanceChanged += this.OnObsInputAudioBalanceChanged;
+            this.InputAudioSyncOffsetChanged += this.OnObsinputAudioSyncOffsetChanged;
+            this.InputAudioTracksChanged += this.OnObsInputAudioTracksChanged;
+            this.InputAudioMonitorTypeChanged += this.OnObsInputAudioMonitorTypeChanged;
+            this.InputVolumeMeters += this.OnObsInputVolumeMeters;
 */
 
 
@@ -209,7 +222,7 @@
             }
 
             // Retreiving Audio types.
-            this.OnAppConnected_RetreiveSourceTypes();
+            // this.OnAppConnected_RetreiveSourceTypes();
 
             if (streamingStatus != null)
             {

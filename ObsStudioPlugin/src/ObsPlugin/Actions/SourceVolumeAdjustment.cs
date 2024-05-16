@@ -7,7 +7,7 @@
     {
         private const String IMGSourceSelected = "AudioOn.png";
         private const String IMGSourceUnselected = "AudioOff.png";
-        private const String IMGSourceInaccessible = "AudioInaccessible.png";
+        private const String IMGSourceInaccessible = "AudioDisabled.png";
         private const String SourceNameUnknown = "N/A";
 
         // private const String SpecialSourceGroupName = "General Audio";
@@ -91,7 +91,7 @@
             }
             else
             {
-                this.Plugin.Log.Info($"Warning: Cannot  parse actionParameter {actionParameter}");
+                this.Plugin.Log.Warning($"Warning: Cannot  parse actionParameter {actionParameter}");
             }
         }
 
@@ -99,7 +99,7 @@
         {
             return SceneKey.TryParse(actionParameter, out var key) && key.Collection.Equals(ObsStudioPlugin.Proxy.CurrentSceneCollection)
                     ? ObsStudioPlugin.Proxy.AppGetVolumeLabel(key.Source)
-                    : "N/A";
+                    : ObsAppProxy.NotFoundVolumeLabel; /*so no n/a is displayed*/
         }
         private void OnSourceMuteStateChanged(Object sender, MuteEventArgs args)
         {
@@ -115,6 +115,7 @@
         }
 
         private void OnSceneListChanged(Object sender, EventArgs e) => this.ResetParameters(true);
+        
 
         private void OnCurrentSceneChanged(Object sender, EventArgs e) => this.ActionImageChanged();
 
@@ -138,12 +139,25 @@
             var sourceName = SourceNameUnknown;
             var imageName = IMGSourceInaccessible;
             var selected = false;
-            if (SceneKey.TryParse(actionParameter, out var parsed) && this._muteStates.ContainsKey(actionParameter))
+            if (SceneKey.TryParse(actionParameter, out var parsed))
             {
                 sourceName = parsed.Source;
-                selected = (parsed.Collection == ObsStudioPlugin.Proxy.CurrentSceneCollection) && this._muteStates[actionParameter];
-                imageName = parsed.Collection != ObsStudioPlugin.Proxy.CurrentSceneCollection ? IMGSourceInaccessible : this._muteStates[actionParameter] ? IMGSourceUnselected : IMGSourceSelected;
+
+                if (this._muteStates.ContainsKey(actionParameter)
+                    && parsed.Collection == ObsStudioPlugin.Proxy.CurrentSceneCollection)
+                {
+                    selected = this._muteStates[actionParameter];
+                    imageName = this._muteStates[actionParameter]
+                                ? IMGSourceUnselected
+                                : IMGSourceSelected;
+                }
             }
+
+            if( sourceName == SourceNameUnknown )
+            {
+                this.Plugin.Log.Info($"Unknown name for source {actionParameter}");
+            }
+
 
             return (this.Plugin as ObsStudioPlugin).GetPluginCommandImage(imageSize, imageName, sourceName, !selected);
         }
@@ -205,6 +219,7 @@
             }
 
             this.ParametersChanged();
+            this.ActionImageChanged();
         }
     }
 }
