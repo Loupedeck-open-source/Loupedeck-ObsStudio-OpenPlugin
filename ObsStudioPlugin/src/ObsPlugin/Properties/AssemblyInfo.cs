@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("LoupeDeck Ltd.")]
 [assembly: AssemblyProduct("ObsPlugin")]
-[assembly: AssemblyCopyright("2022 LoupeeDeck Ltd")]
+[assembly: AssemblyCopyright("2024 LoupeeDeck Ltd")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -32,4 +32,4 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("5.4.0.20000")]
+[assembly: AssemblyVersion("5.10.4")]

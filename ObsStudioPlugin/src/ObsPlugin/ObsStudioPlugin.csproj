@@ -241,7 +241,14 @@
     <Delete Files="$(OutputDLL)" ContinueOnError="true" />
     <!-- Collect the files to move in the output path -->
     <ItemGroup>
-      <AllDlls Include="$(OutputPath)\*.dll" />
+	<AllSourceDlls Include="$(OutputPath)\*.dll" />
+    </ItemGroup>
+    <ItemGroup>
+	<PluginDll Include="@(AllSourceDlls)" Condition="'%(Filename)' == '$(AssemblyName)'" /> 
+	<OtherDlls Include="@(AllSourceDlls)" Condition="'%(Filename)' != '$(AssemblyName)'" />
+    </ItemGroup>
+    <ItemGroup>
+	<AllDlls Include="@(PluginDll);@(OtherDlls)" />
     </ItemGroup>
     <!-- Actually run ILMerge -->
     <Exec Command="&quot;$(ILMergeConsolePath)&quot; $(ILMegeNDebugFlag) /lib:&quot;%ProgramFiles(x86)%&quot;\Loupedeck\Loupedeck2\ /out:&quot;$(OutputDLL)&quot; @(AllDlls->'&quot;%(FullPath)&quot;', ' ')" />
