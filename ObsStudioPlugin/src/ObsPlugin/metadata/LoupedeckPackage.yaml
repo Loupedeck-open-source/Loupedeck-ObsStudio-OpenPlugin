@@ -17,10 +17,10 @@ pluginFileName: ObsStudioPlugin.dll
 # Plugin version.
 version: 5.10.5
 # Author of the plugin. The author can be a company or an individual developer.
-author: Loupedeck
+author: Logitech Europe SA
 
 # Copyright information.
-copyright: Copyright © 2024 Loupedeck. All rights reserved.
+copyright: Copyright © 2024 Logitech Europe SA. All rights reserved.
 
 # Minimal Loupedeck Version to be used
 minimumLoupedeckVersion: 5.9.0

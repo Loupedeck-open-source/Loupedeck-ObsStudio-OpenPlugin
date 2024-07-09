@@ -8,9 +8,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("OBS Studio")]
 [assembly: AssemblyDescription("Plugin allowing to control OBS Studio application with Loupedeck software")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("LoupeDeck Ltd.")]
+[assembly: AssemblyCompany("Logitech Europe SA")]
 [assembly: AssemblyProduct("ObsPlugin")]
-[assembly: AssemblyCopyright("2024 LoupeeDeck Ltd")]
+[assembly: AssemblyCopyright("2024 Logitech Europe SA")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
