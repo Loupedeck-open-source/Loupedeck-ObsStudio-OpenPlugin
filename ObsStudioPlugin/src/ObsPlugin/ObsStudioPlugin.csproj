@@ -204,10 +204,7 @@
     <EmbeddedResource Include="Icons\STREAM_RecordResume.png" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="metadata\Icon16x16.png" />
     <EmbeddedResource Include="metadata\Icon256x256.png" />
-    <EmbeddedResource Include="metadata\Icon32x32.png" />
-    <EmbeddedResource Include="metadata\Icon48x48.png" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Icons\FilterOff.png" />
