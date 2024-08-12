@@ -2,15 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Data.SqlTypes;
-    using System.Runtime;
-    using System.Runtime.InteropServices;
-    using System.Runtime.Remoting.Messaging;
-    using System.Web;
-    using Newtonsoft.Json.Linq;
-
-    using OBSWebsocketDotNet;
-    using OBSWebsocketDotNet.Types;
 
     /// <summary>
     /// Proxy to OBS websocket server, for API reference see

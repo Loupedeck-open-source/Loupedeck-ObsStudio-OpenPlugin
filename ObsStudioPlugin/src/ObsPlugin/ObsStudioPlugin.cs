@@ -32,9 +32,6 @@ namespace Loupedeck.ObsStudioPlugin
             var appActive = this.ClientApplication.IsActive() || this.ClientApplication.IsRunning();
             this.Log.Info($"Load. ClientAppActive = {appActive}" );
 
-            this.Info.Icon16x16 = EmbeddedResources.ReadImage("Loupedeck.ObsStudioPlugin.metadata.Icon16x16.png");
-            this.Info.Icon32x32 = EmbeddedResources.ReadImage("Loupedeck.ObsStudioPlugin.metadata.Icon32x32.png");
-            this.Info.Icon48x48 = EmbeddedResources.ReadImage("Loupedeck.ObsStudioPlugin.metadata.Icon48x48.png");
             this.Info.Icon256x256 = EmbeddedResources.ReadImage("Loupedeck.ObsStudioPlugin.metadata.Icon256x256.png");
 
             this.ClientApplication.ApplicationStarted += this.OnApplicationStarted;

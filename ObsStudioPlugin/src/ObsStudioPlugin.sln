@@ -2,7 +2,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34221.43
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ObsStudioPlugin", "ObsPlugin\ObsStudioPlugin.csproj", "{2901B5AB-3114-490D-B938-83AE31CAC564}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ObsStudioPlugin", "ObsPlugin\ObsStudioPlugin.csproj", "{2901B5AB-3114-490D-B938-83AE31CAC564}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
