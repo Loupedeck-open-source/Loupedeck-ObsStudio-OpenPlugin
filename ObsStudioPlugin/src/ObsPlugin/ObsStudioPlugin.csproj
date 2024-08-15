@@ -16,7 +16,7 @@
     <Authors>Logitech Europe SA</Authors>
     <Copyright>Copyright © 2024 Logitech Europe SA. All rights reserved.</Copyright>
     <AssemblyTitle>OBS Studio</AssemblyTitle>
-    <Description>Plugin allowing to control OBS Studio application with Loupedeck software</Description>
+    <Description>Enhance your control over the OBS Studio application with this plugin.</Description>
     <Company>Logitech Europe SA</Company>
     <Product>ObsPlugin</Product>
     <AssemblyVersion>5.11.0</AssemblyVersion>

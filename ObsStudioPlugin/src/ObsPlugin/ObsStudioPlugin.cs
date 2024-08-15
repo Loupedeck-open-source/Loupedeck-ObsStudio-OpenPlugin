@@ -163,7 +163,7 @@ namespace Loupedeck.ObsStudioPlugin
         {
             if (!this.IsApplicationInstalled() && !this.ClientApplication.IsRunning())
             {
-                this.OnPluginStatusChanged(Loupedeck.PluginStatus.Error, "OBS Studio is not installed", "https://support.loupedeck.com/obs-guide", "more details");
+                this.OnPluginStatusChanged(Loupedeck.PluginStatus.Error, "OBS Studio is not installed", "https://support.logi.com/hc/articles/25522063648407", "more details");
             }
             else if (ObsStudioPlugin.Proxy.IsAppConnected)
             {
@@ -172,12 +172,12 @@ namespace Loupedeck.ObsStudioPlugin
             else if (this._iniFile.iniFileExists && !this._iniFile.iniFileGood) 
             {
                 //If ini is not good we can set up the 'on app stopped' watch to modify file
-                this.OnPluginStatusChanged(Loupedeck.PluginStatus.Error, "Cannot connect to OBS Studio. You might try restarting OBS Studio and trying again.", "https://support.loupedeck.com/obs-guide", "more details");
+                this.OnPluginStatusChanged(Loupedeck.PluginStatus.Error, "Cannot connect to OBS Studio. You might try restarting OBS Studio and trying again.", "https://support.logi.com/hc/articles/25522063648407", "more details");
             }
             else
             {
                 // FIXME: We need more elaborate explanation here. 
-                this.OnPluginStatusChanged(Loupedeck.PluginStatus.Warning, "Not connected to OBS", "https://support.loupedeck.com/obs-guide", "more details");
+                this.OnPluginStatusChanged(Loupedeck.PluginStatus.Warning, "Not connected to OBS", "https://support.logi.com/hc/articles/25522063648407", "more details");
             }
         }
 
