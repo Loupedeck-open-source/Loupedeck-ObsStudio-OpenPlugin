@@ -148,6 +148,6 @@
     <Exec Condition="$(OS) != 'Windows_NT'" Command="echo $(TargetDir) &gt; $(LocalAppData)\Logi\LogiPluginService\Plugins\$(ProjectName).link&#xD;&#xA;sh $(ProjectDir)BuildEvents\postbuild $(ProjectDir) $(TargetDir)" />
   </Target>
   <Target Name="PluginClean" AfterTargets="CoreClean">
-    <Delete Files="$(LocalAppData)\Loupedeck\Plugins\$(ProjectName).link" />
+    <Delete Files="$(LocalAppData)\Logi\LogiPluginService\Plugins\$(ProjectName).link" />
   </Target>
 </Project>
