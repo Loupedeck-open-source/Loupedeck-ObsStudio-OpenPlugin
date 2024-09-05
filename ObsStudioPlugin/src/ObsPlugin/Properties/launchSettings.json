@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "DiscordPluginWin": {
+      "commandName": "Executable",
+      "executablePath": "C:\\Program Files\\Logi\\LogiPluginService\\LogiPluginService.exe"
+    },
+    "DiscordPluginMac": {
+      "commandName": "Executable",
+      "executablePath": "/Applications/Utilities/LogiPluginService.app"
+      }
+    }
+}

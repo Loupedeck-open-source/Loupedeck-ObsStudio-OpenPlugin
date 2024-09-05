@@ -19,8 +19,16 @@ assert "[ ! -d \"$TARGET_DIR\" ]"  "Target directory does not exist: '$TARGET_DI
 METADATA_DIR=${PROJECT_DIR}metadata
 assert "[ ! -d \"$METADATA_DIR\" ]" "metadata directory does not exist: '$METADATA_DIR'"
 
+# TODO: Currently there is no need to copy this.
+# SDK_DIR=${PROJECT_DIR}../ZoomSDK/mac
+# assert "[ ! -d \"$SDK_DIR\" ]" "SDK directory does not exist: '$SDK_DIR'"
+
 echo Copying "$METADATA_DIR" to "${TARGET_DIR}../metadata"
 cp -R "$METADATA_DIR" "${TARGET_DIR}../metadata"
 assert "[ $? -ne 0 ]" "Copying metadata failed"
+
+# echo Copying "$SDK_DIR/" to "${TARGET_DIR}"
+# cp -R "$SDK_DIR/" "${TARGET_DIR}"
+# assert "[ $? -ne 0 ]" "Copying SDK failed"
 
 exit 0

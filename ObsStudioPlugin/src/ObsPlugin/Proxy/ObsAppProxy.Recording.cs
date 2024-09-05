@@ -1,10 +1,6 @@
 ﻿namespace Loupedeck.ObsStudioPlugin
 {
     using System;
-    using System.Collections.Generic;
-    using System.Runtime.Remoting.Messaging;
-
-    using OBSWebsocketDotNet;
     using OBSWebsocketDotNet.Types.Events;
 
     /// <summary>

@@ -32,9 +32,6 @@ namespace Loupedeck.ObsStudioPlugin
             var appActive = this.ClientApplication.IsActive() || this.ClientApplication.IsRunning();
             this.Log.Info($"Load. ClientAppActive = {appActive}" );
 
-            this.Info.Icon16x16 = EmbeddedResources.ReadImage("Loupedeck.ObsStudioPlugin.metadata.Icon16x16.png");
-            this.Info.Icon32x32 = EmbeddedResources.ReadImage("Loupedeck.ObsStudioPlugin.metadata.Icon32x32.png");
-            this.Info.Icon48x48 = EmbeddedResources.ReadImage("Loupedeck.ObsStudioPlugin.metadata.Icon48x48.png");
             this.Info.Icon256x256 = EmbeddedResources.ReadImage("Loupedeck.ObsStudioPlugin.metadata.Icon256x256.png");
 
             this.ClientApplication.ApplicationStarted += this.OnApplicationStarted;
@@ -166,7 +163,7 @@ namespace Loupedeck.ObsStudioPlugin
         {
             if (!this.IsApplicationInstalled() && !this.ClientApplication.IsRunning())
             {
-                this.OnPluginStatusChanged(Loupedeck.PluginStatus.Error, "OBS Studio is not installed", "https://support.loupedeck.com/obs-guide", "more details");
+                this.OnPluginStatusChanged(Loupedeck.PluginStatus.Error, "OBS Studio is not installed", "https://support.logi.com/hc/articles/25522063648407", "more details");
             }
             else if (ObsStudioPlugin.Proxy.IsAppConnected)
             {
@@ -175,12 +172,12 @@ namespace Loupedeck.ObsStudioPlugin
             else if (this._iniFile.iniFileExists && !this._iniFile.iniFileGood) 
             {
                 //If ini is not good we can set up the 'on app stopped' watch to modify file
-                this.OnPluginStatusChanged(Loupedeck.PluginStatus.Error, "Cannot connect to OBS Studio. You might try restarting OBS Studio and trying again.", "https://support.loupedeck.com/obs-guide", "more details");
+                this.OnPluginStatusChanged(Loupedeck.PluginStatus.Error, "Cannot connect to OBS Studio. You might try restarting OBS Studio and trying again.", "https://support.logi.com/hc/articles/25522063648407", "more details");
             }
             else
             {
                 // FIXME: We need more elaborate explanation here. 
-                this.OnPluginStatusChanged(Loupedeck.PluginStatus.Warning, "Not connected to OBS", "https://support.loupedeck.com/obs-guide", "more details");
+                this.OnPluginStatusChanged(Loupedeck.PluginStatus.Warning, "Not connected to OBS", "https://support.logi.com/hc/articles/25522063648407", "more details");
             }
         }
 

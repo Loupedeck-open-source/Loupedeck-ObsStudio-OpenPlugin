@@ -2,9 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Reflection;
-    using System.Runtime.Remoting.Messaging;
-
     using OBSWebsocketDotNet.Types;
     using OBSWebsocketDotNet.Types.Events;
 
