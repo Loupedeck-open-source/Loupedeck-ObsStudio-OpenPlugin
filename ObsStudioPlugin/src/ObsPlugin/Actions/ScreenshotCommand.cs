@@ -4,7 +4,7 @@
 
     internal class ScreenshotCommand : PluginDynamicCommand
     {
-        private const String IMGAction = "Workspaces.png";
+        private const String IMGAction = "Screenshot.svg";
 
         private const String InvalidScreenshotFolder = "Cannot find folder for screenshot saving, feature disabled";
 
@@ -32,7 +32,7 @@
 
         private void OnAppDisconnected(Object sender, EventArgs e) => this.IsEnabled = false;
 
-        protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize) => (this.Plugin as ObsStudioPlugin).GetPluginCommandImage(imageSize, IMGAction);
+        protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize) => EmbeddedResources.ReadBinaryFile(ObsStudioPlugin.ImageResPrefix + IMGAction).ToImage();
 
         protected override void RunCommand(String actionParameter) => ObsStudioPlugin.Proxy.AppTakeScreenshot();
     }

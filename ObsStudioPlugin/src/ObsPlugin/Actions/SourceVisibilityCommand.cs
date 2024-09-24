@@ -4,8 +4,8 @@
 
     internal class SourceVisibilityCommand : PluginMultistateDynamicCommand
     {
-        public const String IMGSceneSelected = "SourceOn.png";
-        public const String IMGSceneUnselected = "SourceOff.png";
+        public const String IMGSceneSelected = "SourceVisibilityOn.svg";
+        public const String IMGSceneUnselected = "SourceVisibilityOff.svg";
         public const String IMGSceneInaccessible = "SourceDisabled.png";
         public const String SourceNameUnknown = "Name Not Available";
 
@@ -107,17 +107,15 @@
 
         protected override BitmapImage GetCommandImage(String actionParameter, Int32 stateIndex, PluginImageSize imageSize)
         {
-            var sourceName = SourceNameUnknown;
             var imageName = IMGSceneInaccessible;
             if (SceneItemKey.TryParse(actionParameter, out var parsed))
             {
-                sourceName = parsed.SourceName;
                 imageName = parsed.Collection != ObsStudioPlugin.Proxy.CurrentSceneCollection || !ObsStudioPlugin.Proxy.AllSceneItems.ContainsKey(actionParameter)
                     ? IMGSceneInaccessible
                     : stateIndex == SOURCE_SELECTED ? IMGSceneSelected : IMGSceneUnselected;
             }
 
-            return (this.Plugin as ObsStudioPlugin).GetPluginCommandImage(imageSize, imageName, sourceName, imageName == IMGSceneSelected);
+            return EmbeddedResources.ReadBinaryFile(ObsStudioPlugin.ImageResPrefix + imageName).ToImage();
         }
 
         private void AddSceneItemParameter(String sceneName, String itemName,Int32 itemId)

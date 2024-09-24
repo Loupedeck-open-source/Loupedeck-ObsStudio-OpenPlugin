@@ -4,8 +4,8 @@
 
     internal class SourceFilterCommand : PluginMultistateDynamicCommand
     {
-        public const String IMGEnabled = "FilterOn.png";
-        public const String IMGDisabled = "FilterOff.png";
+        public const String IMGEnabled = "AudioFilterDisabled.svg";
+        public const String IMGDisabled = "AudioFiterEnabled.svg";
         public const String IMGInaccessible = "FilterDisabled.png";
         public const String NameUnknown = "UnknownFilter";
 
@@ -215,11 +215,9 @@
 
         protected override BitmapImage GetCommandImage(String actionParameter, Int32 stateIndex, PluginImageSize imageSize)
         {
-            var imageText = NameUnknown;
             var imageName = IMGInaccessible;
             if(SourceFilterKey.TryParse(actionParameter, out var parsed))
             {
-                imageText = $"{parsed.SourceName} - {parsed.FilterName}";
                 imageName = 
                     parsed.Collection == ObsStudioPlugin.Proxy.CurrentSceneCollection
                     && parsed.Scene == ObsStudioPlugin.Proxy.CurrentSceneName
@@ -228,8 +226,7 @@
                     : IMGInaccessible;
             }
 
-
-            return (this.Plugin as ObsStudioPlugin).GetPluginCommandImage(imageSize, imageName, imageText, imageName == IMGEnabled);
+            return EmbeddedResources.ReadBinaryFile(ObsStudioPlugin.ImageResPrefix + imageName).ToImage();
         }
 
         private void AddSourceFilterParameter(String sceneName,Int32 itemId, String itemName, String filterName)

@@ -89,40 +89,34 @@
     <None Include="Support\Support.TEMPLATE.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Icons\AudioOff.png" />
-    <EmbeddedResource Include="Icons\AudioOn.png" />
-    <EmbeddedResource Include="Icons\SceneOff.png" />
-    <EmbeddedResource Include="Icons\SceneOn.png" />
-    <EmbeddedResource Include="Icons\SourceOff.png" />
-    <EmbeddedResource Include="Icons\SourceOn.png" />
-    <EmbeddedResource Include="Icons\STREAM_DisableStudioMode2.png" />
-    <EmbeddedResource Include="Icons\STREAM_EnableStudioMode.png" />
-    <EmbeddedResource Include="Icons\STREAM_SaveReplay.png" />
-    <EmbeddedResource Include="Icons\STREAM_StartReplayBuffer.png" />
-    <EmbeddedResource Include="Icons\STREAM_StartStreamingGreen.png" />
-    <EmbeddedResource Include="Icons\STREAM_StartStreamingRed.png" />
-    <EmbeddedResource Include="Icons\STREAM_StopReplayBuffer.png" />
-    <EmbeddedResource Include="Icons\STREAM_ToggleRecord1.png" />
-    <EmbeddedResource Include="Icons\STREAM_ToggleRecord2.png" />
-    <EmbeddedResource Include="Icons\VirtualWebcam.png" />
-    <EmbeddedResource Include="Icons\VirtualWebcamOff.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Icons\Workspaces.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Icons\STREAM_Transition.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Icons\STREAM_RecordPause.png" />
-    <EmbeddedResource Include="Icons\STREAM_RecordResume.png" />
+    <EmbeddedResource Include="Icons\AudioFilterDisabled.svg" />
+    <EmbeddedResource Include="Icons\AudioFiterEnabled.svg" />
+    <EmbeddedResource Include="Icons\AudioMixerMuted.svg" />
+    <EmbeddedResource Include="Icons\AudioMixerUnmuted.svg" />
+    <EmbeddedResource Include="Icons\RecordingOff.svg" />
+    <EmbeddedResource Include="Icons\RecordingOn.svg" />
+    <EmbeddedResource Include="Icons\RecordingPause.svg" />
+    <EmbeddedResource Include="Icons\RecordingResume.svg" />
+    <EmbeddedResource Include="Icons\ReplayBufferSave.svg" />
+    <EmbeddedResource Include="Icons\ReplayBufferToggleStart.svg" />
+    <EmbeddedResource Include="Icons\ReplayBufferToggleStop.svg" />
+    <EmbeddedResource Include="Icons\ScenesCollectionsSelected.svg" />
+    <EmbeddedResource Include="Icons\ScenesCollectionsUnselected.svg" />
+    <EmbeddedResource Include="Icons\ScenesSelected.svg" />
+    <EmbeddedResource Include="Icons\ScenesUnselected.svg" />
+    <EmbeddedResource Include="Icons\Screenshot.svg" />
+    <EmbeddedResource Include="Icons\SourceVisibilityOff.svg" />
+    <EmbeddedResource Include="Icons\SourceVisibilityOn.svg" />
+    <EmbeddedResource Include="Icons\StreamingToggleOff.svg" />
+    <EmbeddedResource Include="Icons\StreamingToggleOn.svg" />
+    <EmbeddedResource Include="Icons\StudioModeToggleOn.svg" />
+    <EmbeddedResource Include="Icons\StudioModeToggleOff.svg" />
+	<EmbeddedResource Include="Icons\StudioModeTransition.svg" />
+    <EmbeddedResource Include="Icons\VirtualCameraToggleOff.svg" />
+    <EmbeddedResource Include="Icons\VirtualCameraToggleOn.svg" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="metadata\Icon256x256.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Icons\FilterOff.png" />
-    <EmbeddedResource Include="Icons\FilterOn.png" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Icons\AudioDisabled.png" />
@@ -144,7 +138,7 @@
     <Compile Remove="Support\Support.TEMPLATE.cs" />
   </ItemGroup>
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Condition="$(OS) == 'Windows_NT'" Command="echo $(TargetDir) &gt; $(LocalAppData)\Logi\LogiPluginService\Plugins\$(ProjectName).link&#xD;&#xA;call $(ProjectDir)BuildEvents\postbuild.cmd $(ProjectDir) $(TargetDir)" />
+    <Exec Condition="$(OS) == 'Windows_NT'" Command="echo $(BaseOutputPath)$(Configuration) &gt; $(LocalAppData)\Logi\LogiPluginService\Plugins\$(ProjectName).link&#xD;&#xA;call $(ProjectDir)BuildEvents\postbuild.cmd $(ProjectDir) $(TargetDir)" />
     <Exec Condition="$(OS) != 'Windows_NT'" Command="echo $(TargetDir) &gt; $(LocalAppData)\Logi\LogiPluginService\Plugins\$(ProjectName).link&#xD;&#xA;sh $(ProjectDir)BuildEvents\postbuild $(ProjectDir) $(TargetDir)" />
   </Target>
   <Target Name="PluginClean" AfterTargets="CoreClean">

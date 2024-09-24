@@ -5,8 +5,8 @@
 
     internal class SourceVolumeAdjustment : PluginDynamicAdjustment
     {
-        private const String IMGSourceSelected = "AudioOn.png";
-        private const String IMGSourceUnselected = "AudioOff.png";
+        private const String IMGSourceSelected = "AudioMixerUnmuted.svg";
+        private const String IMGSourceUnselected = "AudioMixerMuted.svg";
         private const String IMGSourceInaccessible = "AudioDisabled.png";
         private const String SourceNameUnknown = "N/A";
 
@@ -136,13 +136,10 @@
 
         protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
         {
-            var sourceName = SourceNameUnknown;
             var imageName = IMGSourceInaccessible;
             var selected = false;
             if (SceneKey.TryParse(actionParameter, out var parsed))
             {
-                sourceName = parsed.Source;
-
                 if (this._muteStates.ContainsKey(actionParameter)
                     && parsed.Collection == ObsStudioPlugin.Proxy.CurrentSceneCollection)
                 {
@@ -153,13 +150,7 @@
                 }
             }
 
-            if( sourceName == SourceNameUnknown )
-            {
-                this.Plugin.Log.Info($"Unknown name for source {actionParameter}");
-            }
-
-
-            return (this.Plugin as ObsStudioPlugin).GetPluginCommandImage(imageSize, imageName, sourceName, !selected);
+            return EmbeddedResources.ReadBinaryFile(ObsStudioPlugin.ImageResPrefix + imageName).ToImage();
         }
 
         private void OnSourceCreated(Object sender, SourceNameEventArgs args)

@@ -12,8 +12,8 @@
                 groupName: "",
                 offStateName: "Start recording into the Replay Buffer",
                 onStateName: "Stop recording into the Replay Buffer",
-                offStateImage: "STREAM_StartReplayBuffer.png",
-                onStateImage: "STREAM_StopReplayBuffer.png")
+                offStateImage: "ReplayBufferToggleStart.svg",
+                onStateImage: "ReplayBufferToggleStop.svg")
         {
         }
 

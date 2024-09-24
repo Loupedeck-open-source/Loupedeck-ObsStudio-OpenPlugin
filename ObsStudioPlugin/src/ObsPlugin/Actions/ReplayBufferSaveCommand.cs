@@ -4,7 +4,7 @@
 
     internal class ReplayBufferSaveCommand : PluginDynamicCommand
     {
-        private const String IMGAction = "STREAM_SaveReplay.png";
+        private const String IMGAction = "ReplayBufferSave.svg";
         
         public ReplayBufferSaveCommand()
             : base(displayName: "Replay Buffer Save", 
@@ -43,7 +43,8 @@
 
         private void OnAppDisconnected(Object sender, EventArgs e) => this.OnAppReplayBufferOff(sender, e);
 
-        protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize) => (this.Plugin as ObsStudioPlugin).GetPluginCommandImage(imageSize, IMGAction);
+        protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize) 
+            => EmbeddedResources.ReadBinaryFile(ObsStudioPlugin.ImageResPrefix + IMGAction).ToImage();
 
         protected override void RunCommand(String actionParameter) => ObsStudioPlugin.Proxy.AppSaveReplayBuffer();
     }

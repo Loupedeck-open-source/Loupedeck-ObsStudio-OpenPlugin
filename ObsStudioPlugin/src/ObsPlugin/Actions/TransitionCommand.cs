@@ -4,7 +4,7 @@
 
     internal class TransitionCommand : PluginDynamicCommand
     {
-        private const String IMGAction = "STREAM_Transition.png";
+        private const String IMGAction = "StudioModeTransition.svg";
 
         public TransitionCommand()
             : base(displayName: "Studio Mode Transition",
@@ -39,7 +39,7 @@
 
         private void OnAppDisconnected(Object sender, EventArgs e) => this.OnAppStudioModeOff(sender, e);
 
-        protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize) => (this.Plugin as ObsStudioPlugin).GetPluginCommandImage(imageSize, IMGAction);
+        protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize) => EmbeddedResources.ReadBinaryFile(ObsStudioPlugin.ImageResPrefix + IMGAction).ToImage();
 
         protected override void RunCommand(String actionParameter) => ObsStudioPlugin.Proxy.AppRunTransition();
     }

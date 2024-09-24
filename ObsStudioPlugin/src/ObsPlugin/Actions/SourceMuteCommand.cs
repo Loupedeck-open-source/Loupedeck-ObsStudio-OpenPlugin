@@ -4,8 +4,8 @@
 
     internal class SourceMuteCommand : PluginMultistateDynamicCommand
     {
-        public const String IMGSourceMuted = "AudioOff.png";
-        public const String IMGSourceUnmuted = "AudioOn.png";
+        public const String IMGSourceMuted = "AudioMixerMuted.svg";
+        public const String IMGSourceUnmuted = "AudioMixerUnmuted.svg";
         public const String IMGSourceInaccessible = "AudioDisabled.png";
         public const String SourceNameUnknown = "Offline";
 
@@ -127,18 +127,15 @@
 
         protected override BitmapImage GetCommandImage(String actionParameter, Int32 stateIndex, PluginImageSize imageSize)
         {
-            var sourceName = SourceNameUnknown;
             var imageName = IMGSourceInaccessible;
             if (SceneKey.TryParse(actionParameter, out var parsed))
             {
-                sourceName = parsed.Source;
-
                 imageName = parsed.Collection != ObsStudioPlugin.Proxy.CurrentSceneCollection
                     ? IMGSourceInaccessible
                     : stateIndex == State_Muted ? IMGSourceMuted : IMGSourceUnmuted;
             }
 
-            return (this.Plugin as ObsStudioPlugin).GetPluginCommandImage(imageSize, imageName, sourceName, imageName == IMGSourceUnmuted);
+            return EmbeddedResources.ReadBinaryFile(ObsStudioPlugin.ImageResPrefix + imageName).ToImage();
         }
 
         private void AddSource(String sourceName, Boolean isSpecialSource = false)

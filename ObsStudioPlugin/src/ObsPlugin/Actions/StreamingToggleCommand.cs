@@ -13,8 +13,8 @@
                          groupName: "",
                          offStateName: "Start streaming",
                          onStateName: "Stop streaming",
-                         offStateImage: "STREAM_StartStreamingGreen.png",
-                         onStateImage:  "STREAM_StartStreamingRed.png")
+                         offStateImage: "StreamingToggleOn.svg",
+                         onStateImage: "StreamingToggleOff.svg")
         {
         }
 

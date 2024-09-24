@@ -5,8 +5,8 @@
 
     internal class SceneCollectionSelectCommand : PluginMultistateDynamicCommand
     {
-        public const String IMGCollectionSelected = "SceneOn.png";
-        public const String IMGCollectionUnselected = "SceneOff.png";
+        public const String IMGCollectionSelected = "ScenesCollectionsSelected.svg";
+        public const String IMGCollectionUnselected = "ScenesCollectionsUnselected.svg";
 
         public SceneCollectionSelectCommand()
         {
