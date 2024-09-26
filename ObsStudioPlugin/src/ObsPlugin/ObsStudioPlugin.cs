@@ -10,6 +10,7 @@ namespace Loupedeck.ObsStudioPlugin
 
      partial class ObsStudioPlugin : Plugin
     {
+        private readonly String SupportPageUrl = "https://support.logi.com/hc/articles/25522063648407-Other-Plugins-MX-Creative-Console#h_01J4V10DCG2M17YD4STPM3NXFS";
         internal static ObsAppProxy Proxy { get; private set; } 
 
         // Gets a value indicating whether this is an Universal plugin or an Application plugin.
@@ -163,7 +164,7 @@ namespace Loupedeck.ObsStudioPlugin
         {
             if (!this.IsApplicationInstalled() && !this.ClientApplication.IsRunning())
             {
-                this.OnPluginStatusChanged(Loupedeck.PluginStatus.Error, "OBS Studio is not installed", "https://support.logi.com/hc/articles/25522063648407", "more details");
+                this.OnPluginStatusChanged(Loupedeck.PluginStatus.Error, "OBS Studio is not installed", this.SupportPageUrl, "more details");
             }
             else if (ObsStudioPlugin.Proxy.IsAppConnected)
             {
@@ -172,12 +173,12 @@ namespace Loupedeck.ObsStudioPlugin
             else if (this._iniFile.iniFileExists && !this._iniFile.iniFileGood) 
             {
                 //If ini is not good we can set up the 'on app stopped' watch to modify file
-                this.OnPluginStatusChanged(Loupedeck.PluginStatus.Error, "Cannot connect to OBS Studio. You might try restarting OBS Studio and trying again.", "https://support.logi.com/hc/articles/25522063648407", "more details");
+                this.OnPluginStatusChanged(Loupedeck.PluginStatus.Error, "Cannot connect to OBS Studio. You might try restarting OBS Studio and trying again.", this.SupportPageUrl, "more details");
             }
             else
             {
                 // FIXME: We need more elaborate explanation here. 
-                this.OnPluginStatusChanged(Loupedeck.PluginStatus.Warning, "Not connected to OBS", "https://support.logi.com/hc/articles/25522063648407", "more details");
+                this.OnPluginStatusChanged(Loupedeck.PluginStatus.Warning, "Not connected to OBS", this.SupportPageUrl, "more details");
             }
         }
 
