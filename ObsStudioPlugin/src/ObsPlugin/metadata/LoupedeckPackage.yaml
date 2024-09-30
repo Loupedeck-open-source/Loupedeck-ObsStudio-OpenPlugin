@@ -40,7 +40,7 @@ pluginFolderWin: win
 # Location of plugin files on macOS (relative to the plugin base directory).
 # This parameter is required to support Mac.
 # GLORY TO THE BYTECODE! In case of OBS it works well for Mac too!
-pluginFolderMac: mac
+pluginFolderMac: win
 
 # List of supported devices.
 supportedDevices:
