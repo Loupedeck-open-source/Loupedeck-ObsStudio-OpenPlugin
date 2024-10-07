@@ -6,10 +6,9 @@
     //The same class as SourceFilterCommand but for Global audio sources
     internal class GlobalAudioFilterCommand : PluginMultistateDynamicCommand
     {
-        public const String IMGEnabled = "FilterOn.png";
-        public const String IMGDisabled = "FilterOff.png";
+        public const String IMGEnabled = "AudioFiterEnabled.svg";
+        public const String IMGDisabled = "AudioFilterDisabled.svg";
         public const String IMGInaccessible = "FilterDisabled.png";
-        public const String NameUnknown = "UnknownFilter";
 
         private const Int16 STATE_DISABLED = 0;
         private const Int16 STATE_ENABLED = 1;
@@ -141,12 +140,10 @@
 
         protected override BitmapImage GetCommandImage(String actionParameter, Int32 stateIndex, PluginImageSize imageSize)
         {
-            var imageText = NameUnknown;
             var imageName = IMGInaccessible;
             
             if(GlobalFilterKey.TryParse(actionParameter, out var parsed))
             {
-                imageText = $"{parsed.Source} - {parsed.FilterName}";
                 imageName = 
                     parsed.Collection == ObsStudioPlugin.Proxy.CurrentSceneCollection
                     && ObsStudioPlugin.Proxy.CurrentAudioSources.ContainsKey(parsed.Source)
@@ -154,9 +151,8 @@
                     ? stateIndex == STATE_ENABLED ? IMGEnabled : IMGDisabled
                     : IMGInaccessible;
             }
-            //ObsStudioPlugin.Proxy.CurrentAudioSources[parsed.Source].Filters[parsed.FilterName]
 
-            return (this.Plugin as ObsStudioPlugin).GetPluginCommandImage(imageSize, imageName, imageText, imageName == IMGEnabled);
+            return EmbeddedResources.ReadBinaryFile(ObsStudioPlugin.ImageResPrefix + imageName).ToImage();
         }
 
         private void AddFilter(String sourceName, String filterName)

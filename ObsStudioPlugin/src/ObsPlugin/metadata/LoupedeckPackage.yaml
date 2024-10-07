@@ -15,7 +15,7 @@ displayName: OBS Studio
 pluginFileName: ObsStudioPlugin.dll 
 
 # Plugin version.
-version: 6.0.1
+version: 6.0.2
 # Author of the plugin. The author can be a company or an individual developer.
 author: Logitech Europe SA
 
@@ -29,6 +29,10 @@ minimumLoupedeckVersion: 6.0
 # PLUGIN PROPERTIES
 # ==================================================================================================
 
+# Icon colors
+backgroundColor: 4279900706
+foregroundColor: 4281953526
+
 # Location of plugin files on Windows (relative to the plugin base directory).
 # This parameter is required to support Windows.
 pluginFolderWin: win
@@ -36,7 +40,7 @@ pluginFolderWin: win
 # Location of plugin files on macOS (relative to the plugin base directory).
 # This parameter is required to support Mac.
 # GLORY TO THE BYTECODE! In case of OBS it works well for Mac too!
-pluginFolderMac: mac
+pluginFolderMac: win
 
 # List of supported devices.
 supportedDevices:

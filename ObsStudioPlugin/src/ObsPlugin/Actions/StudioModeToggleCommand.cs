@@ -12,8 +12,8 @@
                       groupName: "",
                       offStateName: "Enable Studio Mode",
                       onStateName: "Disable Studio Mode",
-                      offStateImage: "STREAM_EnableStudioMode.png",
-                      onStateImage: "STREAM_DisableStudioMode2.png")
+                      offStateImage: "StudioModeToggleOn.svg",
+                      onStateImage: "StudioModeToggleOff.svg")
         {
         }
 

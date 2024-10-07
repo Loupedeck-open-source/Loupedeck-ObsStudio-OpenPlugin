@@ -4,10 +4,9 @@
 
     internal class SceneSelectCommand : PluginMultistateDynamicCommand
     {
-        public const String IMGSceneSelected = "SceneOn.png";
-        public const String IMGSceneUnselected = "SceneOff.png";
+        public const String IMGSceneSelected = "ScenesSelected.svg";
+        public const String IMGSceneUnselected = "ScenesUnselected.svg";
         public const String IMGSceneInaccessible = "SceneDisabled.png";
-        public const String SceneNameUnknown = "Offline";
         private const Int16 SCENE_UNSELECTED = 0;
         private const Int16 SCENE_SELECTED = 1;
 
@@ -118,12 +117,9 @@
         protected override BitmapImage GetCommandImage(String actionParameter, Int32 stateIndex, PluginImageSize imageSize)
         {
             var imageName = IMGSceneInaccessible;
-            var sceneName = SceneNameUnknown;
 
             if (SceneKey.TryParse(actionParameter, out var parsed))
             {
-                sceneName = parsed.Scene;
-
                 if ( parsed.Collection != ObsStudioPlugin.Proxy.CurrentSceneCollection )
                 {
                     imageName = IMGSceneInaccessible;
@@ -138,7 +134,7 @@
                     this.Plugin.Log.Info($"Cannot find scene \"{parsed.Scene}\" in current collection. Was it renamed or deleted?");
                 }
             }            
-            return (this.Plugin as ObsStudioPlugin).GetPluginCommandImage(imageSize, imageName, sceneName, imageName == IMGSceneSelected);
+            return EmbeddedResources.ReadBinaryFile(ObsStudioPlugin.ImageResPrefix + imageName).ToImage();
         }
     }
 }

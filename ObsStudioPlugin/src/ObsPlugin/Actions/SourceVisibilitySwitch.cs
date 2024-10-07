@@ -188,12 +188,10 @@
 
         protected override BitmapImage GetCommandImage(ActionEditorActionParameters actionParameters, Int32 imageWidth, Int32 imageHeight)
         {
-            var sourceName = SourceVisibilityCommand.SourceNameUnknown;
             var imageName = SourceVisibilityCommand.IMGSceneInaccessible;
 
             if (actionParameters.TryGetString(ControlSourceSelector, out var key) && SceneItemKey.TryParse(key, out var parsed))
             {
-                sourceName = parsed.SourceName;
                 var sourceVisible = actionParameters.TryGetString(ControlIsSourceVisible, out var vis) && vis == this.Visibility_Show;
 
                 imageName = parsed.Collection != ObsStudioPlugin.Proxy.CurrentSceneCollection || !ObsStudioPlugin.Proxy.AllSceneItems.ContainsKey(key)
@@ -207,7 +205,7 @@
                 this.Plugin.Log.Warning($"Cannot retreive selected source name from '{actionParameters}'");
             }
 
-            return (this.Plugin as ObsStudioPlugin).GetPluginCommandImage(imageWidth >=80 ? PluginImageSize.Width90: PluginImageSize.Width60, imageName, sourceName, imageName == SourceVisibilityCommand.IMGSceneSelected);
+            return EmbeddedResources.ReadBinaryFile(ObsStudioPlugin.ImageResPrefix + imageName).ToImage();
         }
 
         protected override Boolean RunCommand(ActionEditorActionParameters actionParameters)

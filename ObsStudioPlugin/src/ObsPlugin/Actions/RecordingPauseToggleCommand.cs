@@ -13,8 +13,8 @@
                     groupName: "",
                     offStateName: "Pause recording",
                     onStateName: "Resume recording",
-                    offStateImage: "STREAM_RecordPause.png",
-                    onStateImage: "STREAM_RecordResume.png")
+                    offStateImage: "RecordingResume.svg",
+                    onStateImage: "RecordingPause.svg")
         {
         }
 

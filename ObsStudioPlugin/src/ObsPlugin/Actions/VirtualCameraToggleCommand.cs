@@ -13,8 +13,8 @@
                       groupName: "",
                       offStateName: "Start Virtual Camera",
                       onStateName: "Stop Virtual Camera",
-                      offStateImage: "VirtualWebcamOff.png",
-                      onStateImage: "VirtualWebcam.png")
+                      offStateImage: "VirtualCameraToggleOn.svg",
+                      onStateImage: "VirtualCameraToggleOff.svg")
         {
         }
 

@@ -12,8 +12,8 @@
                             groupName: "",
                             offStateName: "Start Recording",
                             onStateName: "Stop Recording",
-                            offStateImage: "STREAM_ToggleRecord1.png",
-                            onStateImage: "STREAM_ToggleRecord2.png")
+                            offStateImage: "RecordingOn.svg",
+                            onStateImage: "RecordingOff.svg")
         {
         }
 
