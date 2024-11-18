@@ -1,25 +1,28 @@
 ﻿namespace Loupedeck.ObsStudioPlugin.Actions
 {
     using System;
+    
     using System.Collections.Generic;
     using System.ComponentModel.Design;
     using System.Linq;
 
     internal class SourceTransformSwitch : ActionEditorCommand
     {
-
-
         private const String ControlSceneSelector = "sceneSelector";
         private const String ControlSourceSelector = "sourceSelector";
-        private const String ControlTransformType  = "transformType";
+        private const String ControlTransformType = "transformType";
         private const String ControlApplyToAllScenes = "useInAllScenes";
-        private readonly String TransformType_Left = "move left";
-        private readonly String TransformType_Right = "move right";
-        private readonly String TransformType_Top = "move top";
-        private readonly String TransformType_bottom = "move bottom";
-        private readonly String TransformType_zoomIn = "zoomIn";
-        private readonly String TransformType_zoomOut = "zoomOut";
-        
+
+        // Replace string constants with dictionary mapping strings to enum values
+        private readonly Dictionary<string, ObsAppProxy.SourceTransformAction> TransformActions = new Dictionary<string, ObsAppProxy.SourceTransformAction>
+        {
+            { "move left", ObsAppProxy.SourceTransformAction.MoveLeft },
+            { "move right", ObsAppProxy.SourceTransformAction.MoveRight },
+            { "move top", ObsAppProxy.SourceTransformAction.MoveUp },
+            { "move bottom", ObsAppProxy.SourceTransformAction.MoveDown },
+            { "zoomIn", ObsAppProxy.SourceTransformAction.ZoomIn },
+            { "zoomOut", ObsAppProxy.SourceTransformAction.ZoomOut }
+        };
 
         public SourceTransformSwitch()
         {
@@ -114,13 +117,11 @@
 
             if (e.ControlName.EqualsNoCase(ControlTransformType))
             {
-                e.AddItem(this.TransformType_Left, this.TransformType_Left, $"Moves Source to left");
-                e.AddItem(this.TransformType_Right, this.TransformType_Right, $"Moves Source to right");
-                e.AddItem(this.TransformType_Top, this.TransformType_Top, $"Moves Source to top");
-                e.AddItem(this.TransformType_bottom, this.TransformType_bottom, $"Moves Source to bottom");
-                e.AddItem(this.TransformType_zoomIn, this.TransformType_zoomIn, $"Zooms_in");
-                e.AddItem(this.TransformType_zoomOut, this.TransformType_zoomOut, $"Zooms_out");
-                
+                // Add items using the dictionary keys
+                foreach (var action in TransformActions)
+                {
+                    e.AddItem(action.Key, action.Key, $"Transform: {action.Key}");
+                }
             }
             else if (e.ControlName.EqualsNoCase(ControlSceneSelector))
             {
@@ -215,15 +216,17 @@
         {
             if (actionParameters.TryGetString(ControlSourceSelector, out var key))
             {
-                actionParameters.TryGetString(ControlTransformType, out var action);
-                ObsStudioPlugin.Proxy.TransformSoure(key, action);
-                //ObsStudioPlugin.Proxy.AppSceneItemVisibilityToggle(key, true, setVisible, actionParameters.TryGetBoolean(ControlApplyToAllScenes, out var applyToAllScenes) && applyToAllScenes);
-
-                return true;
+                if (actionParameters.TryGetString(ControlTransformType, out var actionStr) && 
+                    TransformActions.TryGetValue(actionStr, out var transformAction))
+                {
+                    ObsStudioPlugin.Proxy.TransformSoure(key, transformAction);
+                    return true;
+                }
+                return false;
             }
             else
             {
-                this.Plugin.Log.Warning($"Run: Cannot retreive selected source name from '{actionParameters}'");
+                this.Plugin.Log.Warning($"Run: Cannot retrieve selected source name from '{actionParameters}'");
                 return false;
             }
         }

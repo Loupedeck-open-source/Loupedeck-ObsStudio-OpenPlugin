@@ -111,10 +111,19 @@
             }
         }
         
+        public enum SourceTransformAction
+        {
+            MoveUp,
+            MoveDown,
+            MoveLeft,
+            MoveRight,
+            ZoomIn,
+            ZoomOut
+        }
 
-        public void TransformSoure(String key, String action){
+        public void TransformSoure(String key, SourceTransformAction action)
+        {
             if (this.IsAppConnected && this.AllSceneItems.ContainsKey(key)) {
-
                 var originalItem = this.AllSceneItems[key];
                 var currentTransform = this.GetSceneItemTransform(originalItem.SceneName, originalItem.SourceId);
                 currentTransform.BoundsWidth = currentTransform.BoundsWidth >= 1 ? currentTransform.BoundsWidth : 1;
@@ -123,35 +132,35 @@
                 this.Plugin.Log.Info($"the old transform. boundWidth:{currentTransform.BoundsWidth}, boundType:{currentTransform.BoundsType}, alignment: {currentTransform.Alignnment}");
                 try
                 {
-                    var zoomFactor = 5;  // Equivalent to zoom_factor in Python
+                    var zoomFactor = 1.05;  // Equivalent to zoom_factor in Python
                     var moveDistance = 5;  // Equivalent to move_distance in Python
                     
                     var originalScaleX = currentTransform.ScaleX;
                     var originalScaleY = currentTransform.ScaleY;
                     var posX = currentTransform.X;
                     var posY = currentTransform.Y;
-
+                    this.Plugin.Log.Info($"old position of '{originalItem.SourceName}': x={posX}, y={posY}, scale_x={currentTransform.ScaleX}, scale_y={currentTransform.ScaleY}");
                     // Adjust position or scale based on mode1600
-                    switch (action.ToLower())
+                    switch (action)
                     {
-                        case "up":
+                        case SourceTransformAction.MoveUp:
                             posY -= moveDistance;
                             break;
-                        case "down":
+                        case SourceTransformAction.MoveDown:
                             posY += moveDistance;
                             break;
-                        case "left":
+                        case SourceTransformAction.MoveLeft:
                             posX -= moveDistance;
                             break;
-                        case "right":
+                        case SourceTransformAction.MoveRight:
                             posX += moveDistance;
                             break;
-                        case "zoom_in":
-                        case "zoom_out":
-                            var newScaleX = action == "zoom_in" ? 
+                        case SourceTransformAction.ZoomIn:
+                        case SourceTransformAction.ZoomOut:
+                            var newScaleX = action == SourceTransformAction.ZoomIn ? 
                                 originalScaleX + zoomFactor : originalScaleX - zoomFactor;
                                 
-                            var newScaleY = action == "zoom_in" ? 
+                            var newScaleY = action == SourceTransformAction.ZoomIn ? 
                                 originalScaleY + zoomFactor : originalScaleY - zoomFactor;
                                 
 
