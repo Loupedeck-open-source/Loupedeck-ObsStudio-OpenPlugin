@@ -111,6 +111,80 @@
             }
         }
         
+
+        public void TransformSoure(String key, String action){
+            if (this.IsAppConnected && this.AllSceneItems.ContainsKey(key)) {
+
+                var originalItem = this.AllSceneItems[key];
+                var currentTransform = this.GetSceneItemTransform(originalItem.SceneName, originalItem.SourceId);
+                currentTransform.BoundsWidth = currentTransform.BoundsWidth >= 1 ? currentTransform.BoundsWidth : 1;
+                currentTransform.BoundsHeight = currentTransform.BoundsHeight >= 1 ? currentTransform.BoundsHeight : 1;
+                
+                this.Plugin.Log.Info($"the old transform. boundWidth:{currentTransform.BoundsWidth}, boundType:{currentTransform.BoundsType}, alignment: {currentTransform.Alignnment}");
+                try
+                {
+                    var zoomFactor = 5;  // Equivalent to zoom_factor in Python
+                    var moveDistance = 5;  // Equivalent to move_distance in Python
+                    
+                    var originalScaleX = currentTransform.ScaleX;
+                    var originalScaleY = currentTransform.ScaleY;
+                    var posX = currentTransform.X;
+                    var posY = currentTransform.Y;
+
+                    // Adjust position or scale based on mode1600
+                    switch (action.ToLower())
+                    {
+                        case "up":
+                            posY -= moveDistance;
+                            break;
+                        case "down":
+                            posY += moveDistance;
+                            break;
+                        case "left":
+                            posX -= moveDistance;
+                            break;
+                        case "right":
+                            posX += moveDistance;
+                            break;
+                        case "zoom_in":
+                        case "zoom_out":
+                            var newScaleX = action == "zoom_in" ? 
+                                originalScaleX + zoomFactor : originalScaleX - zoomFactor;
+                                
+                            var newScaleY = action == "zoom_in" ? 
+                                originalScaleY + zoomFactor : originalScaleY - zoomFactor;
+                                
+
+                            // Calculate position shift to keep zoom centered
+                            var sourceWidth = currentTransform.Width;
+                            var sourceHeight = currentTransform.Height;
+                            
+                            var deltaX = sourceWidth * (newScaleX - originalScaleX) / 2;
+                            var deltaY = sourceHeight * (newScaleY - originalScaleY) / 2;
+
+                            posX -= deltaX;
+                            posY -= deltaY;
+
+                            currentTransform.ScaleX = newScaleX;
+                            currentTransform.ScaleY = newScaleY;
+                            break;
+                    }
+
+                    currentTransform.X = posX;
+                    currentTransform.Y = posY;
+                    this.Plugin.Log.Info($"the new transform. boundWidth:{currentTransform.BoundsWidth}, boundType:{currentTransform.BoundsType}, alignment: {currentTransform.Alignnment}");
+                    this.Plugin.Log.Info($"New position of '{originalItem.SourceName}': x={posX}, y={posY}, scale_x={currentTransform.ScaleX}, scale_y={currentTransform.ScaleY}");
+                   this.SetSceneItemTransform(originalItem.SceneName, originalItem.SourceId, currentTransform);
+
+                }
+                catch (Exception ex)
+                {
+                    this.Plugin.Log.Error($"Exception {ex.Message} when adjusting source {key}");
+                }
+            }
+        }
+
+
         private void OnObsSceneItemVisibilityChanged(Object sender, SceneItemEnableStateChangedEventArgs arg)
         {
 

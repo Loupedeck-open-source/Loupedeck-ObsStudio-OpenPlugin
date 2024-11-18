@@ -61,6 +61,8 @@
     <Compile Include="Actions\SceneCollectionSelectCommand.cs" />
     <Compile Include="Actions\RecordingToggleCommand.cs" />
     <Compile Include="Actions\ReplayBufferToggleCommand.cs" />
+    <Compile Include="Actions\SourceTransformCommand.cs" />
+    <Compile Include="Actions\SourceTransformSwitch.cs" />
     <Compile Include="ObsAppProxy.cs" />
     <Compile Include="ObsStudioPlugin.Install.cs" />
     <Compile Include="ObsStudioApplication.cs" />
