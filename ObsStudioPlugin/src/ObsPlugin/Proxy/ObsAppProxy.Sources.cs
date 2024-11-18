@@ -132,7 +132,7 @@
                 this.Plugin.Log.Info($"the old transform. boundWidth:{currentTransform.BoundsWidth}, boundType:{currentTransform.BoundsType}, alignment: {currentTransform.Alignnment}");
                 try
                 {
-                    var zoomFactor = 1.05;  // Equivalent to zoom_factor in Python
+                    var zoomFactor = 0.05;  // Equivalent to zoom_factor in Python
                     var moveDistance = 5;  // Equivalent to move_distance in Python
                     
                     var originalScaleX = currentTransform.ScaleX;
@@ -165,14 +165,14 @@
                                 
 
                             // Calculate position shift to keep zoom centered
-                            var sourceWidth = currentTransform.Width;
-                            var sourceHeight = currentTransform.Height;
+                            // var sourceWidth = currentTransform.Width;
+                            // var sourceHeight = currentTransform.Height;
                             
-                            var deltaX = sourceWidth * (newScaleX - originalScaleX) / 2;
-                            var deltaY = sourceHeight * (newScaleY - originalScaleY) / 2;
+                            // var deltaX = sourceWidth * (newScaleX - originalScaleX) / 2;
+                            // var deltaY = sourceHeight * (newScaleY - originalScaleY) / 2;
 
-                            posX -= deltaX;
-                            posY -= deltaY;
+                            // posX -= deltaX;
+                            // posY -= deltaY;
 
                             currentTransform.ScaleX = newScaleX;
                             currentTransform.ScaleY = newScaleY;
