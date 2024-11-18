@@ -12,7 +12,7 @@ namespace Loupedeck.ObsStudioPlugin
     {
         private readonly String SupportPageUrl = "https://support.logi.com/hc/articles/25522063648407-Other-Plugins-MX-Creative-Console#h_01J4V10DCG2M17YD4STPM3NXFS";
         internal static ObsAppProxy Proxy { get; private set; } 
-
+        internal  ObsIniFile IniFile { get; private set; }
         // Gets a value indicating whether this is an Universal plugin or an Application plugin.
         public override Boolean UsesApplicationApiOnly => true;
 
@@ -27,26 +27,14 @@ namespace Loupedeck.ObsStudioPlugin
         private const String PluginSettingServerPort = "PluginSettingServerPort";
         public Int32 OBSServerPort { get; set; } = 0;
         public Boolean IsPluginConfigured { get; private set; } = false;
+        public String OBSWebsocketServerLastDisconnectReason { get; set; } = "";
 
 
         public ObsStudioPlugin()
         {
             ObsStudioPlugin.Proxy = new ObsAppProxy(this);
+            
 
-            if(
-                this.TryGetPluginSetting(PluginSettingServerURI, out var serverUri) && 
-                this.TryGetPluginSetting(PluginSettingServerPort, out var portValue) && 
-                this.TryGetPluginSetting(PluginSettingServerPassword, out var passwordValue))
-            {
-                this.OBSServerURI = serverUri;
-                this.OBSServerPort = Int32.Parse(portValue);
-                this.OBSServerPassword =  passwordValue;
-                this.IsPluginConfigured = true;
-
-            }
-            this.Log.Info($"INIT ObsStudioPlugin() - Plugin settings: URI:{this.OBSServerURI}, Port:{this.OBSServerPort}, Password.substring(0,5){this.OBSServerPassword.Substring(0,5)}");
-
-            this._iniFile = new ObsIniFile(this);   
             
         }
         public void UpdatePluginSettings(String serverUri, Int32 port, String password)
@@ -59,16 +47,44 @@ namespace Loupedeck.ObsStudioPlugin
             this.SetPluginSetting(PluginSettingServerURI, serverUri);
             this.SetPluginSetting(PluginSettingServerPort, port.ToString());
             this.SetPluginSetting(PluginSettingServerPassword, password);
+            this.Log.Info($"UpdatePluginSettings: URI:{serverUri}, Port:{port}, Password.substring(0,5){password.Substring(0,4)}******");
 
-            this._iniFile.SetPortableIniPath(serverUri);
+            if(
+                this.TryGetPluginSetting(PluginSettingServerURI, out var serverUri2) && 
+                this.TryGetPluginSetting(PluginSettingServerPort, out var portValue2) && 
+                this.TryGetPluginSetting(PluginSettingServerPassword, out var passwordValue2))
+            {
+                this.OBSServerURI = serverUri2;
+                this.OBSServerPort = Int32.Parse(portValue2);
+                this.OBSServerPassword =  passwordValue2;
+                this.IsPluginConfigured = true;
+                //this.Log.Info($"UpdatePluginSettings New Settings from Store: URI:{serverUri2}, Port:{portValue2}, Password.substring(0,5){passwordValue2.Substring(0,5)}");
+
+            }
         }
 
         // Load is called once as plugin is being initialized during service start.
         public override void Load()
         {
-            var appActive = this.ClientApplication.IsActive() || this.ClientApplication.IsRunning();
-            this.Log.Info($"Load. ClientAppActive = {appActive}" );
+                        
 
+            if(
+                this.TryGetPluginSetting(PluginSettingServerURI, out var serverUri) && 
+                this.TryGetPluginSetting(PluginSettingServerPort, out var portValue) && 
+                this.TryGetPluginSetting(PluginSettingServerPassword, out var passwordValue))
+            {
+                this.OBSServerURI = serverUri;
+                this.OBSServerPort = Int32.Parse(portValue);
+                this.OBSServerPassword =  passwordValue;
+                this.IsPluginConfigured = true;
+
+
+                this.Log.Info($"Load Settings from Store: URI:{serverUri}, Port:{portValue}, Password:{passwordValue.Substring(0,4)}******");
+            }
+
+            this.IniFile = new ObsIniFile(this);   
+
+            var appActive = this.ClientApplication.IsActive() || this.ClientApplication.IsRunning();
             this.Info.Icon256x256 = EmbeddedResources.ReadImage("Loupedeck.ObsStudioPlugin.metadata.Icon256x256.png");
 
             this.ClientApplication.ApplicationStarted += this.OnApplicationStarted;
@@ -88,14 +104,15 @@ namespace Loupedeck.ObsStudioPlugin
                 this.OnApplicationStarted(this, null);
             }
             else if (this.ClientApplication.GetApplicationStatus() == ClientApplicationStatus.Installed
-                && this._iniFile.iniFileExists
-                && !this._iniFile.iniFileGood
+                && !this.IsPluginConfigured
+                && this.IniFile.iniFileExists
+                && !this.IniFile.iniFileGood
                 )
             {
-                this.Log.Info("OBS Installed but INI file is bad, fixing");
+                this.Log.Info("Loupedeck is not yet configured. OBS Installed but INI file has no WebSocketServer settings");
 
                 //Attempting to fix ini file if it is not good. Can only be done when app is not running (for Portable app we need to know its location first
-                this._iniFile.FixIniFile();
+                this.IniFile.FixIniFile();
             }
 
             this.Update_PluginStatus();
@@ -129,7 +146,7 @@ namespace Loupedeck.ObsStudioPlugin
         {
             this.Log.Info("OnAppDisconnected");
             //We'll re-read the ini file to see whether it is good or not
-            this._iniFile.ReadIniFile();
+            this.IniFile.ReadIniFile();
             this.Update_PluginStatus();
         }
 
@@ -142,26 +159,27 @@ namespace Loupedeck.ObsStudioPlugin
             //Main entry point for the plugin's connectivity
             var status = this.ClientApplication.GetApplicationStatus();
 
-            this.Log.Info($"OnApplicationStarted. Installation status:{status != ClientApplicationStatus.Installed}, Ini exists/good: {this._iniFile.iniFileExists}/{this._iniFile.iniFileGood}  ");
+            this.Log.Info($"OnApplicationStarted. Installation status:{status != ClientApplicationStatus.Installed}");
+            this.Log.Info($"PluginConfig: this.IsPluginConfigured={this.IsPluginConfigured} PluginSettingServerURI={(this.TryGetPluginSetting(PluginSettingServerURI, out var settingValue) ? settingValue : "no PluginSettings available")} Ini exists/good: {this.IniFile.iniFileExists}/{this.IniFile.iniFileGood}  ");
 
-            if (!this._iniFile.iniFileGood && status != ClientApplicationStatus.Installed)
+            if (!this.IniFile.iniFileGood && status != ClientApplicationStatus.Installed)
             {
                 this.Log.Info("Portable mode detected");
 
                 //FIXME: There needs to be more sophisticated logic
-                this._iniFile.SetPortableIniPath(this.ClientApplication.GetRunningProcessName());
+                this.IniFile.SetPortableIniPath(this.ClientApplication.GetRunningProcessName());
             }
 
             //Here we can detect if application is running in the portable mode (runnign but not installed) and adjust ini file accordingly 
 
-            if (this._iniFile.iniFileGood)
+            if (this.IniFile.iniFileGood || this.IsPluginConfigured)
             {
-                this.Log.Info($"Connecting using the data from IniFile (port {this._iniFile.ServerPort})");
+                this.Log.Info($"Connecting using the data from IniFile (port {this.IniFile.ServerPort})");
                 const UInt32 MAX_ATTEMPTS = 20;
                 var attempt = 0;
                 //Oftentimes we receive 'application started' notification too soon for the target app to be capable of accepting connections
                 // Firstly we need to wait for the port to be listening
-                while( Loupedeck.NetworkHelpers.IsTcpPortFree(this._iniFile.ServerPort) )
+                while( Loupedeck.NetworkHelpers.IsTcpPortFree(this.IniFile.ServerPort) )
                 {
                     if (attempt ++ > MAX_ATTEMPTS)
                     {
@@ -175,12 +193,12 @@ namespace Loupedeck.ObsStudioPlugin
                 System.Threading.Thread.Sleep(2000);
 
                 //
-                if (!Helpers.TryExecuteAction(() => Proxy.ConnectAsync($"ws://{this._iniFile.ServerAddress}:{this._iniFile.ServerPort}", this._iniFile.ServerPassword)))
+                if (!Helpers.TryExecuteAction(() => Proxy.ConnectAsync($"ws://{this.OBSServerURI}:{this.OBSServerPort}", this.OBSServerPassword)))
                 {
                     this.Log.Error("OBS: Error connecting to OBS");
                 }
             }
-            else if (this._iniFile.iniFileExists) //Means that ini file is bad 
+            else if (this.IniFile.iniFileExists) //Means that ini file is bad 
             {
                 this.Update_PluginStatus();
             }
@@ -189,10 +207,10 @@ namespace Loupedeck.ObsStudioPlugin
         private void OnApplicationStopped(Object sender, EventArgs e)
         {
             this.Log.Info("OnApplicationStopped");
-            if (!this._iniFile.iniFileGood && this._iniFile.iniFileExists)
+            if (!this.IsPluginConfigured && !this.IniFile.iniFileGood && this.IniFile.iniFileExists)
             {
                 this.Log.Info("Fixing Ini file");
-                this._iniFile.FixIniFile();
+                this.IniFile.FixIniFile();
             }
         }
 
@@ -206,10 +224,18 @@ namespace Loupedeck.ObsStudioPlugin
             {
                 this.OnPluginStatusChanged(Loupedeck.PluginStatus.Normal, "");
             }
-            else if (this._iniFile.iniFileExists && !this._iniFile.iniFileGood) 
+            else if (this.IsPluginConfigured && !ObsStudioPlugin.Proxy.IsAppConnected)
+            {
+                if(this.OBSWebsocketServerLastDisconnectReason == "Authentication failed.")
+                {
+                    this.IniFile.FixIniFile();
+                    this.OnPluginStatusChanged(Loupedeck.PluginStatus.Warning, $"We've reset your OBS Websocket Server Settings in the OBS Ini, please restart OBS Studio.");
+                }
+            }
+            else if (this.IniFile.iniFileExists && !this.IniFile.iniFileGood) 
             {
                 //If ini is not good we can set up the 'on app stopped' watch to modify file
-                this.OnPluginStatusChanged(Loupedeck.PluginStatus.Error, "Cannot connect to OBS Studio. You might try restarting OBS Studio and trying again.", this.SupportPageUrl, "more details");
+                this.OnPluginStatusChanged(Loupedeck.PluginStatus.Error, $"Cannot connect to OBS Studio. You might try restarting OBS Studio and trying again.", this.SupportPageUrl, "more details");
             }
             else
             {

@@ -109,23 +109,41 @@ namespace Loupedeck.ObsStudioPlugin
                 return;
             }
 
+            
+
             this.m_IniFile = new IniFile(this._iniFilePath);
 
-            this.ServerPassword = this.m_IniFile.GetValue(ObsIniServerSection, "ServerPassword", this.Plugin.OBSServerPassword ?? DEFAULT_PASSWORD);
+            var password = this.m_IniFile.GetValue(ObsIniServerSection, "ServerPassword");
+            var port = this.m_IniFile.GetValue(ObsIniServerSection, "ServerPort");
+            this.ServerPassword = password ?? this.ServerPassword;
+            this.ServerPort = Int32.TryParse(port, out var p) ? p : this.ServerPort;
             
-            if (Int32.TryParse(this.m_IniFile.GetValue(ObsIniServerSection, "ServerPort", this.Plugin.OBSServerPort.ToString()), out var port))
-            {
-                this.ServerPort = port;
-            }
-            this.ServerAddress = this.Plugin.OBSServerURI ?? this.ServerAddress;
             var serverEnabled = this.m_IniFile.GetValue(ObsIniServerSection, "ServerEnabled", "false");
             var authRequired = this.m_IniFile.GetValue(ObsIniServerSection, "AuthRequired", "false");
+            this.iniFileGood = !password.IsNullOrEmpty() && !port.IsNullOrEmpty() && serverEnabled.EqualsNoCase("true") && authRequired.EqualsNoCase("true") /*Hypothetically we need to ensure password is non-zero*/;
 
-            this.Plugin.Log.Info($"Read init file from '{this.__iniFilePath}': serverEnabled:{serverEnabled}, authRequired:{authRequired}");
+            if (this.iniFileGood) {
+                // File contains a complete WebSocket Section
+                if(this.ServerPort != this.Plugin.OBSServerPort || this.ServerPassword != this.Plugin.OBSServerPassword)
+                {
+                    this.Plugin.Log.Info($"ReadIniFile(): File contains a complete WebSocket Section. Updating plugin settings from OBS Ini with {this.ServerAddress}, {this.ServerPort}, {this.ServerPassword.Substring(0,4)}******");
+                    this.Plugin.UpdatePluginSettings(this.ServerAddress, this.ServerPort, this.ServerPassword);
+                }
+                
+            } else if(this.Plugin.IsPluginConfigured) {
+            
+                this.Plugin.Log.Info($"ReadIniFile(): File does not contain a complete WebSocket Section. Existing PluginSettings remain. Plugin settings will not be updated from OBS Ini");
+            }else {
 
-            //this.iniFileGood = serverEnabled.EqualsNoCase("true") && authRequired.EqualsNoCase("true") /*Hypothetically we need to ensure password is non-zero*/;
-            this.iniFileGood = (this.ServerPassword.Length > 10 && this.ServerPassword == DEFAULT_PASSWORD && this.ServerPort > 0) ? false : true;
-            this.Plugin.Log.Info($"ReadIniFile: this.iniFileGood:{this.iniFileGood},this.ServerAddress:{this.ServerAddress} this.ServerPassword.Substring(0,5):{this.ServerPassword.Substring(0,5)}, this.ServerPort:{this.ServerPort}");
+            this.Plugin.Log.Warning($"ReadIniFile(): OBS Connection Details not configured, not in the PluginStore and not in OBS Ini. Plugin will not work until connection details are configured.");
+            }
+            
+
+            // this.Plugin.Log.Info($"Read init file from '{this.__iniFilePath}': serverEnabled:{serverEnabled}, authRequired:{authRequired}");
+
+            // //this.iniFileGood = serverEnabled.EqualsNoCase("true") && authRequired.EqualsNoCase("true") /*Hypothetically we need to ensure password is non-zero*/;
+            // this.iniFileGood = (this.ServerPassword.Length > 10 && this.ServerPassword != DEFAULT_PASSWORD && this.ServerPort > 0) ? true : false ;
+            // this.Plugin.Log.Info($"ReadIniFile: this.iniFileGood:{this.iniFileGood},this.ServerAddress:{this.ServerAddress} this.ServerPassword.Substring(0,5):{this.ServerPassword.Substring(0,5)}, this.ServerPort:{this.ServerPort}");
             /*FirstLoad = false
             ServerEnabled = true
             ServerPort = 4455
@@ -194,8 +212,8 @@ namespace Loupedeck.ObsStudioPlugin
                 this.Plugin.Log.Info($"Updated ini file written to {this._iniFilePath}");
                 
                 this.ReadIniFile();
+                this.Plugin.Log.Info($"FixIniFile: Update plugin settings");
                 this.Plugin.UpdatePluginSettings(this.ServerAddress, this.ServerPort, this.ServerPassword);
-                this.Plugin.Log.Info($"Updated plugin settings with {this.ServerAddress}, {this.ServerPort}, {this.ServerPassword}");
                 return true;
             }
             else

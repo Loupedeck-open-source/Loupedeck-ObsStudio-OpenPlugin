@@ -18,7 +18,7 @@
         public event EventHandler<EventArgs> AppConnected;
         public event EventHandler<EventArgs> AppDisconnected;
 
-        public Plugin Plugin { get; private set; }
+        public ObsStudioPlugin Plugin { get; private set; }
 
         // Properties
         public Boolean IsAppConnected => this.IsConnected;
@@ -32,7 +32,7 @@
                 Environment.SpecialFolder.CommonPictures
             };
 
-        public ObsAppProxy(Plugin _plugin)
+        public ObsAppProxy(ObsStudioPlugin _plugin)
         {
             this.Plugin = _plugin;
 
@@ -321,6 +321,7 @@
         private void OnAppDisconnected(Object sender, ObsDisconnectionInfo arg)
         {
             this.Plugin.Log.Info($"Entering AppDisconnected. Disconnect reason:\"{arg.DisconnectReason}\"");
+            this.Plugin.OBSWebsocketServerLastDisconnectReason = arg.DisconnectReason;
 
 
             this.RecordStateChanged -= this.OnObsRecordingStateChange;
