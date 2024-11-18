@@ -20,11 +20,47 @@ namespace Loupedeck.ObsStudioPlugin
         public override Boolean HasNoApplication => true;
 
         //private readonly ObsConnector _connector;
+        private const String PluginSettingServerURI = "PluginSettingServerURI";
+        public String OBSServerURI { get; set; } = null;
+        private const String PluginSettingServerPassword = "PluginSettingServerPassword";
+        public String OBSServerPassword { get; set; } = null;
+        private const String PluginSettingServerPort = "PluginSettingServerPort";
+        public Int32 OBSServerPort { get; set; } = 0;
+        public Boolean IsPluginConfigured { get; private set; } = false;
+
 
         public ObsStudioPlugin()
         {
             ObsStudioPlugin.Proxy = new ObsAppProxy(this);
+
+            if(
+                this.TryGetPluginSetting(PluginSettingServerURI, out var serverUri) && 
+                this.TryGetPluginSetting(PluginSettingServerPort, out var portValue) && 
+                this.TryGetPluginSetting(PluginSettingServerPassword, out var passwordValue))
+            {
+                this.OBSServerURI = serverUri;
+                this.OBSServerPort = Int32.Parse(portValue);
+                this.OBSServerPassword =  passwordValue;
+                this.IsPluginConfigured = true;
+
+            }
+            this.Log.Info($"INIT ObsStudioPlugin() - Plugin settings: URI:{this.OBSServerURI}, Port:{this.OBSServerPort}, Password.substring(0,5){this.OBSServerPassword.Substring(0,5)}");
+
             this._iniFile = new ObsIniFile(this);   
+            
+        }
+        public void UpdatePluginSettings(String serverUri, Int32 port, String password)
+        {
+            this.OBSServerURI = serverUri;
+            this.OBSServerPort = port;
+            this.OBSServerPassword = password;
+            this.IsPluginConfigured = true;
+
+            this.SetPluginSetting(PluginSettingServerURI, serverUri);
+            this.SetPluginSetting(PluginSettingServerPort, port.ToString());
+            this.SetPluginSetting(PluginSettingServerPassword, password);
+
+            this._iniFile.SetPortableIniPath(serverUri);
         }
 
         // Load is called once as plugin is being initialized during service start.
@@ -139,7 +175,7 @@ namespace Loupedeck.ObsStudioPlugin
                 System.Threading.Thread.Sleep(2000);
 
                 //
-                if (!Helpers.TryExecuteAction(() => Proxy.ConnectAsync($"ws://127.0.0.1:{this._iniFile.ServerPort}", this._iniFile.ServerPassword)))
+                if (!Helpers.TryExecuteAction(() => Proxy.ConnectAsync($"ws://{this._iniFile.ServerAddress}:{this._iniFile.ServerPort}", this._iniFile.ServerPassword)))
                 {
                     this.Log.Error("OBS: Error connecting to OBS");
                 }

@@ -38,10 +38,11 @@ namespace Loupedeck.ObsStudioPlugin
     {
 
         private const String DEFAULT_PASSWORD = "NeverUseThis";
+        private const String DEFAULT_SERVER = "localhost";
         private const Int32 DEFAULT_PORT = 4455;
         private const String ObsIniServerSection= "OBSWebSocket";
         public ObsStudioPlugin Plugin { get; private set; }
-
+        public String ServerAddress { get; private set; } = DEFAULT_SERVER;
         public String ServerPassword { get; private set; } = DEFAULT_PASSWORD;
         public Int32 ServerPort { get; private set; } = DEFAULT_PORT;
 
@@ -84,7 +85,10 @@ namespace Loupedeck.ObsStudioPlugin
 
         public ObsIniFile(ObsStudioPlugin parent)
         {
-            this.Plugin = parent;  
+            this.Plugin = parent;   
+            // this.ServerAddress = server ?? DEFAULT_SERVER;
+            // this.ServerPort = port ?? DEFAULT_PORT;
+            // this.ServerPassword = password ?? DEFAULT_PASSWORD;
             
             this._iniFilePath = Helpers.IsWindows() 
                             ? Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\obs-studio\\global.ini"
@@ -106,17 +110,22 @@ namespace Loupedeck.ObsStudioPlugin
             }
 
             this.m_IniFile = new IniFile(this._iniFilePath);
-            this.ServerPassword = this.m_IniFile.GetValue(ObsIniServerSection, "ServerPassword", DEFAULT_PASSWORD);
-            var port_s = $"{DEFAULT_PORT}";
-            this.ServerPort = Int32.TryParse(this.m_IniFile.GetValue(ObsIniServerSection, "ServerPort", DEFAULT_PORT.ToString()), out var port) ? port : DEFAULT_PORT;
 
+            this.ServerPassword = this.m_IniFile.GetValue(ObsIniServerSection, "ServerPassword", this.Plugin.OBSServerPassword ?? DEFAULT_PASSWORD);
+            
+            if (Int32.TryParse(this.m_IniFile.GetValue(ObsIniServerSection, "ServerPort", this.Plugin.OBSServerPort.ToString()), out var port))
+            {
+                this.ServerPort = port;
+            }
+            this.ServerAddress = this.Plugin.OBSServerURI ?? this.ServerAddress;
             var serverEnabled = this.m_IniFile.GetValue(ObsIniServerSection, "ServerEnabled", "false");
             var authRequired = this.m_IniFile.GetValue(ObsIniServerSection, "AuthRequired", "false");
 
-            this.Plugin.Log.Info($"Read init file: serverEnabled:{serverEnabled}, authRequired:{authRequired}");
+            this.Plugin.Log.Info($"Read init file from '{this.__iniFilePath}': serverEnabled:{serverEnabled}, authRequired:{authRequired}");
 
-            this.iniFileGood = serverEnabled.EqualsNoCase("true") && authRequired.EqualsNoCase("true") /*Hypothetically we need to ensure password is non-zero*/;
-
+            //this.iniFileGood = serverEnabled.EqualsNoCase("true") && authRequired.EqualsNoCase("true") /*Hypothetically we need to ensure password is non-zero*/;
+            this.iniFileGood = (this.ServerPassword.Length > 10 && this.ServerPassword == DEFAULT_PASSWORD && this.ServerPort > 0) ? false : true;
+            this.Plugin.Log.Info($"ReadIniFile: this.iniFileGood:{this.iniFileGood},this.ServerAddress:{this.ServerAddress} this.ServerPassword.Substring(0,5):{this.ServerPassword.Substring(0,5)}, this.ServerPort:{this.ServerPort}");
             /*FirstLoad = false
             ServerEnabled = true
             ServerPort = 4455
@@ -183,7 +192,10 @@ namespace Loupedeck.ObsStudioPlugin
             if (this.m_IniFile.WriteIniFile(this._iniFilePath))
             {
                 this.Plugin.Log.Info($"Updated ini file written to {this._iniFilePath}");
+                
                 this.ReadIniFile();
+                this.Plugin.UpdatePluginSettings(this.ServerAddress, this.ServerPort, this.ServerPassword);
+                this.Plugin.Log.Info($"Updated plugin settings with {this.ServerAddress}, {this.ServerPort}, {this.ServerPassword}");
                 return true;
             }
             else
