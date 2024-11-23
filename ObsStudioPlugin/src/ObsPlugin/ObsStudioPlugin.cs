@@ -12,7 +12,7 @@ namespace Loupedeck.ObsStudioPlugin
     {
         private readonly String SupportPageUrl = "https://support.logi.com/hc/articles/25522063648407-Other-Plugins-MX-Creative-Console#h_01J4V10DCG2M17YD4STPM3NXFS";
         internal static ObsAppProxy Proxy { get; private set; } 
-        internal  ObsIniFile IniFile { get; private set; }
+        private ObsIniFile IniFile = null;
         // Gets a value indicating whether this is an Universal plugin or an Application plugin.
         public override Boolean UsesApplicationApiOnly => true;
 
@@ -150,10 +150,7 @@ namespace Loupedeck.ObsStudioPlugin
             this.Update_PluginStatus();
         }
 
-        private readonly ObsIniFile _iniFile;
-
         
-
         private void OnApplicationStarted(Object sender, EventArgs e)
         {
             //Main entry point for the plugin's connectivity

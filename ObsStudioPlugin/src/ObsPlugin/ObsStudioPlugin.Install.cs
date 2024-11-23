@@ -17,17 +17,18 @@
                 return false;
             }
 
-            this.Log.Info($"Install: OBS Installed: {this.ClientApplication.GetApplicationStatus() == ClientApplicationStatus.Installed}. Ini file exists/good:{this._iniFile.iniFileExists}/{this._iniFile.iniFileGood}");
-
+            this.Log.Info($"Install: OBS Installed: {this.ClientApplication.GetApplicationStatus() == ClientApplicationStatus.Installed}. Ini file exists/good:{this.IniFile.iniFileExists}/{this.IniFile.iniFileGood}");
+            this.IniFile ??= new ObsIniFile(this);
+            
             if (this.ClientApplication.GetApplicationStatus() == ClientApplicationStatus.Installed
-                        && this._iniFile.iniFileExists
-                        && !this._iniFile.iniFileGood
+                        && this.IniFile.iniFileExists
+                        && !this.IniFile.iniFileGood
                         )
             {
                 this.Log.Info("Install: OBS Installed but INI file is bad, fixing");
 
                 //Attempting to fix ini file if it is not good. Can only be done when app is not running (for Portable app we need to know its location first
-                this._iniFile.FixIniFile();
+                this.IniFile.FixIniFile();
             }
 
             this.Update_PluginStatus();
