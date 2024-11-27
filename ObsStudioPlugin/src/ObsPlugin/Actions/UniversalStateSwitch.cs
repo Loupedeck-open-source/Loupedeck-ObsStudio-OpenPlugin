@@ -43,6 +43,20 @@
             return true;
         }
 
+         protected override Boolean ProcessButtonEvent2(ActionEditorActionParameters actionParameter, DeviceButtonEvent2 buttonEvent) {
+            this.Plugin.Log.Info($"ProcessButtonEvent2: {buttonEvent.EventType}");
+            
+            return true;
+        }
+        protected override Boolean ProcessTouchEvent(ActionEditorActionParameters actionParameters, DeviceTouchEvent touchEvent) {
+            
+            this.Plugin.Log.Info($"ProcessTouchEvent: {touchEvent.EventType}");
+             
+            return true;
+        }
+
+    //  
+
         protected override Boolean OnUnload()
         {
             ObsStudioPlugin.Proxy.AppConnected -= this.OnAppConnected;
