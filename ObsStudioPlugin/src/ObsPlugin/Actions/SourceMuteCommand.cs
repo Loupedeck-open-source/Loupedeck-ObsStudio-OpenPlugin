@@ -18,8 +18,8 @@
             this.Description = "Mutes/Unmutes Audio Source";
             this.GroupName = "3. Audio";
 
-            _ = this.AddState("Unmuted", "Audio source unmuted");
-            _ = this.AddState("Muted", "Audio source muted");
+            _ = this.AddState("", "Audio source unmuted");
+            _ = this.AddState("", "Audio source muted");
 
         }
 

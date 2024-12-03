@@ -14,8 +14,8 @@
         {
             this.Description = "Switches to a specific scene in OBS Studio";
             this.GroupName = "1. Scenes";
-            _ = this.AddState("Unselected", "Scene unselected");
-            _ = this.AddState("Selected", "Scene selected");
+            _ = this.AddState("", "Scene unselected");
+            _ = this.AddState("", "Scene selected");
         }
 
         protected override Boolean OnLoad()

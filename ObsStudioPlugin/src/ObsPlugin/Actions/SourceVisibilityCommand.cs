@@ -16,8 +16,8 @@
         {
             this.Description = "Shows/Hides a Source";
             this.GroupName = "2. Sources";
-            _ = this.AddState("Hidden", "Source hidden");
-            _ = this.AddState("Visible", "Source visible");
+            _ = this.AddState("", "Source hidden");
+            _ = this.AddState("", "Source visible");
         }
 
         protected override Boolean OnLoad()

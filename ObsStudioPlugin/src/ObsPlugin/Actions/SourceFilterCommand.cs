@@ -16,8 +16,8 @@
         {
             this.Description = "Enables/Disables Source Filter";
             this.GroupName = "5. Filters";
-            _ = this.AddState("Disabled", "Filter disabled");
-            _ = this.AddState("Enabled", "Filter enabled");
+            _ = this.AddState("", "Filter disabled");
+            _ = this.AddState("", "Filter enabled");
         }
 
         protected override Boolean OnLoad()
