@@ -17,17 +17,24 @@
                 return false;
             }
 
-            this.Log.Info($"Install: OBS Installed: {this.ClientApplication.GetApplicationStatus() == ClientApplicationStatus.Installed}. Ini file exists/good:{this._iniFile.iniFileExists}/{this._iniFile.iniFileGood}");
+            this.Log.Info($"Install: OBS Installed: {this.ClientApplication.GetApplicationStatus() == ClientApplicationStatus.Installed}. Ini file exists/good:{this.IniFile.iniFileExists}/{this.IniFile.iniFileGood}");
+            this.IniFile ??= new ObsIniFile(this);
 
             if (this.ClientApplication.GetApplicationStatus() == ClientApplicationStatus.Installed
-                        && this._iniFile.iniFileExists
-                        && !this._iniFile.iniFileGood
+                        && this.IniFile.iniFileExists
+                        && !this.IniFile.iniFileGood
                         )
             {
                 this.Log.Info("Install: OBS Installed but INI file is bad, fixing");
-
+// TODO: REMOVE INIFILE ding und nutze OBSConfigFile inzukunft. 
+// TODO: ON INSTALL: create template configfile oder lade bestehende datei.
                 //Attempting to fix ini file if it is not good. Can only be done when app is not running (for Portable app we need to know its location first
-                this._iniFile.FixIniFile();
+                this.IniFile.FixIniFile();
+            }
+
+            if(!IoHelpers.FileExists(this.GetPluginDataDirectory() + "config.json")) {
+                IoHelpers.CreateEmptyFile(this.GetPluginDataDirectory() + "config.json");
+                IoHelpers.WriteTextFile(this.GetPluginDataDirectory() + "config.json", "{serverPort: 4455, server: \"localhost\", password: \"\"}");
             }
 
             this.Update_PluginStatus();

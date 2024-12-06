@@ -61,6 +61,8 @@
     <Compile Include="Actions\SceneCollectionSelectCommand.cs" />
     <Compile Include="Actions\RecordingToggleCommand.cs" />
     <Compile Include="Actions\ReplayBufferToggleCommand.cs" />
+    <Compile Include="Actions\SourceTransformCommand.cs" />
+    <Compile Include="Actions\SourceTransformSwitch.cs" />
     <Compile Include="ObsAppProxy.cs" />
     <Compile Include="ObsStudioPlugin.Install.cs" />
     <Compile Include="ObsStudioApplication.cs" />
@@ -86,6 +88,7 @@
     <Compile Include="Support\SceneKey.cs" />
     <Compile Include="Support\SceneItemKey.cs" />
     <Compile Include="Support\SceneItemDescriptor.cs" />
+    <Compile Include="Support\OBSConfigFile.cs" />
     <None Include="Support\Support.TEMPLATE.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -111,7 +114,7 @@
     <EmbeddedResource Include="Icons\StreamingToggleOn.svg" />
     <EmbeddedResource Include="Icons\StudioModeToggleOn.svg" />
     <EmbeddedResource Include="Icons\StudioModeToggleOff.svg" />
-	<EmbeddedResource Include="Icons\StudioModeTransition.svg" />
+    <EmbeddedResource Include="Icons\StudioModeTransition.svg" />
     <EmbeddedResource Include="Icons\VirtualCameraToggleOff.svg" />
     <EmbeddedResource Include="Icons\VirtualCameraToggleOn.svg" />
   </ItemGroup>

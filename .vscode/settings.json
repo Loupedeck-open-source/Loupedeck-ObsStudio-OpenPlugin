@@ -1,0 +1,14 @@
+{
+    "csharp.preview.improvedLaunchExperience": true,
+    "files.exclude": {
+        ".vscode": false,
+        "**/node_modules": false,
+        "**/.gitattributes": false,
+        "**/.gitignore": false,
+        "**/.prettierrc": false,
+        "**/eslint.config.mjs": false,
+        "**/package-lock.json": false,
+        "**/pnpm-lock.yaml": false,
+        "**/tsconfig.json": false
+    }
+}
