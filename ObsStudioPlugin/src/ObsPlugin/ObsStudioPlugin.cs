@@ -1,14 +1,14 @@
 namespace Loupedeck.ObsStudioPlugin
 {
     using System;
-    using System.Collections.Generic;
+    using System.Timers;
 
     // NOTE: FOR RELEASE BUILD, 'optimization needs to be turned  off in the Build tab of project properties
     // In order to make ReadEmbedded images properly working!
 
     // This class contains the plugin-level logic of the Loupedeck plugin.
 
-     partial class ObsStudioPlugin : Plugin
+    partial class ObsStudioPlugin : Plugin
     {
         private readonly String SupportPageUrl = "https://support.logi.com/hc/articles/25522063648407-Other-Plugins-MX-Creative-Console#h_01J4V10DCG2M17YD4STPM3NXFS";
         internal static ObsAppProxy Proxy { get; private set; } 
@@ -19,12 +19,14 @@ namespace Loupedeck.ObsStudioPlugin
         // Gets a value indicating whether this is an API-only plugin.
         public override Boolean HasNoApplication => true;
 
+        private Timer _connectionTimer = new Timer(5000);
+
         //private readonly ObsConnector _connector;
 
         public ObsStudioPlugin()
         {
             ObsStudioPlugin.Proxy = new ObsAppProxy(this);
-            this._iniFile = new ObsIniFile(this);   
+            this._webSocketServerJsonFile = new OBSWebSocketServerJSON(this);   
         }
 
         // Load is called once as plugin is being initialized during service start.
@@ -52,15 +54,17 @@ namespace Loupedeck.ObsStudioPlugin
                 this.OnApplicationStarted(this, null);
             }
             else if (this.ClientApplication.GetApplicationStatus() == ClientApplicationStatus.Installed
-                && this._iniFile.iniFileExists
-                && !this._iniFile.iniFileGood
+                && this._webSocketServerJsonFile.jsonFileExists
+                && !this._webSocketServerJsonFile.jsonFileGood
                 )
             {
-                this.Log.Info("OBS Installed but INI file is bad, fixing");
+                this.Log.Info("OBS Installed but WebServer Json file is bad, fixing");
 
-                //Attempting to fix ini file if it is not good. Can only be done when app is not running (for Portable app we need to know its location first
-                this._iniFile.FixIniFile();
+                //Attempting to fix WebServer Json file if it is not good. Can only be done when app is not running (for Portable app we need to know its location first
+                this._webSocketServerJsonFile.FixJsonFile();
             }
+
+            this._connectionTimer.Elapsed += (s, ea) => this.ConnectToOBS();
 
             this.Update_PluginStatus();
         }
@@ -68,6 +72,9 @@ namespace Loupedeck.ObsStudioPlugin
         // Unload is called once when plugin is being unloaded.
         public override void Unload()
         {
+            this._connectionTimer.Stop();
+            this._connectionTimer = null;
+
             ObsStudioPlugin.Proxy.UnregisterAppEvents();
 
             this.OnApplicationStopped(this, null);
@@ -85,6 +92,7 @@ namespace Loupedeck.ObsStudioPlugin
 
         private void OnAppConnected(Object sender, EventArgs e)
         {
+            this._connectionTimer.Stop();
             this.Log.Info("OnAppConnected");
             this.Update_PluginStatus();
         }
@@ -92,59 +100,63 @@ namespace Loupedeck.ObsStudioPlugin
         private void OnAppDisconected(Object sender, EventArgs e)
         {
             this.Log.Info("OnAppDisconnected");
-            //We'll re-read the ini file to see whether it is good or not
-            this._iniFile.ReadIniFile();
+            //We'll re-read the WebServer Json file to see whether it is good or not
+            this._webSocketServerJsonFile.ReadJsonFile();
             this.Update_PluginStatus();
+            this._connectionTimer.Start();
         }
 
-        private readonly ObsIniFile _iniFile;
+        private readonly OBSWebSocketServerJSON _webSocketServerJsonFile;
 
-        
+        private void ConnectToOBS()
+        {
+            this.Log.Info($"Connecting using the data from WebServer Json (port {this._webSocketServerJsonFile.ServerPort})");
+            const UInt32 MAX_ATTEMPTS = 20;
+            var attempt = 0;
+            //Oftentimes we receive 'application started' notification too soon for the target app to be capable of accepting connections
+            // Firstly we need to wait for the port to be listening
+            while (Loupedeck.NetworkHelpers.IsTcpPortFree(this._webSocketServerJsonFile.ServerPort))
+            {
+                if (attempt++ > MAX_ATTEMPTS)
+                {
+                    this.Log.Error($"Port is not listening after {MAX_ATTEMPTS} attempts, giving up");
+                    break;
+                }
+                this.Log.Info($"Port is not yet listening, waiting for 1s");
+                System.Threading.Thread.Sleep(1000);
+            }
+            //And we sleep some more to make sure that the app is ready to accept connections
+            System.Threading.Thread.Sleep(2000);
+
+            //
+            if (!Helpers.TryExecuteAction(() => Proxy.ConnectAsync($"ws://127.0.0.1:{this._webSocketServerJsonFile.ServerPort}", this._webSocketServerJsonFile.ServerPassword)))
+            {
+                this.Log.Error("OBS: Error connecting to OBS");
+            }
+        }
 
         private void OnApplicationStarted(Object sender, EventArgs e)
         {
             //Main entry point for the plugin's connectivity
             var status = this.ClientApplication.GetApplicationStatus();
 
-            this.Log.Info($"OnApplicationStarted. Installation status:{status != ClientApplicationStatus.Installed}, Ini exists/good: {this._iniFile.iniFileExists}/{this._iniFile.iniFileGood}  ");
+            this.Log.Info($"OnApplicationStarted. Installation status:{status != ClientApplicationStatus.Installed}, Ini exists/good: {this._webSocketServerJsonFile.jsonFileExists}/{this._webSocketServerJsonFile.jsonFileGood}  ");
 
-            if (!this._iniFile.iniFileGood && status != ClientApplicationStatus.Installed)
+            if (!this._webSocketServerJsonFile.jsonFileGood && status != ClientApplicationStatus.Installed)
             {
                 this.Log.Info("Portable mode detected");
 
                 //FIXME: There needs to be more sophisticated logic
-                this._iniFile.SetPortableIniPath(this.ClientApplication.GetRunningProcessName());
+                this._webSocketServerJsonFile.SetPortableJsonPath(this.ClientApplication.GetRunningProcessName());
             }
 
-            //Here we can detect if application is running in the portable mode (runnign but not installed) and adjust ini file accordingly 
+            //Here we can detect if application is running in the portable mode (runnign but not installed) and adjust WebServer Json file accordingly 
 
-            if (this._iniFile.iniFileGood)
+            if (this._webSocketServerJsonFile.jsonFileGood)
             {
-                this.Log.Info($"Connecting using the data from IniFile (port {this._iniFile.ServerPort})");
-                const UInt32 MAX_ATTEMPTS = 20;
-                var attempt = 0;
-                //Oftentimes we receive 'application started' notification too soon for the target app to be capable of accepting connections
-                // Firstly we need to wait for the port to be listening
-                while( Loupedeck.NetworkHelpers.IsTcpPortFree(this._iniFile.ServerPort) )
-                {
-                    if (attempt ++ > MAX_ATTEMPTS)
-                    {
-                        this.Log.Error($"Port is not listening after {MAX_ATTEMPTS} attempts, giving up");
-                        break;
-                    }
-                    this.Log.Info($"Port is not yet listening, waiting for 1s");
-                    System.Threading.Thread.Sleep(1000);
-                }
-                //And we sleep some more to make sure that the app is ready to accept connections
-                System.Threading.Thread.Sleep(2000);
-
-                //
-                if (!Helpers.TryExecuteAction(() => Proxy.ConnectAsync($"ws://127.0.0.1:{this._iniFile.ServerPort}", this._iniFile.ServerPassword)))
-                {
-                    this.Log.Error("OBS: Error connecting to OBS");
-                }
+                this.ConnectToOBS();
             }
-            else if (this._iniFile.iniFileExists) //Means that ini file is bad 
+            else if (this._webSocketServerJsonFile.jsonFileExists) //Means that WebServer Json file is bad 
             {
                 this.Update_PluginStatus();
             }
@@ -153,11 +165,12 @@ namespace Loupedeck.ObsStudioPlugin
         private void OnApplicationStopped(Object sender, EventArgs e)
         {
             this.Log.Info("OnApplicationStopped");
-            if (!this._iniFile.iniFileGood && this._iniFile.iniFileExists)
+            if (!this._webSocketServerJsonFile.jsonFileGood && this._webSocketServerJsonFile.jsonFileExists)
             {
-                this.Log.Info("Fixing Ini file");
-                this._iniFile.FixIniFile();
+                this.Log.Info("Fixing WebServer Json file");
+                this._webSocketServerJsonFile.FixJsonFile();
             }
+            this._connectionTimer.Stop();
         }
 
         private void Update_PluginStatus()
@@ -170,7 +183,7 @@ namespace Loupedeck.ObsStudioPlugin
             {
                 this.OnPluginStatusChanged(Loupedeck.PluginStatus.Normal, "");
             }
-            else if (this._iniFile.iniFileExists && !this._iniFile.iniFileGood) 
+            else if (this._webSocketServerJsonFile.jsonFileExists && !this._webSocketServerJsonFile.jsonFileGood) 
             {
                 //If ini is not good we can set up the 'on app stopped' watch to modify file
                 this.OnPluginStatusChanged(Loupedeck.PluginStatus.Error, "Cannot connect to OBS Studio. You might try restarting OBS Studio and trying again.", this.SupportPageUrl, "more details");
