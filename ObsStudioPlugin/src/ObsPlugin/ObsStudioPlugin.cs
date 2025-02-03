@@ -122,7 +122,8 @@ namespace Loupedeck.ObsStudioPlugin
                     this.Log.Error($"Port is not listening after {MAX_ATTEMPTS} attempts, giving up");
                     break;
                 }
-                this.Log.Info($"Port is not yet listening, waiting for 1s");
+
+                Tracer.Trace($"Port is not yet listening, waiting for 1s");
                 System.Threading.Thread.Sleep(1000);
             }
             //And we sleep some more to make sure that the app is ready to accept connections
