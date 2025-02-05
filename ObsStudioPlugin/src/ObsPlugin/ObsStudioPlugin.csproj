@@ -53,7 +53,7 @@
     <Compile Include="Actions\ReplayBufferSaveCommand.cs" />
     <Compile Include="Actions\GenericOnOffSwitch.cs" />
     <Compile Include="Proxy\ObsAppProxy.Filters.cs" />
-    <Compile Include="Support\OBSIniFile.cs" />
+    <Compile Include="Support\OBSWebSocketServerJSON.cs" />
     <Compile Include="Actions\SourceVolumeAdjustment.cs" />
     <Compile Include="Actions\SourceMuteCommand.cs" />
     <Compile Include="Actions\SourceVisibilityCommand.cs" />

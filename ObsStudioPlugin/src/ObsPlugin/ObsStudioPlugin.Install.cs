@@ -17,17 +17,17 @@
                 return false;
             }
 
-            this.Log.Info($"Install: OBS Installed: {this.ClientApplication.GetApplicationStatus() == ClientApplicationStatus.Installed}. Ini file exists/good:{this._iniFile.iniFileExists}/{this._iniFile.iniFileGood}");
+            this.Log.Info($"Install: OBS Installed: {this.ClientApplication.GetApplicationStatus() == ClientApplicationStatus.Installed}. WebServer Json file exists/good:{this._webSocketServerJsonFile.jsonFileExists}/{this._webSocketServerJsonFile.jsonFileGood}");
 
             if (this.ClientApplication.GetApplicationStatus() == ClientApplicationStatus.Installed
-                        && this._iniFile.iniFileExists
-                        && !this._iniFile.iniFileGood
+                        && this._webSocketServerJsonFile.jsonFileExists
+                        && !this._webSocketServerJsonFile.jsonFileGood
                         )
             {
-                this.Log.Info("Install: OBS Installed but INI file is bad, fixing");
+                this.Log.Info("Install: OBS Installed but WebServer Json file is bad, fixing");
 
-                //Attempting to fix ini file if it is not good. Can only be done when app is not running (for Portable app we need to know its location first
-                this._iniFile.FixIniFile();
+                //Attempting to fix WebServer Json file if it is not good. Can only be done when app is not running (for Portable app we need to know its location first
+                this._webSocketServerJsonFile.FixJsonFile();
             }
 
             this.Update_PluginStatus();
