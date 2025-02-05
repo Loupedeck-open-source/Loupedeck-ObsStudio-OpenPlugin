@@ -19,8 +19,6 @@ namespace Loupedeck.ObsStudioPlugin
         // Gets a value indicating whether this is an API-only plugin.
         public override Boolean HasNoApplication => true;
 
-        private Timer _connectionTimer = new Timer(5000);
-
         //private readonly ObsConnector _connector;
 
         public ObsStudioPlugin()
@@ -64,17 +62,12 @@ namespace Loupedeck.ObsStudioPlugin
                 this._webSocketServerJsonFile.FixJsonFile();
             }
 
-            this._connectionTimer.Elapsed += (s, ea) => this.ConnectToOBS();
-
             this.Update_PluginStatus();
         }
 
         // Unload is called once when plugin is being unloaded.
         public override void Unload()
         {
-            this._connectionTimer.Stop();
-            this._connectionTimer = null;
-
             ObsStudioPlugin.Proxy.UnregisterAppEvents();
 
             this.OnApplicationStopped(this, null);
@@ -92,7 +85,6 @@ namespace Loupedeck.ObsStudioPlugin
 
         private void OnAppConnected(Object sender, EventArgs e)
         {
-            this._connectionTimer.Stop();
             this.Log.Info("OnAppConnected");
             this.Update_PluginStatus();
         }
@@ -103,7 +95,6 @@ namespace Loupedeck.ObsStudioPlugin
             //We'll re-read the WebServer Json file to see whether it is good or not
             this._webSocketServerJsonFile.ReadJsonFile();
             this.Update_PluginStatus();
-            this._connectionTimer.Start();
         }
 
         private readonly OBSWebSocketServerJSON _webSocketServerJsonFile;
@@ -171,7 +162,6 @@ namespace Loupedeck.ObsStudioPlugin
                 this.Log.Info("Fixing WebServer Json file");
                 this._webSocketServerJsonFile.FixJsonFile();
             }
-            this._connectionTimer.Stop();
         }
 
         private void Update_PluginStatus()
