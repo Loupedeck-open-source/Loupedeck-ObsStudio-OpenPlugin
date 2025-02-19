@@ -22,7 +22,11 @@
                 "wasapi_output_source",
                 "browser_source",
                 "vlc_source",
-                "ffmpeg_source"
+                "ffmpeg_source",
+                "wasapi_process_output_capture",
+                "wasapi_input_capture",
+                "game_capture",
+                "window_capture"
         }; 
 
         internal Dictionary<String, AudioSourceDescriptor> CurrentAudioSources { get; private set; }  = new Dictionary<String, AudioSourceDescriptor>();
@@ -54,7 +58,8 @@
                          && args.InputSettings["reroute_audio"].ToString() == "true"
                         )
                  )
-                 && !this.CurrentAudioSources.ContainsKey(args.InputName))
+                 && !this.CurrentAudioSources.ContainsKey(args.InputName)
+                 && this._audioSourceTypes.Contains(args.InputKind))
             {
                 this.Plugin.Log.Info($"Adding audio source {args.InputName}");
                 this.CurrentAudioSources.Add(args.InputName,new AudioSourceDescriptor(args.InputName, this));
