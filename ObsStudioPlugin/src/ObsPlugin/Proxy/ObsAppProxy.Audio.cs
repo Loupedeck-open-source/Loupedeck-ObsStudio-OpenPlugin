@@ -26,7 +26,10 @@
                 "wasapi_process_output_capture",
                 "wasapi_input_capture",
                 "game_capture",
-                "window_capture"
+                "window_capture",
+                "coreaudio_input_capture",
+                "sck_audio_capture",
+                "screen_capture"
         }; 
 
         internal Dictionary<String, AudioSourceDescriptor> CurrentAudioSources { get; private set; }  = new Dictionary<String, AudioSourceDescriptor>();
